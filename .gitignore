@@ -1,0 +1,11 @@
+node_modules/
+dist/
+runs/
+# The demo fixture is generated from the demo catalogue: see the README.
+fixtures/demo-observations.json
+.env
+.env.local
+*.log
+.DS_Store
+test-results/
+coverage/
