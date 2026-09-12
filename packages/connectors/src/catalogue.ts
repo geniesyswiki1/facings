@@ -13,6 +13,7 @@ export const AVAILABILITY_MAP: Record<string, Availability> = {
   out_of_stock: 'out_of_stock',
   'out of stock': 'out_of_stock',
   onbackorder: 'preorder',
+  // Adobe Commerce storefront casing.
   backorder: 'preorder',
   preorder: 'preorder',
   discontinued: 'discontinued',

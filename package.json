@@ -9,6 +9,7 @@
     "node": ">=20.11"
   },
   "workspaces": [
+    "apps/*",
     "packages/*",
     "tools/*"
   ],
@@ -17,7 +18,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "npm run typecheck && npm run test"
+    "check": "npm run typecheck && npm run test",
+    "web:build": "tsx apps/web/scripts/build.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

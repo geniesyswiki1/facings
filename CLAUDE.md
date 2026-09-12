@@ -56,13 +56,37 @@ preferences and should not be traded away for coverage:
 
 ## Where the build is
 
-Phase 0 only: the audit harness in `/tools/audit-cli`. Phase 1 onwards is not
-built. See SPEC 11 for the order and the check that closes each phase.
+Phase 0 and Phase 1. See SPEC 11 for the order and the check that closes each
+phase.
+
+- **Phase 0**, the audit harness: `/tools/audit-cli`, plus `observe`, `diff`,
+  `benchmark`.
+- **Phase 1**, presence: `/packages/protocols` (UCP manifest, ACP feed,
+  Merchant Center feeds, policy schema, eligibility) and `/apps/web`, which
+  hosts the endpoints and the Presence, Products and Policies screens.
+
+Phase 2 onwards is not built.
 
 ```bash
 npm run check     # typecheck and the full suite
 npm run audit -- --help
+npm run web:build # bundle the deployable functions
 ```
+
+### Two standing decisions in the protocol layer
+
+- **enable_checkout is always false** in the ACP feed, and the UCP manifest
+  declares **no payment handler**. SPEC 1: Facings is not a checkout. Both are
+  asserted by tests, so changing either is a product decision rather than a
+  configuration one.
+- **A discontinued product is excluded from the feed**, never mapped onto
+  out_of_stock. Out of stock tells an agent the product is coming back, and
+  SPEC 3.1 counts recommending a discontinued item as a critical finding.
+
+Protocol versions and capability identifiers are pinned as data in
+`packages/protocols/src/versions.ts`. A pin whose `canonical` flag is false has
+not been confirmed against the published specification, and the validator
+reports it as a warning rather than passing it silently.
 
 Never commit secrets. Credentials come from the environment; `.env.example`
 lists the names.
