@@ -18,6 +18,12 @@ export function presenceScreen(context: StoreContext): string {
   const errors = validation.issues.filter((issue) => issue.severity === 'error')
   const unconfirmed = validation.issues.filter((issue) => issue.severity === 'warning')
 
+  // A manifest level warning applies to every surface that reads the manifest,
+  // so listing it against each one repeats the same sentence several times on
+  // one page. It is shown once, in its own section, and the per surface column
+  // keeps only what is specific to that surface.
+  const manifestWarnings = new Set(unconfirmed.map((issue) => `${issue.field}: ${issue.message}`))
+
   const body = `
     <h1>${escapeHtml(store.domain)}</h1>
     <p class="lead">
@@ -39,20 +45,23 @@ export function presenceScreen(context: StoreContext): string {
       <tbody>
         ${eligibility
           .map(
-            (entry) => `<tr>
+            (entry) => {
+            const warnings = entry.warnings.filter((warning) => !manifestWarnings.has(warning))
+            return `<tr>
           <td>${escapeHtml(ENGINE_LABELS[entry.engine] ?? entry.engine)}</td>
           <td class="${entry.eligible ? 'yes' : 'no'}">${entry.eligible ? 'yes' : 'no'}</td>
           <td>
             ${
-              entry.blockers.length === 0 && entry.warnings.length === 0
+              entry.blockers.length === 0 && warnings.length === 0
                 ? '<span class="muted">nothing outstanding</span>'
                 : `<ul class="reasons">
                     ${entry.blockers.map((blocker) => `<li>${escapeHtml(blocker)}</li>`).join('')}
-                    ${entry.warnings.map((warning) => `<li class="warn">${escapeHtml(warning)}</li>`).join('')}
+                    ${warnings.map((warning) => `<li class="warn">${escapeHtml(warning)}</li>`).join('')}
                   </ul>`
             }
           </td>
-        </tr>`,
+        </tr>`
+          },
           )
           .join('')}
       </tbody>
@@ -96,8 +105,19 @@ export function presenceScreen(context: StoreContext): string {
     ${
       unconfirmed.length
         ? `<h2>Pinned, not yet confirmed</h2>
+           <p class="lead">
+             These apply to every surface that reads the manifest. Confirm them against the published specification
+             before telling a merchant their manifest is compliant.
+           </p>
            <ul class="reasons">
-             ${unconfirmed.map((issue) => `<li class="warn">${escapeHtml(`${issue.field}: ${issue.message}`)}</li>`).join('')}
+             ${unconfirmed
+               .map(
+                 (issue) =>
+                   `<li class="warn"><span class="mono">${escapeHtml(
+                     issue.field.replace(/^ucp\.capabilities\./, ''),
+                   )}</span> ${escapeHtml(issue.message)}</li>`,
+               )
+               .join('')}
            </ul>`
         : ''
     }

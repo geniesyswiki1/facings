@@ -173,6 +173,19 @@ describe('the screens', () => {
     expect(body).toContain('coming back')
   })
 
+  it('shows a manifest level warning once, not against every surface that reads it', async () => {
+    const body = await (await handlePage(request('/presence/nordlicht'), repo())).text()
+    const occurrences = body.split('pinned from a community mirror').length - 1
+    // Two capability pins, each stated once in their own section.
+    expect(occurrences).toBe(2)
+    expect(body).toContain('Pinned, not yet confirmed')
+  })
+
+  it('keeps surface specific warnings on the surface row', async () => {
+    const body = await (await handlePage(request('/presence/nordlicht'), repo())).text()
+    expect(body).toContain('no Merchant Center account is connected')
+  })
+
   it('renders Products with a published column', async () => {
     const body = await (await handlePage(request('/products/nordlicht'), repo())).text()
     expect(body).toContain('NLA-AM10-WAL')

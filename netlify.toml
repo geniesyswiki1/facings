@@ -1,0 +1,27 @@
+# Facings web app, SPEC 4.1 and SPEC 3.2.
+#
+# The functions are bundled ahead of deploy by `npm run web:build`, because
+# they import workspace packages that only resolve inside this monorepo.
+# Bundling means the deployed artefact does not depend on how the host
+# resolves a workspace symlink, so what the test suite runs is what serves.
+
+[build]
+  command = "npm run web:build"
+  publish = "apps/web/dist/public"
+
+[functions]
+  directory = "apps/web/dist/netlify/functions"
+  node_bundler = "esbuild"
+
+# The discovery surfaces are read by agent crawlers. Content types are set by
+# the functions themselves; these are the caching and robots rules that apply
+# whatever serves them.
+[[headers]]
+  for = "/.well-known/ucp"
+  [headers.values]
+    X-Robots-Tag = "all"
+
+[[headers]]
+  for = "/feeds/*"
+  [headers.values]
+    X-Robots-Tag = "all"
