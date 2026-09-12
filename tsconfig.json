@@ -15,5 +15,13 @@
     "noEmit": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["packages/*/src/**/*.ts", "tools/*/src/**/*.ts", "packages/*/test/**/*.ts", "tools/*/test/**/*.ts"]
+  "include": [
+    "packages/*/src/**/*.ts",
+    "tools/*/src/**/*.ts",
+    "apps/*/src/**/*.ts",
+    "apps/*/netlify/**/*.mts",
+    "packages/*/test/**/*.ts",
+    "tools/*/test/**/*.ts",
+    "apps/*/test/**/*.ts"
+  ]
 }

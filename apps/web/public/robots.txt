@@ -1,0 +1,7 @@
+# Facings hosts the discovery surfaces agents read. They must stay crawlable:
+# a disallow here would make a merchant invisible to the very surfaces this
+# product exists to put them on.
+User-agent: *
+Allow: /.well-known/ucp
+Allow: /feeds/
+Disallow:

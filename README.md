@@ -2,9 +2,10 @@
 
 Show up, and show up correctly, when AI agents shop.
 
-This repository is at **Phase 0** of [SPEC.md](SPEC.md): the audit harness, which is the
-validation instrument rather than the product. It answers one question before anything
-else gets built, the make-or-break in SPEC 8:
+This repository is at **Phase 1** of [SPEC.md](SPEC.md).
+
+**Phase 0**, the audit harness, is the validation instrument rather than the product. It
+answers one question before anything else gets built, the make-or-break in SPEC 8:
 
 > Can these surfaces be observed compliantly and repeatably?
 
@@ -13,8 +14,10 @@ rendered against the live catalogue, and writes a one-page report plus a dated a
 The number that matters is reproducibility per surface. A surface below 0.8 agreement is
 reported as **not observable** rather than approximated, and produces no findings at all.
 
-Phase 1 onwards (presence hosting, the daily scheduler, the app, billing) is not built yet.
-See SPEC 11 for the order.
+**Phase 1**, presence, is now built: the protocol layer in `packages/protocols` and the web
+app in `apps/web` that hosts the endpoints and the screens. See [Presence hosting](#presence-hosting-phase-1)
+below. Phase 2 onwards (the daily scheduler, the accuracy grid, fixes, billing) is not
+built. See SPEC 11 for the order.
 
 ## Install
 
@@ -128,23 +131,73 @@ anything it cannot defend it does not say.
 - It promises no ranking and no revenue effect. It reports what each surface rendered at a
   point in time.
 
+## Presence hosting, Phase 1
+
+Facings hosts the artefacts each surface reads, and the merchant points at them from their
+own domain. Everything is public and unauthenticated, because agent crawlers fetch it
+without credentials.
+
+| Endpoint | What it is |
+| --- | --- |
+| `/.well-known/ucp` | the UCP discovery manifest, protocol `2026-04-08`. Resolved by the Host header, so a merchant domain pointed here gets its own manifest |
+| `/feeds/acp/<store>.jsonl` | the ACP product feed. Also `.csv`, and either with `.gz` |
+| `/feeds/gmc/<store>.xml` | Google Merchant Center supplementary feed, matched on item id |
+| `/feeds/mmc/<store>.xml` | Microsoft Merchant Center feed, read by Copilot |
+| `/api/presence/<store>` | eligibility per surface as JSON, for monitoring and the agency roll-up |
+
+Screens: `/` lists stores, `/presence/<store>` shows eligibility and the endpoints,
+`/products/<store>` shows which SKUs are published and why the rest are not, and
+`/policies/<store>` is the guided policy editor.
+
+```bash
+npm run web:build     # bundle the deployable functions into apps/web/dist
+```
+
+Two decisions in the protocol layer are deliberate and asserted by tests:
+
+- **`enable_checkout` is always false**, and the manifest declares **no payment handler**.
+  SPEC 1: Facings is not a checkout. Agents discover and redirect, and the merchant's own
+  checkout converts.
+- **A discontinued product is excluded from the feed** rather than published as
+  `out_of_stock`. Out of stock tells an agent the product is coming back, and SPEC 3.1
+  counts recommending a discontinued item as a critical finding, so publishing one would
+  have Facings creating the defect it sells the detection of.
+
+Protocol versions and capability identifiers are pinned as data in
+`packages/protocols/src/versions.ts`, per the SPEC 8 response to protocol churn. A pin
+whose `canonical` flag is false has not been confirmed against the published
+specification, and the manifest validator reports it as a warning rather than passing it
+silently. The ACP field set and the UCP capability identifiers are in that state today.
+
 ## Layout
 
-Follows SPEC 4.2, with only the packages Phase 0 needs.
+Follows SPEC 4.2, with only what Phases 0 and 1 need.
 
 ```
 /packages/shared       types, brand tokens, the copy rules, money and hashing
-/packages/connectors   platform detection, WooCommerce, CSV, Merchant Center feed
+/packages/connectors   platform detection, WooCommerce, Adobe Commerce, CSV, feed import
 /packages/benchmark    the query library: intents, categories, per market templates
 /packages/observe      engine adapters, the consented panel, normaliser, evidence store,
                        reproducibility scoring, the run loop
 /packages/diff         identity matching, deterministic rules, severity, presence, headlines,
                        the labelled cause-inference pass
+/packages/protocols    UCP manifest, ACP feed, Merchant Center feeds, policy schema,
+                       eligibility scoring, pinned spec versions
+/apps/web              hosted endpoints and the Presence, Products and Policies screens
 /tools/audit-cli       the CLI, the report renderer and the audit log export
 /fixtures              a demo catalogue and a recorded fixture for offline runs
 ```
 
-Phase 1 adds `/packages/protocols` and `/apps`; Phase 3 adds `/packages/fixes`.
+Phase 3 adds `/packages/fixes`.
+
+### A deviation from SPEC 4.1 worth knowing about
+
+The spec names Next.js 15 for the web app. `apps/web` is built on Netlify Functions with
+server-rendered HTML instead, because the deployment path available today ships a
+directory rather than running a framework build, and a Next.js app that cannot be deployed
+serves nobody. Every protocol decision lives in `packages/protocols`, so the web layer is a
+thin shell over it: moving to Next.js is a rewrite of the shell, not of the logic, and the
+natural moment is when the repository is connected to Netlify's own builds.
 
 ## Tests
 
@@ -157,3 +210,10 @@ The end-to-end test runs the whole harness on a recorded fixture and asserts the
 SPEC 11 Phase 0 asks for: the seeded defects are detected, the unstable surface is reported
 as not observable and raises no findings, every evidence hash verifies against the bytes on
 disk, and the PDF is one page.
+
+`apps/web/test/phase1-check.test.ts` is the SPEC 11 Phase 1 check written as a test: a
+WooCommerce store on Adyen in Germany serves a UCP manifest that passes validation and a
+live ACP feed endpoint whose every item validates, with the manifest and the feed checked
+against each other. One honest limit: it validates against the rules the published
+specification states, which is what Facings can check itself. Running the manifest through
+Google's own validator is a manual step before any merchant is told they are compliant.

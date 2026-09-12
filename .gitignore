@@ -1,5 +1,6 @@
 node_modules/
 dist/
+apps/web/dist/
 runs/
 # The demo fixture is generated from the demo catalogue: see the README.
 fixtures/demo-observations.json
