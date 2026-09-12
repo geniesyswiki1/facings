@@ -7,9 +7,9 @@ compound-intelligence.netlify.app.
 > it was the repository open at the time. It is self-contained - its own
 > `package.json`, `tsconfig.json` and dependencies, outside the root npm
 > workspaces and outside the root `tsconfig`/`vitest` globs - so it can be moved
-> to its own repository by copying the folder. Facings has its own billing
-> decision (Lemon Squeezy, as merchant of record for EU VAT) recorded in
-> `SPEC.md`; nothing here changes that.
+> to its own repository by copying the folder. It follows the standing decision
+> in the repository root `CLAUDE.md`: every app takes its own revenue through
+> Stripe managed payments, with Stripe as merchant of record.
 
 The architecture and the reasoning behind it are in the
 [integration plan](https://claude.ai/code/artifact/8539801c-0900-4c68-86bd-81964ca611d3).
