@@ -89,10 +89,16 @@ anyone can open anyone else's billing portal. It is marked in the file.
   the wrong trade on a mobile-first product.
 - **Prices resolved by `lookup_key`,** not hardcoded price ids, so a price
   change is a catalogue operation rather than a code deploy.
-- **Tax is off.** `automatic_tax` is commented out in the checkout function.
-  Enabling it without an active registration in the customer's jurisdiction
-  collects nothing and raises no error - it reads as working while
-  under-collecting. Register first, then uncomment.
+- **Stripe is merchant of record.** `managed_payments: { enabled: true }` on
+  the Checkout Session. Stripe calculates, collects, files and remits indirect
+  tax in 80+ countries, and absorbs fraud, disputes and transaction-level
+  support. No tax registrations of our own, and `automatic_tax` must not be
+  sent - Managed Payments rejects it along with `payment_method_types`,
+  `tax_id_collection`, the shipping parameters, `invoice_creation` and the
+  Connect fields. Dynamic payment methods and Adaptive Pricing are always on.
+- **Every Product carries a tax code.** `txcd_10105001`, AI as a Service,
+  personal use. Managed Payments will not sell a Product without an eligible
+  code, and the code decides how the sale is taxed in each jurisdiction.
 - **Flat tiers with capped allowances, not metering.** Current Stripe guidance
   routes new usage-based billing to Metronome rather than the Billing Meters
   API. Caps are a pricing decision you can change; a metering pipeline is an
@@ -105,8 +111,28 @@ anyone can open anyone else's billing portal. It is marked in the file.
 
 ## Going live
 
-1. Register for tax where you have obligations, then enable `automatic_tax`.
+1. Pass Stripe's Managed Payments eligibility review and accept the Managed
+   Payments terms in the Dashboard. Access is not self-serve, and nothing below
+   works until it is granted.
 2. Create the webhook endpoint in the live Dashboard; use *its* signing secret.
 3. Mint a live restricted key. Set both in Netlify environment variables.
 4. Run `npm run seed` against live once, to create the real catalogue.
 5. Configure the Customer Portal in the Dashboard - it is off until you do.
+
+## What Managed Payments will not cover
+
+Managed Payments is digital products only, and the exclusions are explicit.
+These parts of the business need a different route:
+
+| Revenue | Eligible | Route |
+| --- | --- | --- |
+| App subscriptions | Yes | This integration |
+| Client and agency app development | **No** | Standard Stripe Invoicing. "Professional services, such as consulting, marketing, design, development" are excluded by name, and the tax liability stays with us |
+| Anything in person | **No** | Terminal, which Managed Payments does not touch. "Live in-person events" are excluded |
+
+A product also has to be fully automated. A service involving human
+intervention, such as live one-to-one coaching, does not qualify.
+
+Customers see **Link** as the merchant of record on the checkout page, on
+receipts and in post-purchase support, not Compound Intelligence. That is the
+trade for Stripe carrying the tax and dispute liability.

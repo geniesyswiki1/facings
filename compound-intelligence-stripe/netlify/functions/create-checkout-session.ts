@@ -81,10 +81,20 @@ export default async function handler(req: Request): Promise<Response> {
       mode: 'subscription',
       line_items: [{ price: price.id, quantity: 1 }],
 
-      // Deliberately no payment_method_types. Stripe decides which methods to
-      // show from the Dashboard settings and the customer's context; hardcoding
-      // ['card'] would silently remove Apple Pay and Google Pay, which matters
-      // most on the mobile surface.
+      // Stripe acts as merchant of record: it calculates, collects, files and
+      // remits indirect tax in 80+ countries, and takes on fraud, disputes and
+      // transaction-level support. Only new subscriptions started through a
+      // Managed Payments session are covered; existing ones cannot be migrated.
+      managed_payments: { enabled: true },
+
+      // Managed Payments controls several parameters and rejects them if sent:
+      // automatic_tax, tax_id_collection, subscription_data.default_tax_rates,
+      // payment_method_types, payment_method_options,
+      // payment_method_configuration, adaptive_pricing, customer_update[name],
+      // customer_update[address], shipping_address_collection, shipping_options,
+      // invoice_creation, subscription_data.invoice_settings, and the Connect
+      // fields. None are set here, deliberately. Dynamic payment methods and
+      // Adaptive Pricing are always on, so wallets are covered without asking.
 
       client_reference_id: userId,
       ...(email ? { customer_email: email } : {}),
@@ -94,11 +104,6 @@ export default async function handler(req: Request): Promise<Response> {
         metadata: { user_id: userId, plan_id: plan.id },
       },
       metadata: { user_id: userId, plan_id: plan.id },
-
-      // Tax is off until registrations exist. Enabling automatic_tax without an
-      // active registration in the customer's jurisdiction collects nothing and
-      // raises no error, which reads as working while under-collecting.
-      // automatic_tax: { enabled: true },
 
       allow_promotion_codes: true,
       integration_identifier: INTEGRATION_IDENTIFIER,

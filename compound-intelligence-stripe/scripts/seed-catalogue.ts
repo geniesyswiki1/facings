@@ -11,7 +11,7 @@
  */
 
 import { stripe, isTestMode } from '../src/stripe.js'
-import { PLANS, CURRENCY, type Plan, type PlanPrice } from '../src/catalogue.js'
+import { PLANS, CURRENCY, TAX_CODE, type Plan, type PlanPrice } from '../src/catalogue.js'
 
 async function upsertProduct(plan: Plan): Promise<string> {
   const found = await stripe().products.search({
@@ -24,6 +24,8 @@ async function upsertProduct(plan: Plan): Promise<string> {
     await stripe().products.update(existing.id, {
       name: plan.name,
       description: plan.description,
+      // Managed Payments refuses to sell a product without an eligible tax code.
+      tax_code: TAX_CODE,
       metadata: { plan_id: plan.id, monthly_allowance: String(plan.monthlyAllowance) },
     })
     console.log(`  product ${plan.name} - updated (${existing.id})`)
@@ -33,6 +35,7 @@ async function upsertProduct(plan: Plan): Promise<string> {
   const created = await stripe().products.create({
     name: plan.name,
     description: plan.description,
+    tax_code: TAX_CODE,
     metadata: { plan_id: plan.id, monthly_allowance: String(plan.monthlyAllowance) },
   })
   console.log(`  product ${plan.name} - created (${created.id})`)

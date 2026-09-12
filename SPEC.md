@@ -16,7 +16,7 @@ Two modes.
 
 > Read SPEC.md end to end. Build Facings in the phase order in section 11, starting from the audit harness already in the repo. Every engine observation must use an official API where one exists and a consented browser panel where it does not; never scrape a consumer surface without consent, and record the observation method on every stored result. Where the spec is silent, choose the option that keeps the audit log defensible. After each phase, run the checks listed and stop to report. Never commit secrets.
 
-Definition of done for the MVP (end of Phase 3): a merchant on WooCommerce with Adyen in Germany connects their store in ten minutes, gets a presence score and a UCP manifest plus ACP feed hosted by Facings, sees a daily accuracy report on their top 50 queries across four engines with each misrepresentation tied to the SKU and the fix, applies the fixes with one click where the platform allows, and can export a dated audit log. Billing live through Lemon Squeezy, self-serve.
+Definition of done for the MVP (end of Phase 3): a merchant on WooCommerce with Adyen in Germany connects their store in ten minutes, gets a presence score and a UCP manifest plus ACP feed hosted by Facings, sees a daily accuracy report on their top 50 queries across four engines with each misrepresentation tied to the SKU and the fix, applies the fixes with one click where the platform allows, and can export a dated audit log. Billing live through Stripe Managed Payments, self-serve.
 
 ---
 
@@ -150,7 +150,7 @@ Checkout of any kind. Brand-level GEO content generation (blog posts, Reddit see
 
 ### 4.1 Stack
 
-Next.js 15 on Netlify for the web app and marketing site; a separate worker service (Node on a container host such as Fly.io or Railway) for connectors, feed generation and the observation harness because those jobs are long-running; Postgres on Supabase (EU region) with Storage for raw observation artefacts; Upstash Redis for queues and rate limits; Anthropic API for diffing and fix generation; Lemon Squeezy for billing (merchant of record, EU VAT); Resend for email; Plausible and PostHog; Sentry.
+Next.js 15 on Netlify for the web app and marketing site; a separate worker service (Node on a container host such as Fly.io or Railway) for connectors, feed generation and the observation harness because those jobs are long-running; Postgres on Supabase (EU region) with Storage for raw observation artefacts; Upstash Redis for queues and rate limits; Anthropic API for diffing and fix generation; Stripe Managed Payments for billing (merchant of record, EU VAT); Resend for email; Plausible and PostHog; Sentry.
 
 ### 4.2 Repo structure
 
@@ -207,7 +207,9 @@ EU data residency. No merchant catalogue data used to train anything. Observatio
 | Scale | £499 | daily on 200 queries, all markets, API access, priority observation, SSO, 24-month log |
 | Agency | £999 plus £99 per client store | workspace, white-label reports, roll-up, partner margin 30% on resold tiers |
 
-Rules: monthly and annual (two months free). Lemon Squeezy as merchant of record for EU VAT. No usage overage in v1; tier limits are soft with a nudge. Free audit requires a work email; that list is the pipeline.
+Rules: monthly and annual (two months free). Stripe Managed Payments as merchant of record for EU VAT. No usage overage in v1; tier limits are soft with a nudge. Free audit requires a work email; that list is the pipeline.
+
+Open risk on the agency tier. Managed Payments requires that we sell directly to the customer rather than through a platform or marketplace, and it does not support Connect. The 30% partner margin on resold tiers has to be settled against that before Phase 3: either the agency buys the stores itself and we invoice the agency directly, or the margin is paid out separately rather than routed through the sale. If resale needs Connect, that revenue cannot sit on Managed Payments and needs its own rail. Each tier is a digital SaaS subscription and needs an eligible tax code on its product; the business-use SaaS code is the expected one for a merchant-facing tool.
 
 Unit economics: observation cost per store per day at Growth is roughly £0.30 to £0.80 (API calls plus panel time amortised); gross margin above 80% at scale. £10m ARR at a £200 blended rate is about 4,200 stores, or 1,500 direct plus 200 agencies averaging 12 stores.
 
@@ -288,7 +290,7 @@ Netlify hosts the web app and marketing site. Figma holds the logo, the grid com
 
 **Phase 2: accuracy (4 weeks).** Query library, daily observation scheduler, evidence store, deterministic and model diff, findings with severity and cause, alerts, the Grid and Products screens, audit log with export. Check: a seeded misrepresentation (price changed on the page but not the feed) is detected within one daily cycle and appears in the exported log with method and raw reference.
 
-**Phase 3: action, billing, agency (4 weeks).** Fix engine with preview and rollback, agent landing links, attribution, Lemon Squeezy tiers, agency workspace and white-label PDF, marketplace listing builds for WooCommerce and Wix. Check: the MVP definition of done in section 0.
+**Phase 3: action, billing, agency (4 weeks).** Fix engine with preview and rollback, agent landing links, attribution, Stripe Managed Payments tiers, agency workspace and white-label PDF, marketplace listing builds for WooCommerce and Wix. Check: the MVP definition of done in section 0.
 
 **Phase 4: benchmark and scale (ongoing).** Benchmark library and monthly report generator, PrestaShop, BigCommerce and Shopware connectors, France and Netherlands markets, API access, SSO.
 
@@ -296,7 +298,7 @@ Netlify hosts the web app and marketing site. Figma holds the logo, the grid com
 
 ## 12. Operator runbook delta (Taiwo)
 
-Everything in the Reinstate operator runbook applies for Lemon Squeezy (a new store, Facings, with the four subscription products and annual variants), Supabase (EU region), Resend, Upstash, Sentry and Plausible. New or different:
+Everything in the Reinstate operator runbook applies for Stripe Managed Payments (a Stripe account for Facings, with the four subscription products and annual variants, each carrying an eligible digital-goods tax code), Supabase (EU region), Resend, Upstash, Sentry and Plausible. New or different:
 
 1. **API accounts for observation:** OpenAI (Responses API), Google AI Studio (Gemini), Perplexity API, Anthropic (existing). Read each provider's terms on automated use before Phase 0 and keep the consented-panel policy in Drive Facings / Legal.
 2. **Panel:** three to five people (staff and opted-in merchants) who run the human-initiated sessions in Phase 0; a one-page consent and instruction sheet.

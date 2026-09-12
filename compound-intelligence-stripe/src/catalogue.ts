@@ -19,6 +19,18 @@ export interface PlanPrice {
   readonly unitAmount: number
 }
 
+/**
+ * Stripe tax code. Managed Payments requires an eligible code on every Product
+ * it sells, and uses it to classify the sale for tax in each jurisdiction.
+ *
+ * txcd_10105001 is "Artificial Intelligence as a Service (AIaaS) - Cloud Based
+ * - Personal Use": AI tools such as LLMs, image generators or chatbots hosted
+ * on the provider's servers and reached from a web browser or mobile app, sold
+ * to individuals rather than to a commercial enterprise. That is what these
+ * apps are. Selling the same apps to businesses would be txcd_10105002.
+ */
+export const TAX_CODE = 'txcd_10105001'
+
 export interface Plan {
   readonly id: string
   readonly name: string
