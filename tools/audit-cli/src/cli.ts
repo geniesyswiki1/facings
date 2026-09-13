@@ -7,6 +7,7 @@ import {
   ENGINE_LABELS,
   HARNESS_VERSION,
   REPRODUCIBILITY_THRESHOLD,
+  MARKET_LABELS,
   isMarket,
   marketProfile,
   type EngineId,
@@ -14,6 +15,7 @@ import {
   type Market,
 } from '@showing-up/shared'
 import { detectPlatform } from '@showing-up/connectors'
+import { deliver } from './deliver.js'
 import { buildQueries } from '@showing-up/benchmark'
 import { panelCaptureTemplate, panelInstructionSheet } from '@showing-up/observe'
 import { importCsvFile, importFeedFile, importFeedUrl } from '@showing-up/connectors'
@@ -116,6 +118,49 @@ program
     } catch (error) {
       if (process.stdout.isTTY) process.stdout.write('\n')
       console.error(`the audit stopped: ${error instanceof Error ? error.message : String(error)}`)
+      process.exitCode = 1
+    }
+  })
+
+program
+  .command('deliver')
+  .description('store URL in, the complete customer delivery bundle out. No credentials needed.')
+  .requiredOption('-u, --url <url>', 'store URL, for example https://example.com')
+  .option('-m, --market <market>', `market: ${ALL_MARKETS.join(', ')}`, 'UK')
+  .option('-n, --skus <n>', 'SKUs to read', parseCount, 20)
+  .option('--presence-only', 'build the hosted artefacts and skip the observation pass, so no API keys are needed', false)
+  .option('-e, --engines <list>', 'surfaces to observe when the observation pass runs', 'api')
+  .option('-r, --repeats <n>', 'repeats per query per surface', parseCount, 2)
+  .option('--out <path>', 'output directory', 'delivery')
+  .action(async (options) => {
+    const market = parseMarket(options.market)
+    try {
+      const result = await deliver({
+        url: options.url as string,
+        market,
+        outDir: options.out as string,
+        skuLimit: options.skus as number,
+        presenceOnly: Boolean(options.presenceOnly),
+        engines: options.engines as string,
+        repeats: options.repeats as number,
+        onStage: (message) => console.log(`> ${message}`),
+      })
+
+      console.log('')
+      console.log(`  store      ${result.store.domain}  (${result.store.platform}, ${MARKET_LABELS[market]})`)
+      console.log(`  offering   ${result.offering}`)
+      console.log(`  catalogue  ${result.products.length} products`)
+      console.log('')
+      console.log('  delivered:')
+      for (const file of result.files) {
+        console.log(`    ${file.path.padEnd(38)} ${String(file.bytes).padStart(7)} bytes  ${file.what}`)
+      }
+      console.log('')
+      for (const note of result.notes) console.log(`  ${note}`)
+      console.log('')
+      console.log(`  written to ${result.outDir}`)
+    } catch (error) {
+      console.error(`delivery stopped: ${error instanceof Error ? error.message : String(error)}`)
       process.exitCode = 1
     }
   })
