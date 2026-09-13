@@ -1,5 +1,5 @@
 import type { Platform, Product } from '@showing-up/shared'
-import { productInputSchema, toProduct } from './catalogue.js'
+import { decodeEntities, productInputSchema, toProduct } from './catalogue.js'
 import { detectPlatform } from './platform.js'
 
 /**
@@ -45,6 +45,11 @@ export interface PublicCatalogueOptions {
 }
 
 const UA = 'ShowingUpAudit/0.1 (+https://showingup.ai/bot)'
+
+/** Strips markup and decodes entities, in that order. */
+function clean(html: string): string {
+  return decodeEntities(html.replace(/<[^>]*>/g, ' ')).replace(/\s+/g, ' ').trim()
+}
 
 async function getJson(url: string, fetchImpl: typeof fetch, timeoutMs: number): Promise<unknown | undefined> {
   const controller = new AbortController()
@@ -106,7 +111,7 @@ async function fromShopify(
     const variant = item.variants?.[0]
     if (!variant) continue
     const attributes: Record<string, string> = {}
-    if (item.body_html) attributes.description = String(item.body_html).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+    if (item.body_html) attributes.description = clean(String(item.body_html))
     if (item.product_type) attributes.category = String(item.product_type)
 
     const candidate = {
@@ -156,10 +161,7 @@ async function fromWooStoreApi(
     // description is the body every product page has. Reading only the former
     // excluded a whole real catalogue from the feed for "no description",
     // which was our defect being reported as the merchant's.
-    const body = String(item.short_description || item.description || '')
-      .replace(/<[^>]*>/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim()
+    const body = clean(String(item.short_description || item.description || ''))
     if (body) attributes.description = body
     const categories = (item.categories ?? []).map((c: { name?: string }) => c.name).filter(Boolean)
     if (categories.length) attributes.category = categories.join(', ')
