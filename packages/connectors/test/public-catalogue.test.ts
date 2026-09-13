@@ -335,3 +335,69 @@ describe('Product JSON-LD as real stores emit it', () => {
     expect(result.products).toHaveLength(0)
   })
 })
+
+describe('Open Graph product tags', () => {
+  // Pets & Friends and Just For Pets publish no JSON-LD at all, only microdata
+  // and Open Graph. Both were reported as having no readable catalogue when in
+  // fact they publish price, currency, title and image in a format an agent
+  // reads perfectly well.
+  function page(head: string): typeof fetch {
+    return (async (input: string | URL) => {
+      const path = new URL(typeof input === 'string' ? input : input.toString()).pathname
+      const routes: Record<string, string> = {
+        '/sitemap.xml': '<urlset><url><loc>https://shop.example/chappie-3kg</loc></url></urlset>',
+        '/chappie-3kg': `<html><head>${head}</head><body></body></html>`,
+      }
+      const found = routes[path]
+      if (found === undefined) return { ok: false, status: 404, text: async () => '', json: async () => ({}) }
+      return { ok: true, status: 200, text: async () => found, json: async () => ({}) }
+    }) as unknown as typeof fetch
+  }
+
+  const OG = `<meta property="og:type" content="product" />
+    <meta property="og:title" content="Chappie Complete Dry Dog Food" />
+    <meta property="product:price:amount" content="10.99" />
+    <meta property="product:price:currency" content="GBP" />
+    <meta property="og:image" content="https://cdn.example/chappie.jpg" />`
+
+  it('reads price and currency where a store publishes no JSON-LD', async () => {
+    const result = await discoverPublicCatalogue('https://shop.example', { limit: 2, fetchImpl: page(OG) })
+    expect(result.method).toBe('open-graph')
+    expect(result.products[0]?.price).toBe(10.99)
+    expect(result.products[0]?.currency).toBe('GBP')
+  })
+
+  it('reports it as weaker evidence than JSON-LD', async () => {
+    // These tags carry no SKU, so identity falls back to the page URL. The
+    // audit log has to show which of the two a finding rests on.
+    const result = await discoverPublicCatalogue('https://shop.example', { limit: 2, fetchImpl: page(OG) })
+    expect(result.confidence).toBe('low')
+    expect(result.warnings.some((w) => w.includes('carry no SKU'))).toBe(true)
+  })
+
+  it('handles content before property, which is valid and common', async () => {
+    const reversed = `<meta content="product" property="og:type" />
+      <meta content="Doodlebone Dinky Dog Lead" property="og:title" />
+      <meta content="14.99" property="product:price:amount" />
+      <meta content="GBP" property="product:price:currency" />`
+    const result = await discoverPublicCatalogue('https://shop.example', { limit: 2, fetchImpl: page(reversed) })
+    expect(result.products[0]?.price).toBe(14.99)
+  })
+
+  it('ignores a page that is not a product, even with an og:image', async () => {
+    const article = `<meta property="og:type" content="article" />
+      <meta property="og:title" content="Ten tips for a happy dog" />
+      <meta property="og:image" content="https://cdn.example/dog.jpg" />`
+    const result = await discoverPublicCatalogue('https://shop.example', { limit: 2, fetchImpl: page(article) })
+    expect(result.method).toBe('none')
+  })
+
+  it('prefers JSON-LD when a page carries both', async () => {
+    const both = `${OG}<script type="application/ld+json">
+      {"@type":"Product","name":"Chappie 3kg","sku":"CHAP-3K","offers":{"price":"10.99","priceCurrency":"GBP"}}
+    </script>`
+    const result = await discoverPublicCatalogue('https://shop.example', { limit: 2, fetchImpl: page(both) })
+    expect(result.method).toBe('json-ld')
+    expect(result.products[0]?.sku).toBe('CHAP-3K')
+  })
+})

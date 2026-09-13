@@ -26,6 +26,8 @@ export type DiscoveryMethod =
   | 'woocommerce-store-api'
   /** Product JSON-LD scraped from pages found in the sitemap. */
   | 'json-ld'
+  /** Open Graph product tags, where a store publishes no JSON-LD. */
+  | 'open-graph'
   /** Nothing public was readable. */
   | 'none'
 
@@ -420,13 +422,61 @@ function productFromJsonLd(html: string, pageUrl: string): Record<string, unknow
   return undefined
 }
 
+/**
+ * Reads Open Graph product tags from a rendered page.
+ *
+ * Pets & Friends and Just For Pets publish no JSON-LD at all. They publish
+ * microdata and Open Graph product tags, which is real machine-readable
+ * product data in a format we simply did not read, so both were reported as
+ * having no readable catalogue. Open Graph is the cheaper of the two to
+ * support and carries the fields the feed needs.
+ *
+ * Weaker evidence than JSON-LD and recorded as its own method for that reason:
+ * these tags carry no SKU, so identity falls back to the page URL, and the
+ * audit log has to show which of the two a finding rests on.
+ */
+function productFromOpenGraph(html: string, pageUrl: string): Record<string, unknown> | undefined {
+  const meta = new Map<string, string>()
+  for (const match of html.matchAll(/<meta\s+[^>]*?(?:property|name)=["']([^"']+)["'][^>]*?content=["']([^"']*)["'][^>]*>/gi)) {
+    const key = (match[1] ?? '').toLowerCase()
+    if (!meta.has(key)) meta.set(key, decodeEntities(match[2] ?? ''))
+  }
+  for (const match of html.matchAll(/<meta\s+[^>]*?content=["']([^"']*)["'][^>]*?(?:property|name)=["']([^"']+)["'][^>]*>/gi)) {
+    const key = (match[2] ?? '').toLowerCase()
+    if (!meta.has(key)) meta.set(key, decodeEntities(match[1] ?? ''))
+  }
+
+  // Only a page that declares itself a product. og:type product is the signal,
+  // and without a price there is nothing a feed can carry anyway.
+  const type = (meta.get('og:type') ?? '').toLowerCase()
+  const price = meta.get('product:price:amount') ?? meta.get('og:price:amount')
+  if (!type.includes('product') || !price) return undefined
+
+  const availability = (meta.get('product:availability') ?? meta.get('og:availability') ?? '').toLowerCase()
+  const title = meta.get('og:title') ?? meta.get('twitter:title')
+  const description = meta.get('og:description') ?? meta.get('description')
+
+  return {
+    sku: meta.get('product:retailer_item_id') ?? meta.get('product:sku') ?? pageUrl,
+    title,
+    price: Number.parseFloat(price),
+    currency: meta.get('product:price:currency') ?? meta.get('og:price:currency'),
+    availability: availability.includes('out') || availability.includes('oos') ? 'out_of_stock' : 'in_stock',
+    url: meta.get('og:url') ?? pageUrl,
+    image: meta.get('og:image'),
+    brand: meta.get('product:brand') ?? meta.get('og:brand'),
+    gtin: meta.get('product:ean') ?? meta.get('product:gtin13') ?? undefined,
+    attributes: description ? { description } : {},
+  }
+}
+
 async function fromJsonLd(
   storeId: string,
   origin: string,
   limit: number,
   fetchImpl: typeof fetch,
   timeoutMs: number,
-): Promise<{ products: Product[]; warnings: string[] } | undefined> {
+): Promise<{ products: Product[]; warnings: string[]; method: 'json-ld' | 'open-graph' } | undefined> {
   // Most sitemap URLs are category and content pages, so the page budget has
   // to exceed the product limit or a store with clean URLs yields nothing.
   const budget = Math.min(Math.max(limit * 4, 40), 120)
@@ -439,15 +489,25 @@ async function fromJsonLd(
   ]
 
   let pagesRead = 0
+  let fromOpenGraph = 0
   for (const url of urls) {
     if (products.length >= limit) break
     const html = await getText(url, fetchImpl, timeoutMs)
     pagesRead += 1
     if (!html) continue
-    const candidate = productFromJsonLd(html, url)
+    // JSON-LD first: it carries a real SKU, so it is the stronger evidence.
+    let candidate = productFromJsonLd(html, url)
+    let viaOpenGraph = false
+    if (!candidate) {
+      candidate = productFromOpenGraph(html, url)
+      viaOpenGraph = Boolean(candidate)
+    }
     if (!candidate) continue
     const parsed = productInputSchema.safeParse(candidate)
-    if (parsed.success) products.push(toProduct(storeId, parsed.data))
+    if (parsed.success) {
+      products.push(toProduct(storeId, parsed.data))
+      if (viaOpenGraph) fromOpenGraph += 1
+    }
   }
 
   if (products.length) {
@@ -455,7 +515,14 @@ async function fromJsonLd(
       `${products.length} products found by reading ${pagesRead} pages from the sitemap, so this catalogue is a sample rather than the whole of it`,
     )
   }
-  return products.length ? { products, warnings } : undefined
+  if (fromOpenGraph) {
+    warnings.push(
+      `${fromOpenGraph} of ${products.length} products were read from Open Graph tags rather than JSON-LD, which carry no SKU, so product identity there is the page URL`,
+    )
+  }
+  return products.length
+    ? { products, warnings, method: fromOpenGraph === products.length ? ('open-graph' as const) : ('json-ld' as const) }
+    : undefined
 }
 
 /**
@@ -515,8 +582,8 @@ export async function discoverPublicCatalogue(
     return {
       products: jsonLd.products,
       platform: detection.platform,
-      method: 'json-ld',
-      confidence: 'medium',
+      method: jsonLd.method,
+      confidence: jsonLd.method === 'open-graph' ? 'low' : 'medium',
       warnings: [...warnings, ...jsonLd.warnings],
     }
   }
