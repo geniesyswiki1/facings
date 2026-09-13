@@ -73,7 +73,8 @@ What Shopify still does not do, per its own wording:
 
 - check whether the price or availability an assistant **stated** matches the
   live catalogue, as opposed to whether the product appeared at all;
-- publish any retention period, history or audit trail;
+- publish any retention period, history or audit trail.
+
 Surface coverage **used to be** the third item and is not any more. On
 2 September 2026 Anthropic launched Claude Commerce Agents with Shopify as a
 named partner, and Shopify's implementation was public on GitHub inside 48
@@ -93,11 +94,11 @@ surface coverage.
 does not reach Claude would be found out by any merchant who already uses it.
 
 We never generate presence artefacts for a Shopify store, and the `deliver`
-command enforces that: it prints the three sellable things instead. Verified
+command enforces that: it prints the two sellable things instead. Verified
 against allbirds.com rather than asserted.
 
-The wedge is three features wide against an incumbent already inside the
-merchant's admin. Search Intelligence already knows which queries to ask and
+The wedge is two features wide against an incumbent already inside the
+merchant's admin, down from three on 2 September 2026. Search Intelligence already knows which queries to ask and
 already holds the catalogue to compare against, so Shopify adding correctness
 is a plausible release rather than a remote risk. Re-verify the gap before
 building on it; do not treat a build date set months out as evidence it still
