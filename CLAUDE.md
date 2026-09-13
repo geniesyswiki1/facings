@@ -74,13 +74,23 @@ What Shopify still does not do, per its own wording:
 - check whether the price or availability an assistant **stated** matches the
   live catalogue, as opposed to whether the product appeared at all;
 - publish any retention period, history or audit trail;
-- cover **Perplexity or Claude**, which are absent from its channel list.
+Surface coverage **used to be** the third item and is not any more. On
+2 September 2026 Anthropic launched Claude Commerce Agents with Shopify as a
+named partner, and Shopify's implementation was public on GitHub inside 48
+hours. That leaves Perplexity alone, which is **2.6%** of LLM referral traffic
+to online stores (Alhena, July 2026, 310 retail brands, 189.76m visitors)
+inside a channel measured at roughly **0.24%** of retail visits. Two and a half
+percent of a quarter of a percent is not a commercial argument.
 
-Those three are the entire Shopify pitch, and they are held in
-`SHOPIFY_SELLABLE`. `sellableToShopify()` returns false for `presence` and
-`visibility`, so a screen cannot quietly widen the offer back into what Shopify
-already gives them in the admin they open every morning. Never pitch a Shopify
-merchant on visibility or AI channel reporting.
+So the pitch is **two** things, not three, and they are held in
+`SHOPIFY_SELLABLE`. `sellableToShopify()` returns false for `presence`,
+`visibility` and now `uncovered-surfaces`, so a screen cannot quietly widen the
+offer back into what Shopify already gives them in the admin they open every
+morning. Never pitch a Shopify merchant on visibility, AI channel reporting, or
+surface coverage.
+
+`SHOPIFY_COVERED_ENGINES` includes `claude` for this reason. Claiming Shopify
+does not reach Claude would be found out by any merchant who already uses it.
 
 We never generate presence artefacts for a Shopify store, and the `deliver`
 command enforces that: it prints the three sellable things instead. Verified

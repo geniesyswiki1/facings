@@ -113,15 +113,22 @@ describe('what we sell per platform and market', () => {
     }
   })
 
-  it('holds the Shopify pitch to exactly three things', () => {
+  it('holds the Shopify pitch to exactly two things', () => {
     // Presence and visibility are what Shopify already gives its own
     // merchants. Selling either is how the sales call falls apart.
     expect(sellableToShopify('presence')).toBe(false)
     expect(sellableToShopify('visibility')).toBe(false)
     expect(sellableToShopify('correctness')).toBe(true)
     expect(sellableToShopify('record')).toBe(true)
-    expect(sellableToShopify('uncovered-surfaces')).toBe(true)
-    expect(SHOPIFY_SELLABLE).toHaveLength(3)
+    expect(SHOPIFY_SELLABLE).toHaveLength(2)
+  })
+
+  it('no longer sells surface coverage, which died on 2 September 2026', () => {
+    // Anthropic launched Claude Commerce Agents with Shopify as a named
+    // partner and Shopify shipped an implementation inside 48 hours. That
+    // left Perplexity alone, at 2.6% of LLM referral traffic to online
+    // stores inside a channel worth about 0.24% of retail visits.
+    expect(sellableToShopify('uncovered-surfaces')).toBe(false)
   })
 
   it('has a catalogue connector for every mainstream platform', () => {
@@ -133,18 +140,16 @@ describe('what we sell per platform and market', () => {
     expect(readConnectorAvailable('shopify')).toBe(true)
   })
 
-  it('names the two surfaces Shopify does not report on', () => {
-    // These are the pitch. Shopify's own channel list is ChatGPT, Copilot,
-    // Google AI Mode, Gemini and Shop, so a Shopify merchant has no reporting
-    // on Perplexity or Claude from anybody.
-    expect(enginesShopifyDoesNotCover()).toEqual(['perplexity', 'claude'])
+  it('leaves only Perplexity uncovered, and does not pretend otherwise', () => {
+    expect(enginesShopifyDoesNotCover()).toEqual(['perplexity'])
   })
 
-  it('does not claim Shopify is blind to the surfaces it does cover', () => {
-    // Guards the corrected fact: Shopify observes presence on these four.
-    expect(SHOPIFY_COVERED_ENGINES).toContain('openai')
-    expect(SHOPIFY_COVERED_ENGINES).toContain('copilot')
-    expect(SHOPIFY_COVERED_ENGINES).toContain('gemini')
-    expect(SHOPIFY_COVERED_ENGINES).toContain('google-ai-mode')
+  it('records that Shopify reaches Claude, so we never claim it does not', () => {
+    // Claude Commerce Agents, 2 September 2026. Getting this wrong in a sales
+    // call would be found out by a merchant who already uses Shopify.
+    expect(SHOPIFY_COVERED_ENGINES).toContain('claude')
+    for (const engine of ['openai', 'gemini', 'google-ai-mode', 'copilot'] as const) {
+      expect(SHOPIFY_COVERED_ENGINES).toContain(engine)
+    }
   })
 })

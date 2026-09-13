@@ -182,7 +182,7 @@ What survives, verified against the same sources, is narrow and real:
 
 1. **Correctness, not presence.** Shopify reports whether a product appeared. Nothing in it checks whether the price or availability the assistant stated matches the live catalogue. Its nearest feature tells a merchant to improve their own product data, which is a different thing.
 2. **No record.** Shopify publishes no retention period, history or audit trail.
-3. **Two uncovered surfaces.** Shopify's channel list omits Perplexity and Claude, two of our six.
+3. ~~**Two uncovered surfaces.**~~ **Withdrawn 13 September 2026.** Shopify's channel list omitted Perplexity and Claude when this was written. Claude Commerce Agents launched on 2 September 2026 with Shopify as a named partner and a public Shopify implementation inside 48 hours, which leaves Perplexity alone. Perplexity is 2.6% of LLM referral traffic to online stores (Alhena, July 2026, 310 retail brands, 189.76m visitors, 1.6m checkouts) inside a channel three independent cohorts put at roughly 0.24% of retail visits. Surface coverage is therefore a fact we record, not a thing we sell, and the Shopify pitch is two items rather than three.
 
 So: every packaged market, secondary to the non-Shopify motion everywhere, and pitched on those three and nothing else. Never pitched on visibility or AI channel reporting, which Shopify supplies itself.
 

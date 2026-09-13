@@ -163,15 +163,31 @@ export function readConnectorAvailable(platform: Platform): boolean {
 }
 
 /**
- * Surfaces Shopify's own agentic channel reporting covers, verified against
- * its Spring 2026 Edition announcement: ChatGPT, Copilot, Google AI Mode,
- * Gemini and the Shop app.
+ * Surfaces Shopify reaches for its own merchants.
  *
- * Perplexity and Claude are absent from that list. Two of our six.
+ * Spring 2026 Edition covered ChatGPT, Copilot, Google AI Mode, Gemini and the
+ * Shop app. Claude was added on 2 September 2026, when Anthropic launched
+ * Claude Commerce Agents with Shopify as a named partner; Shopify's
+ * implementation was public on GitHub inside 48 hours.
+ *
+ * Only Perplexity is left, and it is 2.6% of LLM referral traffic to online
+ * stores (Alhena, July 2026, 310 retail brands, 189.76m visitors), inside a
+ * channel measured at roughly a quarter of one percent of retail visits. That
+ * is not a commercial argument, so surface coverage is no longer something we
+ * sell. It stays here as a fact, not a pitch.
  */
-export const SHOPIFY_COVERED_ENGINES: EngineId[] = ['openai', 'gemini', 'google-ai-mode', 'copilot']
+export const SHOPIFY_COVERED_ENGINES: EngineId[] = [
+  'openai',
+  'gemini',
+  'google-ai-mode',
+  'copilot',
+  'claude',
+]
 
-/** The surfaces a Shopify merchant has no reporting on today. */
+/**
+ * Surfaces a Shopify merchant has no reporting on. Perplexity alone as at
+ * September 2026. Kept for the audit trail rather than for a slide.
+ */
 export function enginesShopifyDoesNotCover(): EngineId[] {
   return ALL_ENGINES.filter((engine) => !SHOPIFY_COVERED_ENGINES.includes(engine))
 }
@@ -210,10 +226,12 @@ export function offeringFor(platform: Platform): Offering {
 export const SHOPIFY_SELLABLE = [
   'correctness: whether the price and availability an assistant stated match the live catalogue, not whether the product appeared',
   'the record: every observation dated, method-stamped and hashed, retained 24 months',
-  'the surfaces Shopify does not cover: Perplexity and Claude',
 ] as const
 
 /** True when this is something we may put in front of a Shopify merchant. */
 export function sellableToShopify(capability: 'presence' | 'visibility' | 'correctness' | 'record' | 'uncovered-surfaces'): boolean {
-  return capability === 'correctness' || capability === 'record' || capability === 'uncovered-surfaces'
+  // uncovered-surfaces was sellable until 2 September 2026 and is not any
+  // more. Shopify now reaches Claude, leaving only Perplexity, which is 2.6%
+  // of a channel that is itself about 0.24% of retail visits.
+  return capability === 'correctness' || capability === 'record'
 }
