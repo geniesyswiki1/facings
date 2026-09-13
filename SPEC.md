@@ -279,21 +279,73 @@ Unit economics: observation cost per store per day at Growth is roughly £0.30 t
 
 Sequenced, not simultaneous. Three regions at once with one team is three half-launches.
 
-1. **Q4 2026, UK and DE.** Merchants above £2m GMV on WooCommerce and Adobe Commerce, and the agencies that serve them. Home market, existing network, one language pair, and the tightest consumer law, which is where the audit log argues best.
-2. **Q1 2027, AT and CH.** Near-zero marginal cost once German copy ships. Austria rides the German motion. Switzerland is a separate legal profile and a separate currency, and is worth its own landing page because the no-statutory-returns point is a genuine differentiator there.
-3. **Q2 2027, US.** Largest market and most competition. The primary motion here is the same as everywhere else, non-Shopify merchants sold presence, accuracy and the record; Shopify accuracy-only is a secondary segment worked after the primary one is proven, not the spearhead. Entered once the UK and DACH benchmark has produced its second edition and there is a published track record to sell from.
+**English first. Revised 13 September 2026, and the reason is not the one that prompted it.**
+
+The question asked was whether to fall back to the UK and the US if EU
+requirements prove hard to meet. Checked one by one, they are not the
+expensive part:
+
+- EU data residency is a hosting region, and Supabase EU is already the plan.
+- EU AI Act Article 50 is transparency only. Labelling a model-derived cause as
+  inferred, which SPEC 4.5 already requires, is the shape of what it asks.
+- VAT-inclusive display, the 14-day withdrawal right and the Swiss exception
+  are built and tested in `packages/shared/src/markets.ts`.
+- Stripe managed payments carries EU VAT registration and remittance as
+  merchant of record, which is why it is the billing rail.
+
+Two real things do block DACH, and neither is an EU requirement:
+
+1. **The push channel is unlawful in Germany.** UWG section 7(2) no. 2 requires
+   prior express consent for commercial email with no B2B exemption, enforced
+   by competitors through Abmahnung with cost liability. A DACH launch needs a
+   different channel, not a translated one.
+2. **The German query library is not fit to sell.** The German templates render
+   a bare category label, producing questions no shopper types and which do not
+   agree in gender. Observing them would spend panel time on the wrong
+   questions and put weak German in front of a merchant.
+
+There is also a positive reason to pair the UK with the US rather than with
+Germany: **they share the query library.** The sharing unit is the product
+type, and product types are English in both, so one benchmark, one template set
+and one copy pass serve both markets. Pairing the UK with Germany shares
+nothing linguistically and needs a German product-type vocabulary per
+catalogue, which does not exist.
+
+1. **Q4 2026, UK.** Merchants above £2m GMV on WooCommerce and Adobe Commerce, and the agencies that serve them. Home market, existing network, and the consumer law that gives the record its best argument.
+2. **Q1 2027, US.** Largest market and most competition, entered on the same English query library and once the UK benchmark has published its second edition, so there is a track record to sell from. `localiseSpelling` handles en-US on the way out. The primary motion is the same as the UK, non-Shopify merchants sold presence, accuracy and the record; Shopify accuracy-only is a secondary segment worked after the primary one is proven, not the spearhead.
+3. **DACH, deferred, Q3 2027 at the earliest.** Entered on two preconditions rather than a date: a rebuilt German query library with product types rather than category labels, reviewed by a native speaker, and a consent-based channel to replace push, for which the bevh member route is the candidate.
+
+**Deferred is not deleted.** All five markets stay built, packaged and tested:
+DE, AT and CH keep their entries in the market table, their currencies, their
+tax regimes and their 26 tests. The capability costs nothing to hold and
+throwing it away would have to be paid for twice. What changed is the order of
+launch and what we commit to, not the code.
 
 ### 6.2 Pull channels (target 85% of pipeline)
 
 1. **The benchmark.** A monthly published report, "How AI agents render [category] retailers in [market]", built from the benchmark library with anonymised aggregates: card presence rates, misrepresentation rates, which engines render which categories. It is the writing must, on a fixed cadence, and it is the thing journalists and LinkedIn share. First edition: UK electronics and fashion, October 2026.
 2. **The free audit.** Every benchmark, post and talk ends at the audit. The audit result is the sales conversation.
-3. **Trade associations.** IMRG (UK) and bevh (Germany): a member webinar each quarter, a benchmark cut for their members, and a listing. This is the second marketing must.
+3. **Trade associations.** IMRG (UK) from Q4 2026: a member webinar each quarter, a benchmark cut for their members, and a listing. This is the second marketing must. A US equivalent is picked alongside the Q1 2027 entry. bevh (Germany) is a DACH precondition rather than a launch channel, because it is also the consent route that replaces push there; see 6.1 and 6.3.
 4. **Platform marketplaces.** Listings on the WooCommerce marketplace, Adobe Commerce Marketplace, Wix App Market and PrestaShop Addons, each with the free audit as the install action.
 5. **Agencies.** Twenty named UK and German e-commerce agencies on WooCommerce and Adobe, approached with a co-branded audit of three of their clients. The agency tier and margin close them.
 
 ### 6.3 Push (15%)
 
-Outbound to the merchants surfaced by the benchmark itself: the ones whose products are absent or wrong get a one-page audit by email with the finding. Measured, capped, and stopped if reply rates fall under 5%.
+**UK and US only.** Outbound to the merchants surfaced by the benchmark itself: the ones whose products are absent or wrong get a one-page audit by email with the finding. Measured, capped, and stopped if reply rates fall under 5%.
+
+Germany is excluded and this is a legal constraint rather than a preference.
+UWG section 7(2) no. 2 requires prior express consent for commercial email and
+carries no B2B exemption, and it is enforced by competitors through Abmahnung
+with cost liability rather than by a regulator issuing a warning. Sending the
+same sequence into Germany that works in the UK invites a cost order from a
+rival. Austria applies a comparable rule.
+
+So there is no German push motion. The DACH equivalent is consent-first: a
+bevh member listing and webinar, where the member has already opted in to hear
+from suppliers. That is one of the two preconditions on the deferred DACH entry
+in 6.1. There is also an open GDPR question about the lawful basis for the
+contact source behind any list we build, which is answered before the first
+send in any market, not only in the EU.
 
 ### 6.4 Progressive offerings ladder
 
@@ -301,7 +353,7 @@ Free audit, then £49 Starter, then £149 Growth, then £499 Scale, then the age
 
 ### 6.5 First ten customers
 
-To be named in the validation sprint (memo action 3). The list is drawn from Alluvium's client and partner network, IMRG and bevh member directories, and the merchants that appear in the first benchmark run.
+To be named in the validation sprint (memo action 3). The list is drawn from Alluvium's client and partner network, the IMRG member directory, and the merchants that appear in the first benchmark run. UK first, per 6.1.
 
 ---
 
@@ -329,31 +381,38 @@ Balanced scorecard, SMART for the first two quarters:
   the financial target misses however well direct selling goes. Track the two
   separately and never report a blended store count that hides which one moved.
 - **Customer:** free-audit-to-paid conversion above 6%; monthly logo churn under 2.5%; NPS above 40 from Growth and Scale.
-- **Internal:** observation reproducibility above 80% per surface, measured weekly; median time from finding to applied fix under 48 hours for Growth stores; **shareable query fraction above 45% per category-market by 30 June 2027, from a measured 20% baseline.**
+- **Internal:** observation reproducibility above 80% per surface, measured weekly; median time from finding to applied fix under 48 hours for Growth stores; **shareable query fraction held above 45% per market, measured at 60%.**
 
   Added 13 September 2026, because the moat had no metric. The cost of an
-  observation scales with category times market times query times engine times
-  repeat. Revenue scales with store count. Those are different denominators,
-  so gross margin improves as stores cluster inside a category-market only to
-  the extent that one observation answers for more than one store. That is the
-  supply-side scale economy the SPEC 8 panel-cost row already gestures at when
-  it says the benchmark library turns observation into a shared asset, and it
-  is the only candidate moat a better-funded entrant cannot buy without buying
-  our customers.
+  observation scales with product type times market times query times engine
+  times repeat. Revenue scales with store count. Those are different
+  denominators, so gross margin improves as stores cluster on the same product
+  types only to the extent that one observation answers for more than one
+  store. That is the supply-side scale economy the SPEC 8 panel-cost row
+  gestures at when it says the benchmark library turns observation into a
+  shared asset, and it is the only candidate moat a better-funded entrant
+  cannot buy without buying our customers.
 
-  The baseline is measured, not estimated: `shareableQueryFraction` in the
-  benchmark package reports **20%** on an English catalogue. 45% of the twenty
-  query slots go to product-name and comparison intents, which name a specific
-  product and can never be shared, and most of the rest render a type string
-  taken from a product title. So four fifths of observation cost currently
-  falls on one store and density buys much less than the risk table assumes.
+  **The sharing unit is the product type, not the category.** The first version
+  of this metric measured against the nine-key category taxonomy and reported
+  20%. That was wrong, and wrong in the direction that would have caused
+  damage. "Best bookshelf speaker under 1000" scored as unshareable because the
+  phrase came from a product title, while "electronics under 500" scored as
+  shareable. The first is what a shopper types and is generated identically by
+  every rival selling bookshelf speakers; the second is a query nobody types.
+  Optimising the old metric would have driven the query library towards useless
+  questions.
 
-  The German set measures 60%, and that is a defect rather than a result: the
-  German templates render a bare category label, producing queries no shopper
-  would type. Fixing them will move the number down before it moves up.
+  `productType` already strips the brand, the model code and the unit words, so
+  it is the correct unit, and queries now carry a `shareKey` built from the
+  rendered text so two price bands never merge. Measured on the twenty-SKU demo
+  catalogue through the CLI: **60%**, and 65% on a narrower one.
 
-  Raising this is a query-mix decision and nothing else. It is the cheapest
-  strategic experiment available and it does not need Phase 2.
+  65% is close to the ceiling. The rest is the product-name and comparison
+  intents, which name a specific SKU and are where the critical findings live.
+  Trading those away to raise this number would be optimising the metric
+  against the product, so the target stays at 45% and the ceiling is recorded
+  here to stop anyone chasing 100%.
 - **Organisational:** benchmark published on the first Tuesday of every month without a miss; two association sessions per quarter delivered.
 - **Operational:** connector uptime 99.5%; daily observation completion above 97% of scheduled runs; audit-log export under 60 seconds.
 
@@ -370,7 +429,7 @@ Quarterly re-scoring of these KPIs is scheduled alongside the validation re-scor
 | Protocol churn (UCP has moved several times) | Protocol adapters are data-driven and versioned; a spec change is a config release, not a rebuild |
 | Agent traffic is still immaterial for European merchants (M2) | Price the Starter tier low enough to be bought as insurance; lead with presence and the benchmark until traffic arrives |
 | Wildcard, Alhena or a feed tool moves down-market into Europe | Move first with the associations and the marketplaces; agencies are sticky once white-label reports are in client decks |
-| Panel cost scales with stores | Deduplicate queries across stores in the same category and market; the benchmark library turns observation into a shared asset. Measured at 20% shareable today, so this mitigation is currently worth a fifth of what the row implies; the SPEC 7 internal metric tracks it |
+| Panel cost scales with stores | Deduplicate queries across stores selling the same product type in the same market; the benchmark library turns observation into a shared asset. Measured at 60% shareable, tracked as a SPEC 7 internal metric, and capped near 65% because the product-name and comparison intents cannot be shared |
 
 ---
 
@@ -407,7 +466,7 @@ Everything in the Reinstate operator runbook applies for Stripe managed payments
 1. **API accounts for observation:** OpenAI (Responses API), Google AI Studio (Gemini), Perplexity API, Anthropic (existing). Read each provider's terms on automated use before Phase 0 and keep the consented-panel policy in Drive Showing Up / Legal.
 2. **Panel:** three to five people (staff and opted-in merchants) who run the human-initiated sessions in Phase 0; a one-page consent and instruction sheet.
 3. **Google Merchant Center and Microsoft Merchant Center** test accounts for eligibility diagnostics.
-4. **Associations:** IMRG and bevh membership enquiries this month; a speaking slot request for Q1 2027.
+4. **Associations:** IMRG membership enquiry this month and a speaking slot request for Q1 2027. bevh moves with the deferred DACH entry, where it is the consent channel that replaces push rather than one marketing channel among several.
 5. **Legal:** terms that state Showing Up reports point-in-time renderings and controls no engine; a short opinion on presenting the audit log as a compliance record in the UK and Germany.
 6. **Trade mark check** on "Showing Up" in classes 9, 35 and 42 before the domain purchase.
 7. **First-ten list** in Zoho by 19 September, from the validation memo's action 3.

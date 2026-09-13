@@ -130,10 +130,55 @@ const UNIT_WORDS = new Set([
 ])
 
 /**
+ * Product types a shopper only ever types in the plural. Singularising these
+ * produces a phrase nobody searches for: "headphone" and "jean" are not
+ * queries, so the collision they would buy is not worth the wrong question.
+ */
+const PLURAL_ONLY = new Set([
+  'headphones',
+  'earphones',
+  'earbuds',
+  'airpods',
+  'trousers',
+  'jeans',
+  'shorts',
+  'leggings',
+  'tights',
+  'pyjamas',
+  'glasses',
+  'sunglasses',
+  'scissors',
+  'pliers',
+  'binoculars',
+  'dumbbells',
+  'chopsticks',
+])
+
+/**
+ * Light singular form, so two merchants' titles land on one product type.
+ *
+ * This matters for the shared-observation economics rather than for grammar:
+ * one store titles it "Bookshelf Speakers" and the next "Bookshelf Speaker",
+ * and if the type phrase keeps the plural the two queries never collide and
+ * the observation cannot be shared. Deliberately conservative, because a
+ * wrong singular is a wrong query: double s stays (glass), and a word has to
+ * be long enough that trimming it cannot produce a stub.
+ */
+export function singularise(word: string): string {
+  if (PLURAL_ONLY.has(word)) return word
+  if (word.length < 4 || word.endsWith('ss')) return word
+  if (word.endsWith('ies')) return `${word.slice(0, -3)}y`
+  if (/(?:ch|sh|s|x|z)es$/.test(word)) return word.slice(0, -2)
+  if (word.endsWith('s')) return word.slice(0, -1)
+  return word
+}
+
+/**
  * A short noun phrase for the product type, taken from the title with the
- * brand, the model code and the unit words removed. "Northfield AM10
- * Bookshelf Speaker Pair Walnut" gives "bookshelf speaker", which is what a
- * shopper would actually type.
+ * brand, the model code and the unit words removed, and singularised.
+ * "Northfield AM10 Bookshelf Speaker Pair Walnut" gives "bookshelf speaker",
+ * which is what a shopper would actually type, and so does a rival store's
+ * "Elac Debut B6.2 Bookshelf Speakers".
  */
 export function productType(product: Product, category: CategoryKey): string {
   const words = normaliseTitle(product.title).split(' ')
@@ -147,5 +192,8 @@ export function productType(product: Product, category: CategoryKey): string {
       word.length > 2,
   )
   const tail = kept.slice(-2)
-  return tail.length ? tail.join(' ') : CATEGORY_LABELS[category]
+  if (tail.length === 0) return CATEGORY_LABELS[category]
+  // Only the head noun is singularised: "bookshelf speakers" gives
+  // "bookshelf speaker", and a qualifier like "womens" is left alone.
+  return [...tail.slice(0, -1), singularise(tail[tail.length - 1] as string)].join(' ')
 }

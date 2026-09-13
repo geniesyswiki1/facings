@@ -98,22 +98,32 @@ export interface Query {
   /** Category label from the benchmark library, used for query dedupe in Phase 2. */
   category?: string
   /**
-   * True when this query's text is reconstructible from category, market and
-   * language alone, so one observation of it answers for every store in the
-   * same category and market.
+   * True when this query names no specific product, so its text is identical
+   * for every store selling the same kind of thing in the same market. One
+   * observation of it then answers for all of them.
    *
    * This is the unit economic of the whole business and not a detail. The cost
-   * of an observation scales with category times market times query times
+   * of an observation scales with product type times market times query times
    * engine times repeat; revenue scales with store count. Those are different
-   * denominators, so gross margin improves with density inside a
-   * category-market only to the extent that queries are shareable. A query
-   * naming a specific product, brand or title-derived type is shareable with
-   * nobody and its cost falls on one store.
+   * denominators, so gross margin improves with density only to the extent
+   * that queries are shared. A query naming a product is shared with nobody
+   * and its whole cost falls on one store.
    *
    * Optional because a hand-built Query in a test does not measure this.
    * Undefined counts as not shareable, which is the conservative direction.
    */
   shareable?: boolean
+  /**
+   * The dedupe key for a shareable query: market, language and the exact
+   * normalised text. Set only when `shareable` is true.
+   *
+   * Derived from the rendered text rather than from a taxonomy on purpose.
+   * The text is what an engine is actually asked, so two stores share an
+   * observation when and only when their texts match, and a coarse category
+   * key would wrongly merge "bookshelf speaker under 1000" with "bookshelf
+   * speaker under 200". Phase 2 groups scheduled observations by this.
+   */
+  shareKey?: string
 }
 
 /**

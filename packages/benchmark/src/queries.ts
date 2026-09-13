@@ -20,12 +20,25 @@ export type QueryIntent =
   | 'delivery'
   | 'returns'
 
-/** How the 20 slots are allocated. Sums to 20. */
+/**
+ * How the 20 slots are allocated. Sums to 20.
+ *
+ * Two intents can never be shared between stores, because they name a
+ * specific product: product_name and comparison. They are also where the
+ * critical findings live, a wrong price on a named SKU above all, so they are
+ * trimmed rather than cut. Rebalanced 13 September 2026 from 6 and 3 to 5 and
+ * 2: five named-product probes still cover the top SKUs, and the third
+ * comparison slot largely repeated "alternatives to {product}", which already
+ * overlaps the product_name intent.
+ *
+ * The two freed slots go to category_use and price_bounded, which are shared
+ * and which are the questions a shopper actually types. See Query.shareable.
+ */
 export const INTENT_MIX: Record<QueryIntent, number> = {
-  product_name: 6,
-  category_use: 4,
-  price_bounded: 3,
-  comparison: 3,
+  product_name: 5,
+  category_use: 5,
+  price_bounded: 4,
+  comparison: 2,
   delivery: 2,
   returns: 2,
 }
@@ -171,6 +184,9 @@ export function buildQueries(products: Product[], options: BuildQueryOptions): Q
     }
     if (category) query.category = category
     query.shareable = shareable
+    // Keyed on the text itself, so two stores share an observation exactly
+    // when they would ask the same question. See Query.shareKey.
+    if (shareable) query.shareKey = stableId('shq', market, language, key)
     queries.push(query)
   }
 
@@ -201,18 +217,23 @@ export function buildQueries(products: Product[], options: BuildQueryOptions): Q
     const type = language === 'de' ? CATEGORY_LABELS_DE[category] : productType(product, category)
     const other = ranked[(productIndex + 1) % ranked.length]
 
-    // Shareable means the text is reconstructible from this query's own
-    // category, market and language, so one observation answers for every
-    // store in that category and market. Two substitutions break it:
-    // {product}, {other} and {brand} name a specific product or merchant, and
-    // in English {type} is the product title tail unless productType fell back
-    // to the category label. German {type} is always a category label, so it
-    // never breaks shareability. {price} survives because roundPriceBand turns
-    // it into a band that many stores in the category land in.
-    const ownCategoryLabel = language === 'de' ? CATEGORY_LABELS_DE[category] : CATEGORY_LABELS[category]
-    const namesAProduct = template.includes('{product}') || template.includes('{other}') || template.includes('{brand}')
-    const typeIsTitleDerived = template.includes('{type}') && type !== ownCategoryLabel
-    const shareable = !namesAProduct && !typeIsTitleDerived
+    // Shareable means the text names no specific product, so a rival store
+    // selling the same kind of thing generates the identical text and one
+    // observation answers for both.
+    //
+    // Only {product}, {other} and {brand} break that. {type} does not, and an
+    // earlier version of this check wrongly assumed it did: productType strips
+    // the brand, the model code and the unit words, so "Northfield AM10
+    // Bookshelf Speaker Pair Walnut" and a rival's "Elac Debut B6.2 Bookshelf
+    // Speakers" both give "bookshelf speaker". That phrase is the sharing
+    // unit, and it is also the phrase a shopper actually types. {price}
+    // survives because roundPriceBand turns it into a band, and the band is
+    // part of the share key so two different bands stay separate.
+    const shareable = !(
+      template.includes('{product}') ||
+      template.includes('{other}') ||
+      template.includes('{brand}')
+    )
 
     const text = template
       .replace('{product}', productPhrase(product))
