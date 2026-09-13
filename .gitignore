@@ -7,6 +7,11 @@ fixtures/demo-observations.json
 .env
 .env.local
 *.log
+# Throwaway scripts run against the workspace. Node resolution requires them to
+# sit at the repo root rather than in a temp directory, so they are ignored by
+# shape instead: name a scratch script <thing>.tmp.ts and it stays out of the
+# tree. Anything worth keeping belongs in tools/ with a test.
+*.tmp.ts
 .DS_Store
 test-results/
 coverage/
