@@ -148,3 +148,87 @@ describe('public catalogue discovery', () => {
     expect(result.method).toBe('shopify-products-json')
   })
 })
+
+describe('sitemap discovery, against the shapes real stores actually use', () => {
+  // Every case here is a store this failed on before the fix. None of them
+  // were the merchant's problem: an agent reading them would have found the
+  // catalogue, so reporting "publishes nothing" would have been our bug
+  // printed in their report.
+  const PRODUCT_PAGE = `<html><head><script type="application/ld+json">
+    {"@type":"Product","name":"Bench clamp","sku":"BC-1","offers":{"@type":"Offer","price":"24.99","priceCurrency":"USD","availability":"https://schema.org/InStock"}}
+  </script></head><body></body></html>`
+
+  function store(routes: Record<string, string>): typeof fetch {
+    return (async (input: string | URL) => {
+      const url = typeof input === 'string' ? input : input.toString()
+      const path = new URL(url).pathname
+      const body = routes[path]
+      if (body === undefined) return { ok: false, status: 404, text: async () => '', json: async () => ({}) }
+      return { ok: true, status: 200, text: async () => body, json: async () => JSON.parse(body) }
+    }) as unknown as typeof fetch
+  }
+
+  it('reads the sitemap location out of robots.txt', async () => {
+    // Rockler declares /media/sitemap.xml, which is the documented place to
+    // declare it. A request to /sitemap.xml returned the HTML homepage with a
+    // 200, so nothing errored and the store looked empty.
+    const result = await discoverPublicCatalogue('https://rockler.example', {
+      limit: 2,
+      fetchImpl: store({
+        '/robots.txt': 'User-agent: *\nSitemap: https://rockler.example/media/sitemap.xml\n',
+        '/sitemap.xml': '<!doctype html><html><body>homepage</body></html>',
+        '/media/sitemap.xml': '<urlset><url><loc>https://rockler.example/hand-tools/clamps</loc></url></urlset>',
+        '/hand-tools/clamps': PRODUCT_PAGE,
+      }),
+    })
+    expect(result.method).toBe('json-ld')
+    expect(result.products).toHaveLength(1)
+  })
+
+  it('does not mistake a soft 404 homepage for a sitemap', async () => {
+    const result = await discoverPublicCatalogue('https://soft404.example', {
+      limit: 2,
+      fetchImpl: store({ '/sitemap.xml': '<!doctype html><html><body>nope</body></html>' }),
+    })
+    expect(result.method).toBe('none')
+    expect(result.products).toHaveLength(0)
+  })
+
+  it('follows a sitemap index whose children are not named .xml', async () => {
+    // Sportsman's Warehouse indexes children at /customsitemap/HOMEPAGE-en-USD.
+    // Matching the URL string for ".xml" discarded every child it had.
+    const result = await discoverPublicCatalogue('https://sportsmans.example', {
+      limit: 2,
+      fetchImpl: store({
+        '/robots.txt': 'Sitemap: https://sportsmans.example/sitemap.xml\n',
+        '/sitemap.xml': '<sitemapindex><sitemap><loc>https://sportsmans.example/customsitemap/PRODUCTS-en-USD</loc></sitemap></sitemapindex>',
+        '/customsitemap/PRODUCTS-en-USD': '<urlset><url><loc>https://sportsmans.example/marlin-xt-22-magazine</loc></url></urlset>',
+        '/marlin-xt-22-magazine': PRODUCT_PAGE,
+      }),
+    })
+    expect(result.method).toBe('json-ld')
+    expect(result.products[0]?.sku).toBe('BC-1')
+  })
+
+  it('accepts a clean product URL with no /product/ in it', async () => {
+    const result = await discoverPublicCatalogue('https://clean.example', {
+      limit: 2,
+      fetchImpl: store({
+        '/sitemap.xml': '<urlset><url><loc>https://clean.example/power-tools/dust-collection</loc></url></urlset>',
+        '/power-tools/dust-collection': PRODUCT_PAGE,
+      }),
+    })
+    expect(result.products).toHaveLength(1)
+  })
+
+  it('says the catalogue is a sample rather than the whole of it', async () => {
+    const result = await discoverPublicCatalogue('https://sample.example', {
+      limit: 1,
+      fetchImpl: store({
+        '/sitemap.xml': '<urlset><url><loc>https://sample.example/a-clamp</loc></url></urlset>',
+        '/a-clamp': PRODUCT_PAGE,
+      }),
+    })
+    expect(result.warnings.some((w) => w.includes('sample rather than the whole'))).toBe(true)
+  })
+})

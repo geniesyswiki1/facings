@@ -186,30 +186,102 @@ async function fromWooStoreApi(
   return { products, warnings }
 }
 
-/** Pulls product URLs out of a sitemap, including a sitemap index. */
-async function productUrlsFromSitemap(
+/**
+ * Sitemap locations to try, robots.txt first.
+ *
+ * Assuming /sitemap.xml is how this silently found nothing on four of the
+ * first five real stores it was pointed at. Rockler publishes its sitemap at
+ * /media/sitemap.xml and declares it in robots.txt, which is the documented
+ * place to declare it; a request to /sitemap.xml returned the HTML homepage
+ * with a 200, so nothing errored and the store looked as though it had no
+ * catalogue. An agent reading the store would have found it, so reporting that
+ * as the merchant's problem would have been our bug in their report.
+ */
+async function sitemapCandidates(
   origin: string,
-  limit: number,
   fetchImpl: typeof fetch,
   timeoutMs: number,
 ): Promise<string[]> {
-  const seen: string[] = []
-  const root = await getText(new URL('/sitemap.xml', origin).toString(), fetchImpl, timeoutMs)
-  if (!root) return seen
-
-  const locs = [...root.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)].map((match) => match[1] ?? '')
-  const childSitemaps = locs.filter((loc) => /sitemap/i.test(loc) && /\.xml/i.test(loc)).slice(0, 4)
-  const direct = locs.filter((loc) => /\/(product|products|shop|p)\//i.test(loc))
-  seen.push(...direct)
-
-  for (const child of childSitemaps) {
-    if (seen.length >= limit) break
-    const body = await getText(child, fetchImpl, timeoutMs)
-    if (!body) continue
-    const childLocs = [...body.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)].map((match) => match[1] ?? '')
-    seen.push(...childLocs.filter((loc) => /\/(product|products|shop|p)\//i.test(loc)))
+  const candidates: string[] = []
+  const robots = await getText(new URL('/robots.txt', origin).toString(), fetchImpl, timeoutMs)
+  if (robots) {
+    for (const match of robots.matchAll(/^\s*sitemap\s*:\s*(\S+)/gim)) {
+      const declared = match[1]
+      if (declared) candidates.push(declared)
+    }
   }
-  return [...new Set(seen)].slice(0, limit)
+  // Conventional locations, kept as a fallback for stores that declare nothing.
+  for (const path of ['/sitemap.xml', '/sitemap_index.xml', '/sitemap-index.xml']) {
+    candidates.push(new URL(path, origin).toString())
+  }
+  return [...new Set(candidates)].slice(0, 6)
+}
+
+/** True when a body is actually XML, rather than a soft 404 serving the homepage. */
+function looksLikeSitemap(body: string): boolean {
+  return /<(?:urlset|sitemapindex)\b/i.test(body)
+}
+
+/** Every <loc> in a sitemap document. */
+function sitemapLocs(body: string): string[] {
+  return [...body.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)].map((match) => match[1] ?? '').filter(Boolean)
+}
+
+/**
+ * Candidate page URLs from a store's sitemaps.
+ *
+ * The document type decides what its entries mean: a <sitemapindex> lists
+ * child sitemaps, a <urlset> lists pages. An earlier version decided that by
+ * matching the URL string for "sitemap" and ".xml", which is a convention and
+ * not a rule, and it failed on the first real stores it met: Sportsman's
+ * Warehouse indexes children at /customsitemap/HOMEPAGE-en-USD and Garden
+ * Trading serves its index from xmlsitemap.php. Neither ends in .xml, so both
+ * were discarded and the store looked as though it published nothing.
+ */
+async function productUrlsFromSitemap(
+  origin: string,
+  budget: number,
+  fetchImpl: typeof fetch,
+  timeoutMs: number,
+): Promise<string[]> {
+  let root: string | undefined
+  for (const candidate of await sitemapCandidates(origin, fetchImpl, timeoutMs)) {
+    const body = await getText(candidate, fetchImpl, timeoutMs)
+    // A soft 404 returns the homepage with a 200, so the shape is the only
+    // reliable check that this is a sitemap at all.
+    if (body && looksLikeSitemap(body)) {
+      root = body
+      break
+    }
+  }
+  if (!root) return []
+
+  const pages: string[] = []
+  if (/<sitemapindex\b/i.test(root)) {
+    for (const child of sitemapLocs(root).slice(0, 6)) {
+      if (pages.length >= budget) break
+      const body = await getText(child, fetchImpl, timeoutMs)
+      if (!body || !looksLikeSitemap(body)) continue
+      // One level of nesting only. A deeper index is rare and the page budget
+      // is better spent reading product pages than walking more indexes.
+      if (/<sitemapindex\b/i.test(body)) continue
+      pages.push(...sitemapLocs(body))
+    }
+  } else {
+    pages.push(...sitemapLocs(root))
+  }
+
+  // Ranked, not filtered. Whether a page is a product page is decided by
+  // whether it carries Product JSON-LD, which the caller checks; the path hint
+  // only decides which pages to spend the budget on first. Rockler and three
+  // other real stores publish clean URLs such as /hand-tools/clamps, so a
+  // /product/ filter removed every candidate they had.
+  const hinted = (loc: string) => (/\/(product|products|shop|p|dp|item|sku)\//i.test(loc) ? 0 : 1)
+  const depth = (loc: string) => loc.split('/').length
+  return [...new Set(pages)]
+    .filter((loc) => !/\.(xml|txt|gz|jpg|png|pdf)($|\?)/i.test(loc))
+    .sort((a, b) => hinted(a) - hinted(b) || depth(b) - depth(a))
+    .slice(0, budget)
 }
 
 /** Reads Product JSON-LD out of a rendered page. */
@@ -256,7 +328,10 @@ async function fromJsonLd(
   fetchImpl: typeof fetch,
   timeoutMs: number,
 ): Promise<{ products: Product[]; warnings: string[] } | undefined> {
-  const urls = await productUrlsFromSitemap(origin, limit, fetchImpl, timeoutMs)
+  // Most sitemap URLs are category and content pages, so the page budget has
+  // to exceed the product limit or a store with clean URLs yields nothing.
+  const budget = Math.min(Math.max(limit * 4, 40), 120)
+  const urls = await productUrlsFromSitemap(origin, budget, fetchImpl, timeoutMs)
   if (!urls.length) return undefined
 
   const products: Product[] = []
@@ -264,14 +339,22 @@ async function fromJsonLd(
     'catalogue read from Product JSON-LD on individual pages found in the sitemap, which is the weakest discovery method here and covers only the pages that publish it',
   ]
 
+  let pagesRead = 0
   for (const url of urls) {
     if (products.length >= limit) break
     const html = await getText(url, fetchImpl, timeoutMs)
+    pagesRead += 1
     if (!html) continue
     const candidate = productFromJsonLd(html, url)
     if (!candidate) continue
     const parsed = productInputSchema.safeParse(candidate)
     if (parsed.success) products.push(toProduct(storeId, parsed.data))
+  }
+
+  if (products.length) {
+    warnings.push(
+      `${products.length} products found by reading ${pagesRead} pages from the sitemap, so this catalogue is a sample rather than the whole of it`,
+    )
   }
   return products.length ? { products, warnings } : undefined
 }
