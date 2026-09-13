@@ -307,6 +307,8 @@ Swiss customers are billed in EUR rather than CHF. Swiss consumer prices are a C
 
 Rules: monthly and annual (two months free). Stripe managed payments, with Stripe as merchant of record, which covers EU and UK VAT and US sales tax registration on our own subscriptions. No usage overage in v1; tier limits are soft with a nudge. Free audit requires a work email; that list is the pipeline.
 
+Open risk on the agency tier, to settle before Phase 3 pricing goes live. Managed payments requires that we sell direct rather than through a platform or marketplace, and it does not support Connect. The 30% partner margin on resold tiers has to be squared with that: either the agency buys the stores itself and we bill the agency direct, or the margin is paid out separately rather than routed through the sale. If resale turns out to need Connect, that revenue cannot sit on managed payments and needs its own rail. Separately, managed payments sells digital products only and each tier needs an eligible tax code on its product; the business-use SaaS code is the expected one for a merchant-facing tool.
+
 Unit economics: observation cost per store per day at Growth is roughly £0.30 to £0.80 (API calls plus panel time amortised); gross margin above 80% at scale. £10m ARR at a £200 blended rate is about 4,200 stores, or 1,500 direct plus 200 agencies averaging 12 stores.
 
 ---

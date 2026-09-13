@@ -15,3 +15,8 @@ fixtures/demo-observations.json
 .DS_Store
 test-results/
 coverage/
+
+# Stripe agent skills, vendored by `npx skills add https://docs.stripe.com`.
+# Reproducible from skills-lock.json, so the content itself is not committed.
+.agents/
+.claude/
