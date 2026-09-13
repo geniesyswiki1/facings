@@ -4,18 +4,19 @@ import { productInputSchema, toProduct } from './catalogue.js'
 /**
  * Shopify Admin GraphQL connector, read-only.
  *
- * Shopify merchants were excluded from v1 while the product was Europe first,
- * on the reasoning that Shopify already solves presence for its own stores.
- * That reasoning does not survive the US, where Shopify's share of the two to
- * fifty million bracket is far higher than in the UK or DACH, and where the
- * thing Shopify does not do is the thing we sell: Shopify publishes the
- * catalogue to its partner surfaces, it does not observe what those surfaces
- * then say about it, and it keeps no dated record a merchant could show a
- * regulator.
+ * Shopify is in scope in the US only, on a deliberately narrow accuracy-only
+ * tier. See offeringFor() in platform.ts for the full reasoning and the
+ * correction behind it.
  *
- * So a Shopify store is sold the accuracy and audit tiers rather than presence
- * hosting, and this connector exists to read the catalogue that Shopify is
- * already publishing, so the daily diff has something to compare against.
+ * The short version: Shopify does presence better than we could for its own
+ * merchants, and since its Spring 2026 Edition it also reports which category
+ * queries a merchant ranks for and attributes AI channel orders. What it does
+ * not do is check whether the price or availability an assistant stated is
+ * actually correct, keep a dated record of it, or cover Perplexity and Claude.
+ *
+ * That is the whole of the pitch, and this connector exists to read the
+ * catalogue Shopify already publishes so the correctness diff has something to
+ * compare against.
  *
  * Auth is an offline access token from a custom app the merchant installs in
  * their own admin, with read_products scope only. No write scope is requested,

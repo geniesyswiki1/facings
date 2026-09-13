@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { fetchShopifyProducts, offeringFor, readConnectorAvailable, connectorAvailable } from '../src/index.js'
+import { ALL_MARKETS } from '@showing-up/shared'
+import {
+  SHOPIFY_COVERED_ENGINES,
+  connectorAvailable,
+  enginesShopifyDoesNotCover,
+  fetchShopifyProducts,
+  offeringFor,
+  readConnectorAvailable,
+} from '../src/index.js'
 
 const CREDENTIALS = { shopDomain: 'northfield-audio.myshopify.com', accessToken: 'shpat_test' }
 
@@ -92,14 +100,41 @@ describe('the Shopify connector', () => {
   })
 })
 
-describe('what we sell per platform', () => {
-  it('sells Shopify accuracy rather than presence hosting', () => {
-    expect(offeringFor('shopify')).toBe('accuracy-only')
-    expect(offeringFor('woocommerce')).toBe('presence')
+describe('what we sell per platform and market', () => {
+  it('sells Shopify accuracy in the US and nothing outside it', () => {
+    // Demoted 13 Sep 2026. Shopify's Spring 2026 Edition ships Search
+    // Intelligence and channel attribution, so the wedge is narrow and only
+    // worth contesting where Shopify's share of the bracket is large.
+    expect(offeringFor('shopify', 'US')).toBe('accuracy-only')
+    for (const market of ['UK', 'DE', 'AT', 'CH'] as const) {
+      expect(offeringFor('shopify', market)).toBe('out-of-scope')
+    }
+  })
+
+  it('sells presence on every other platform in every market', () => {
+    for (const market of ALL_MARKETS) {
+      expect(offeringFor('woocommerce', market)).toBe('presence')
+      expect(offeringFor('adobe-commerce', market)).toBe('presence')
+    }
   })
 
   it('can read Shopify without offering it a write connector', () => {
     expect(readConnectorAvailable('shopify')).toBe(true)
     expect(connectorAvailable('shopify')).toBe(false)
+  })
+
+  it('names the two surfaces Shopify does not report on', () => {
+    // These are the pitch. Shopify's own channel list is ChatGPT, Copilot,
+    // Google AI Mode, Gemini and Shop, so a Shopify merchant has no reporting
+    // on Perplexity or Claude from anybody.
+    expect(enginesShopifyDoesNotCover()).toEqual(['perplexity', 'claude'])
+  })
+
+  it('does not claim Shopify is blind to the surfaces it does cover', () => {
+    // Guards the corrected fact: Shopify observes presence on these four.
+    expect(SHOPIFY_COVERED_ENGINES).toContain('openai')
+    expect(SHOPIFY_COVERED_ENGINES).toContain('copilot')
+    expect(SHOPIFY_COVERED_ENGINES).toContain('gemini')
+    expect(SHOPIFY_COVERED_ENGINES).toContain('google-ai-mode')
   })
 })

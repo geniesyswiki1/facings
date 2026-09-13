@@ -15,6 +15,9 @@ export type EngineId =
   | 'perplexity'
   | 'claude'
 
+/** Every engine, in the order screens and reports list them. */
+export const ALL_ENGINES: EngineId[] = ['openai', 'gemini', 'google-ai-mode', 'copilot', 'perplexity', 'claude']
+
 /**
  * How an observation was made. Recorded on every stored result, without
  * exception: the audit log is only defensible if the method travels with the

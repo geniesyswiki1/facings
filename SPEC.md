@@ -26,7 +26,9 @@ Definition of done for the MVP (end of Phase 3): a merchant on WooCommerce with 
 
 **Who it is for:** merchants with £2m to £50m GMV (or the local equivalent) on WooCommerce, Adobe Commerce, PrestaShop, BigCommerce, Wix, Shopware, Shopify and custom stacks, across three packaged regions: the US, the UK and DACH (Germany, Austria, Switzerland). The buyer is the head of e-commerce or digital; the user is the merchandiser or the agency account manager that runs their storefront.
 
-**Why we win:** Stripe's Agentic Commerce Suite solves protocol plumbing for Stripe merchants only; Adyen, Mollie, Worldpay and Checkout.com merchants are on their own. That is the wedge, and it is a payment provider question rather than a platform question. Shopify publishes its own merchants to the AI surfaces but does not observe what those surfaces then say back, and keeps no dated record of it, so a Shopify store is sold accuracy and the audit log rather than presence hosting. Feed tools syndicate data but do not observe the result. The visibility startups are small, enterprise-priced and single-region. Nobody owns self-serve, multi-region, provider agnostic, with accuracy and compliance built in.
+**Why we win:** Stripe's Agentic Commerce Suite solves protocol plumbing for Stripe merchants only; Adyen, Mollie, Worldpay and Checkout.com merchants are on their own. That is the wedge, and it is a payment provider question rather than a platform question. Feed tools syndicate data but do not observe the result. The visibility startups are small, enterprise-priced and single-region. Nobody owns self-serve, multi-region, provider agnostic, with correctness and the record built in.
+
+Shopify is a partial exception and the honest version matters. It does presence for its own merchants better than we could, and since its Spring 2026 Edition it also ships Search Intelligence, which reports the top AI queries in a merchant's category and which of them they rank for, plus an agentic dashboard with full channel attribution. What it does not do is check whether the price or availability an assistant **stated** is correct against the live catalogue, keep a dated record of any of it, or cover Perplexity and Claude. Those three are the only things we sell a Shopify merchant, and only in the US. See 3.5.
 
 **What it is not:** not a checkout. In-chat checkout stalled in March 2026; agents discover and redirect, and the merchant's own checkout converts. Not a PIM. Not a brand-level GEO tool.
 
@@ -168,7 +170,19 @@ Multi-store workspace with client switcher, roll-up reporting, white-label PDF r
 
 Checkout of any kind. Brand-level GEO content generation (blog posts, Reddit seeding). Amazon Rufus and Walmart Sparky (marketplace-internal assistants need a different approach; Phase 2).
 
-Shopify merchants are **in** scope from v1, on the accuracy-only tier. The earlier exclusion assumed a Europe-first product where Shopify's share of the bracket is modest. It is not modest in the US, and the exclusion would have cut the largest single segment of the largest new region. What Shopify does for its merchants is publish them; what it does not do is observe what the surfaces say back, or keep the dated record. So a Shopify store gets no presence hosting from us and is not sold any, and gets the daily grid, the diff and the audit log, which is the part nobody else supplies.
+**Shopify: in scope in the US only, as a secondary motion.** This position was revised twice and the reasoning should not be lost.
+
+The original exclusion assumed a Europe-first product where Shopify's share of the bracket is modest. That held. Extending to the US changed it, because Shopify's share of US merchants in the two to fifty million bracket is large enough that a blanket exclusion would cut the biggest segment of the biggest new region.
+
+The first revision then over-corrected, on the claim that Shopify "does not observe what the surfaces say back". Checked against Shopify's own announcements, that is false. Its Spring 2026 Edition ships Search Intelligence, reporting the top AI queries in a merchant's category and which of them they rank for, and an agentic dashboard attributing orders, sales and conversions across ChatGPT, Copilot, Google AI Mode, Gemini and Shop. That is presence observation and attribution, inside the admin the merchant already uses.
+
+What survives, verified against the same sources, is narrow and real:
+
+1. **Correctness, not presence.** Shopify reports whether a product appeared. Nothing in it checks whether the price or availability the assistant stated matches the live catalogue. Its nearest feature tells a merchant to improve their own product data, which is a different thing.
+2. **No record.** Shopify publishes no retention period, history or audit trail.
+3. **Two uncovered surfaces.** Shopify's channel list omits Perplexity and Claude, two of our six.
+
+So: US only, secondary to the non-Shopify motion, and pitched on the record and the uncovered surfaces. Never pitched on visibility or AI channel reporting, which Shopify supplies itself. `offeringFor(platform, market)` returns `out-of-scope` for Shopify in every other market, and that is enforced by test rather than by convention.
 
 ---
 
@@ -259,7 +273,7 @@ Sequenced, not simultaneous. Three regions at once with one team is three half-l
 
 1. **Q4 2026, UK and DE.** Merchants above £2m GMV on WooCommerce and Adobe Commerce, and the agencies that serve them. Home market, existing network, one language pair, and the tightest consumer law, which is where the audit log argues best.
 2. **Q1 2027, AT and CH.** Near-zero marginal cost once German copy ships. Austria rides the German motion. Switzerland is a separate legal profile and a separate currency, and is worth its own landing page because the no-statutory-returns point is a genuine differentiator there.
-3. **Q2 2027, US.** Largest market, most competition, and the only one where Shopify accuracy-only is the primary motion rather than a secondary one. Entered once the UK and DACH benchmark has produced its second edition and there is a published track record to sell from.
+3. **Q2 2027, US.** Largest market and most competition. The primary motion here is the same as everywhere else, non-Shopify merchants sold presence, accuracy and the record; Shopify accuracy-only is a secondary segment worked after the primary one is proven, not the spearhead. Entered once the UK and DACH benchmark has produced its second edition and there is a published track record to sell from.
 
 ### 6.2 Pull channels (target 85% of pipeline)
 

@@ -1,4 +1,4 @@
-import type { Platform } from '@showing-up/shared'
+import { ALL_ENGINES, type EngineId, type Market, type Platform } from '@showing-up/shared'
 
 /**
  * Platform detection from a store's public homepage.
@@ -138,21 +138,62 @@ export function connectorAvailable(platform: Platform): boolean {
 /**
  * Whether we can read this platform's catalogue at all.
  *
- * Wider than connectorAvailable on purpose. Shopify is read-only here: the
- * store is sold accuracy monitoring and the audit record rather than presence
- * hosting, because Shopify already publishes its own merchants to the AI
- * surfaces and does not observe what those surfaces then say back.
+ * Wider than connectorAvailable on purpose. Shopify is read-only here: we
+ * never sell a Shopify store presence hosting, because Shopify already
+ * publishes its own merchants to the AI surfaces and does it well.
  */
 export function readConnectorAvailable(platform: Platform): boolean {
   return connectorAvailable(platform) || platform === 'shopify'
 }
 
 /**
- * What we sell a store on this platform.
+ * Surfaces Shopify's own agentic channel reporting covers, verified against
+ * its Spring 2026 Edition announcement: ChatGPT, Copilot, Google AI Mode,
+ * Gemini and the Shop app.
  *
- * presence: we host the manifest and feeds and monitor the result.
- * accuracy-only: the platform already publishes, so we monitor and record.
+ * Perplexity and Claude are absent from that list. Two of our six.
  */
-export function offeringFor(platform: Platform): 'presence' | 'accuracy-only' {
-  return platform === 'shopify' ? 'accuracy-only' : 'presence'
+export const SHOPIFY_COVERED_ENGINES: EngineId[] = ['openai', 'gemini', 'google-ai-mode', 'copilot']
+
+/** The surfaces a Shopify merchant has no reporting on today. */
+export function enginesShopifyDoesNotCover(): EngineId[] {
+  return ALL_ENGINES.filter((engine) => !SHOPIFY_COVERED_ENGINES.includes(engine))
+}
+
+export type Offering = 'presence' | 'accuracy-only' | 'out-of-scope'
+
+/**
+ * What we sell a store on this platform, in this market.
+ *
+ * presence: we host the manifest and feeds and monitor the result. This is
+ * the primary motion everywhere and on every platform except Shopify.
+ *
+ * accuracy-only: Shopify in the US, and nowhere else. A deliberately narrow
+ * secondary motion, sized against what Shopify actually ships rather than
+ * against what it shipped in January 2026.
+ *
+ * out-of-scope: Shopify outside the US.
+ *
+ * The reasoning, because it was wrong once and the corrected version needs to
+ * survive. Shopify's Spring 2026 Edition added Search Intelligence, which
+ * reports the top AI queries in a merchant's category and which of them they
+ * rank for, plus an agentic dashboard doing full channel attribution. That is
+ * presence observation and attribution, so the earlier claim here that Shopify
+ * "does not observe what the surfaces say back" was false.
+ *
+ * What Shopify still does not do, per its own wording: check whether the price
+ * or availability an assistant STATED matches the live catalogue. It reports
+ * whether you appeared, not whether what was said about you was true. It also
+ * publishes no retention period, history or audit trail, and does not cover
+ * Perplexity or Claude.
+ *
+ * So the Shopify pitch is the record and the uncovered surfaces, never
+ * "visibility", which they supply themselves and in their own admin. It is
+ * US-only because that is the one region where Shopify's share of the bracket
+ * justifies competing for a thin wedge against an incumbent already inside the
+ * merchant's admin.
+ */
+export function offeringFor(platform: Platform, market: Market): Offering {
+  if (platform !== 'shopify') return 'presence'
+  return market === 'US' ? 'accuracy-only' : 'out-of-scope'
 }

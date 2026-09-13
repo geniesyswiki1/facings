@@ -58,9 +58,26 @@ Copy is authored in British English and localised on the way out:
 `localiseSpelling` handles en-US, and German comes from the message catalogue
 in `packages/shared/src/messages.ts`. Code identifiers stay British.
 
-Shopify merchants are in scope on the **accuracy-only** tier: we never sell
-them presence hosting, because Shopify already publishes them. `offeringFor()`
-in the connectors package is the check.
+Shopify is in scope **in the US only**, on a narrow accuracy-only tier.
+`offeringFor(platform, market)` in the connectors package is the check, and it
+returns `out-of-scope` for Shopify anywhere else.
+
+Corrected 13 September 2026, and the corrected version matters. Shopify's
+Spring 2026 Edition ships **Search Intelligence** (top AI queries in a
+merchant's category and which they rank for) and an agentic dashboard with full
+channel attribution. So it is false to say Shopify "does not observe what the
+surfaces say back": it observes presence and attributes orders, in the
+merchant's own admin.
+
+What Shopify still does not do, per its own wording:
+
+- check whether the price or availability an assistant **stated** matches the
+  live catalogue, as opposed to whether the product appeared at all;
+- publish any retention period, history or audit trail;
+- cover **Perplexity or Claude**, which are absent from its channel list.
+
+Those three are the entire Shopify pitch. Never pitch a Shopify merchant on
+"visibility" or "AI channel reporting", which they already have from Shopify.
 
 ## Observation constraints
 
