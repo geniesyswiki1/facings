@@ -48,7 +48,7 @@ export function logoSvg(height = 18): string {
     }
   }
   const scale = height / h
-  return `<svg width="${(w * scale).toFixed(1)}" height="${height}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Facings">${rects.join(
+  return `<svg width="${(w * scale).toFixed(1)}" height="${height}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Showing Up">${rects.join(
     '',
   )}</svg>`
 }

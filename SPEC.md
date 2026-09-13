@@ -1,8 +1,8 @@
-# Facings: Full Build and Launch Spec
+# Showing Up: Full Build and Launch Spec
 
 The agent channel manager for merchants who are not on Shopify. Presence on every AI shopping surface, SKU-level accuracy monitoring, and a compliance-grade record of how your products were represented. Europe first.
 
-Version 1.0, 12 September 2026. Owner: Taiwo Ojo. Read with the validation memo (facings-validation-memo.md): this spec describes what to build if the 14-day validation clears; section 11 describes the audit harness that is built regardless, because it is the validation instrument.
+Version 1.0, 12 September 2026. Owner: Taiwo Ojo. Read with the validation memo (showing-up-validation-memo.md): this spec describes what to build if the 14-day validation clears; section 11 describes the audit harness that is built regardless, because it is the validation instrument.
 
 ---
 
@@ -14,9 +14,9 @@ Two modes.
 
 **Build mode (after a PIVOT or GO verdict).** Paste this file as SPEC.md and open Claude Code with:
 
-> Read SPEC.md end to end. Build Facings in the phase order in section 11, starting from the audit harness already in the repo. Every engine observation must use an official API where one exists and a consented browser panel where it does not; never scrape a consumer surface without consent, and record the observation method on every stored result. Where the spec is silent, choose the option that keeps the audit log defensible. After each phase, run the checks listed and stop to report. Never commit secrets.
+> Read SPEC.md end to end. Build Showing Up in the phase order in section 11, starting from the audit harness already in the repo. Every engine observation must use an official API where one exists and a consented browser panel where it does not; never scrape a consumer surface without consent, and record the observation method on every stored result. Where the spec is silent, choose the option that keeps the audit log defensible. After each phase, run the checks listed and stop to report. Never commit secrets.
 
-Definition of done for the MVP (end of Phase 3): a merchant on WooCommerce with Adyen in Germany connects their store in ten minutes, gets a presence score and a UCP manifest plus ACP feed hosted by Facings, sees a daily accuracy report on their top 50 queries across four engines with each misrepresentation tied to the SKU and the fix, applies the fixes with one click where the platform allows, and can export a dated audit log. Billing live through Stripe managed payments, self-serve.
+Definition of done for the MVP (end of Phase 3): a merchant on WooCommerce with Adyen in Germany connects their store in ten minutes, gets a presence score and a UCP manifest plus ACP feed hosted by Showing Up, sees a daily accuracy report on their top 50 queries across four engines with each misrepresentation tied to the SKU and the fix, applies the fixes with one click where the platform allows, and can export a dated audit log. Billing live through Stripe managed payments, self-serve.
 
 ---
 
@@ -24,13 +24,15 @@ Definition of done for the MVP (end of Phase 3): a merchant on WooCommerce with 
 
 **What it is:** a SaaS layer between a merchant's catalogue and the AI shopping surfaces. It does three jobs: makes the store present on ChatGPT, Gemini and Google AI Mode, Copilot, Perplexity and Claude through the protocols and feeds each one reads; observes how each engine actually represents the store's products against live catalogue data; and turns the gaps into fixes and a dated record.
 
-**Who it is for:** merchants with £2m to £50m GMV on WooCommerce, Adobe Commerce, PrestaShop, BigCommerce, Wix and custom stacks, in the UK and Europe first, and the agencies that run their e-commerce. The buyer is the head of e-commerce or digital; the user is the merchandiser or the agency account manager.
+**Who it is for:** merchants with £2m to £50m GMV (or the local equivalent) on WooCommerce, Adobe Commerce, PrestaShop, BigCommerce, Wix, Shopware, Shopify and custom stacks, across three packaged regions: the US, the UK and DACH (Germany, Austria, Switzerland). The buyer is the head of e-commerce or digital; the user is the merchandiser or the agency account manager that runs their storefront.
 
-**Why we win:** Shopify solves this for Shopify merchants only, and its default-on was US-first. Stripe's Agentic Commerce Suite solves protocol plumbing for Stripe merchants only; Adyen, Mollie, Worldpay and Checkout.com merchants are on their own. Feed tools syndicate data but do not observe the result. The US visibility startups are small, enterprise-priced and US-centric. Nobody owns non-Shopify, self-serve, Europe-first, with accuracy and compliance built in.
+**Why we win:** Stripe's Agentic Commerce Suite solves protocol plumbing for Stripe merchants only; Adyen, Mollie, Worldpay and Checkout.com merchants are on their own. That is the wedge, and it is a payment provider question rather than a platform question. Feed tools syndicate data but do not observe the result. The visibility startups are small, enterprise-priced and single-region. Nobody owns self-serve, multi-region, provider agnostic, with correctness and the record built in.
+
+Shopify is a partial exception and the honest version matters. It does presence for its own merchants better than we could, and since its Spring 2026 Edition it also ships Search Intelligence, which reports the top AI queries in a merchant's category and which of them they rank for, plus an agentic dashboard with full channel attribution. What it does not do is check whether the price or availability an assistant **stated** is correct against the live catalogue, keep a dated record of any of it, or cover Perplexity and Claude. Those three are the only things we sell a Shopify merchant, and only in the US. See 3.5.
 
 **What it is not:** not a checkout. In-chat checkout stalled in March 2026; agents discover and redirect, and the merchant's own checkout converts. Not a PIM. Not a brand-level GEO tool.
 
-**Business model:** subscription per store per month in three tiers plus an agency tier, sold self-serve through platform app marketplaces and through agencies. A free audit is the top of the funnel. Facings takes its own subscription revenue through Stripe managed payments; that is our billing rail and is unrelated to which payment provider a merchant runs, which stays provider agnostic and is the reason the product exists at all (see 3.1, job 1).
+**Business model:** subscription per store per month in three tiers plus an agency tier, sold self-serve through platform app marketplaces and through agencies. A free audit is the top of the funnel. Showing Up takes its own subscription revenue through Stripe managed payments; that is our billing rail and is unrelated to which payment provider a merchant runs, which stays provider agnostic and is the reason the product exists at all (see 3.1, job 1).
 
 ---
 
@@ -38,17 +40,19 @@ Definition of done for the MVP (end of Phase 3): a merchant on WooCommerce with 
 
 ### 2.1 Name and domain
 
-Name: **Facings**. A retail term: the number of product units visible on the shelf face. The product card is the new shelf, and Facings is about how many of yours are on it and whether they are right. It is a word merchandisers already use, it is neutral about which engine wins, and it does not contain "AI".
+Name: **Showing Up**. Taken straight from the positioning line rather than invented alongside it: the job is to show up, and to show up correctly, when an AI agent shops. It says the outcome the merchant is buying rather than the mechanism we use to deliver it, it is plain English a head of e-commerce can repeat in a board meeting, it is neutral about which engine wins, and it does not contain "AI".
 
-Domain preference order: facings.ai, facings.io, getfacings.com. Fallback name: **Cardstand** (cardstand.io). Check the UK IPO and EUIPO registers in classes 9, 35 and 42 before registering; "Facings" is a common trade word and may already be registered in class 35.
+It also travels. "Showing up" needs no translation of concept for a German buyer even though the interface is localised, and it carries none of the retail-jargon baggage that a term of art would.
 
-Handles: @facings on X and LinkedIn (LinkedIn is the channel that matters for this buyer).
+Domain preference order: showingup.ai, showingup.io, getshowingup.com. Fallback name: **Cardstand** (cardstand.io). Check the USPTO, UK IPO, EUIPO and Swiss IPI registers in classes 9, 35 and 42 before registering; "showing up" is an ordinary English phrase, so expect the mark to be weak on its own and plan to register the wordmark plus the six-card logo as a combined mark.
+
+Handles: @showingup on X and LinkedIn (LinkedIn is the channel that matters for this buyer).
 
 ### 2.2 Positioning
 
 One line, used everywhere: **"Show up, and show up correctly, when AI agents shop."**
 
-Supporting line: "For stores that aren't on Shopify. Presence on every AI shopping surface, a daily check of how each one represents your products, and the record to prove it."
+Supporting line: "Whoever takes your payments. Presence on every AI shopping surface, a daily check of how each one represents your products, and the record to prove it."
 
 We are the merchandiser's instrument panel for a shelf they cannot walk.
 
@@ -80,7 +84,7 @@ No gradients, no shadows, no illustrations. Product images appear only inside ca
 
 **Type:** two families. **Instrument Sans** (Google Fonts), weights 500 and 700, for headlines and the report headers; **IBM Plex Sans** 400 and 500 for interface, tables and long copy. No monospace outside code samples in docs.
 
-**Logo:** the word "facings" in Instrument Sans 700, lowercase, `--ink`, preceded by a 3x2 grid of six tiny rounded rectangles in `--rule` with the top-left one filled in `--present`. SVG at /public/logo.svg; favicon is the six-card grid.
+**Logo:** the word "showing up" in Instrument Sans 700, lowercase, `--ink`, preceded by a 3x2 grid of six tiny rounded rectangles in `--rule` with the top-left one filled in `--present`. SVG at /public/logo.svg; favicon is the six-card grid.
 
 **Layout:** the core screen is a grid. Rows are the merchant's top queries, columns are the engines, cells are the card that engine rendered for that query, or an empty outline. Clicking a cell shows what the engine said, what the catalogue says, and the diff. Everything else in the product is a sidebar to that grid.
 
@@ -102,7 +106,7 @@ No gradients, no shadows, no illustrations. Product images appear only inside ca
 **Job 1, Presence.**
 
 - Catalogue connectors: WooCommerce (REST), Adobe Commerce (GraphQL), PrestaShop (webservice), BigCommerce (API), Wix (Stores API, connector already in hand), Shopware, plus generic feed ingestion (Google Merchant Center XML or CSV) for everything else.
-- Outputs, hosted by Facings and pointed at from the merchant's domain: the ACP product feed endpoint in the current spec version; the UCP manifest at /.well-known/ucp with the capability profile and a Merchant Center supplementary feed marking eligible products; Microsoft Merchant Center feed for Copilot; a Perplexity-readable and Claude-readable catalogue with structured policies. Payment provider agnostic: where the merchant is on Stripe, Facings hands off to Stripe's suite; where not, Facings serves the discovery layer and the merchant's own checkout takes the redirect.
+- Outputs, hosted by Showing Up and pointed at from the merchant's domain: the ACP product feed endpoint in the current spec version; the UCP manifest at /.well-known/ucp with the capability profile and a Merchant Center supplementary feed marking eligible products; Microsoft Merchant Center feed for Copilot; a Perplexity-readable and Claude-readable catalogue with structured policies. Payment provider agnostic: where the merchant is on Stripe, Showing Up hands off to Stripe's suite; where not, Showing Up serves the discovery layer and the merchant's own checkout takes the redirect.
 - Machine-readable policies: returns window, delivery promise by country, VAT-inclusive pricing by market, warranty, sizing. Generated from a guided form and published as structured data.
 - Presence score per engine: eligible, ingested, rendering. With the specific blocker when not.
 
@@ -112,14 +116,18 @@ No gradients, no shadows, no illustrations. Product images appear only inside ca
 - Daily observation across ChatGPT, Gemini and Google AI Mode, Copilot, Perplexity and Claude using the observation methods in 4.4. For each query and engine: card presence, position, product identity, price, variant, availability, rating, image, competitor adjacency, and the landing URL.
 - Diff against the live catalogue: wrong price, wrong variant, discontinued item recommended, bestseller absent, competitor substituted, broken image, stale availability.
 - Alerts by severity, with the SKU and the probable cause (missing attribute, stale feed, price mismatch between feed and page, no policy data).
-- The audit log: every observation stored with timestamp, engine, method, raw response reference and the catalogue state at that moment. Exportable as PDF and CSV. Retained 24 months. This is the compliance artefact for the FTC policy statement and for EU consumer law questions about representations made through agents.
+- The audit log: every observation stored with timestamp, engine, method, raw response reference and the catalogue state at that moment. Exportable as PDF and CSV. Retained 24 months.
+
+  **What this log is, stated accurately.** Earlier drafts of this spec called it "the compliance artefact for the FTC policy statement and for EU consumer law". That claim does not survive the primary sources and is withdrawn. The FTC statement of 1 July 2026 is *proposed*, not final, and addresses AI providers who configure systems toward undisclosed objectives, not merchants whose products a third-party assistant misdescribes. EU AI Act Article 50, applicable from 2 August 2026, is a transparency regime: it requires disclosure that a system is AI and machine-readable marking of its output, and contains no product-accuracy obligation.
+
+  What the log defensibly is: evidence. It is the only dated record of how a merchant's products were represented at a given moment, which is what answers a customer dispute, a marketplace or platform challenge, a chargeback, or an internal question about when a price went wrong and for how long. General consumer protection law on misleading commercial practices continues to apply to the merchant's own representations, and the regulatory picture is moving; neither of those is the same as a rule that exists today, and we do not sell it as one. Never claim a legal requirement we cannot cite.
 
 **Job 3, Action.**
 
 - Fix suggestions ranked by revenue at risk (query volume proxy times product margin if provided).
 - One-click fixes where the connector allows writes: attribute enrichment (materials, dimensions, compatibility, use cases), natural-language title variants, structured FAQ, policy publication, feed refresh. Every write is previewed and logged.
 - Agent landing: pre-filled cart links and a lightweight landing template so the redirect from an engine converts on the merchant's own checkout.
-- Attribution: tag agent-referred sessions (referrers, UTM conventions per engine, the Facings landing links) and report agent-attributed sessions, orders and revenue.
+- Attribution: tag agent-referred sessions (referrers, UTM conventions per engine, the Showing Up landing links) and report agent-attributed sessions, orders and revenue.
 
 ### 3.2 Screens
 
@@ -134,7 +142,25 @@ No gradients, no shadows, no illustrations. Product images appear only inside ca
 
 ### 3.3 Markets and languages (v1)
 
-UK and Germany first (English and German), then France, Netherlands, Spain, Italy. Each market has its own query set, currency, VAT display and policy fields. The engines render differently per market; the benchmark library records what each engine does in each market so the accuracy diff knows what "absent" means there.
+Three packaged regions, five markets, two languages:
+
+| Region | Markets | Currency | Locale | Tax on a consumer price | Statutory returns window |
+| --- | --- | --- | --- | --- | --- |
+| US | US | USD | en-US | Added at checkout, destination based | None federally |
+| UK | UK | GBP | en-GB | Included, 20% | 14 days |
+| DACH | DE | EUR | de-DE | Included, 19% | 14 days |
+| DACH | AT | EUR | de-AT | Included, 20% | 14 days |
+| DACH | CH | CHF | de-CH | Included, 8.1% | None |
+
+France, the Netherlands, Spain and Italy are roadmap, not v1.
+
+Three things this table is load bearing for, each of which would otherwise be reported to a merchant as their own error:
+
+1. **DACH is not one market.** One language, three currencies and two legal regimes. Austria is in the EU at 20%, Switzerland is outside it at 8.1% with its own price marking rules.
+2. **Switzerland has no statutory right of withdrawal for distance selling.** A Swiss shopper only has the returns the merchant chooses to publish, so a published window is worth more there, not less. Austria's identical-looking German-language store is bound by the EU fourteen days.
+3. **US sales tax cannot be shown as a rate on a product page.** It depends on the shipping destination and on where the seller has nexus, so the US policy model asks which states the merchant collects in, not what the rate is.
+
+Each market has its own query set, currency, tax presentation and policy fields. The engines render differently per market; the benchmark library records what each engine does in each market so the accuracy diff knows what "absent" means there.
 
 ### 3.4 Agency workspace
 
@@ -142,7 +168,21 @@ Multi-store workspace with client switcher, roll-up reporting, white-label PDF r
 
 ### 3.5 What v1 deliberately excludes
 
-Checkout of any kind. Brand-level GEO content generation (blog posts, Reddit seeding). Amazon Rufus and Walmart Sparky (marketplace-internal assistants need a different approach; Phase 2). Shopify merchants (they have Shopify; Phase 2 only as an accuracy-only tier if demand appears).
+Checkout of any kind. Brand-level GEO content generation (blog posts, Reddit seeding). Amazon Rufus and Walmart Sparky (marketplace-internal assistants need a different approach; Phase 2).
+
+**Shopify: in scope in the US only, as a secondary motion.** This position was revised twice and the reasoning should not be lost.
+
+The original exclusion assumed a Europe-first product where Shopify's share of the bracket is modest. That held. Extending to the US changed it, because Shopify's share of US merchants in the two to fifty million bracket is large enough that a blanket exclusion would cut the biggest segment of the biggest new region.
+
+The first revision then over-corrected, on the claim that Shopify "does not observe what the surfaces say back". Checked against Shopify's own announcements, that is false. Its Spring 2026 Edition ships Search Intelligence, reporting the top AI queries in a merchant's category and which of them they rank for, and an agentic dashboard attributing orders, sales and conversions across ChatGPT, Copilot, Google AI Mode, Gemini and Shop. That is presence observation and attribution, inside the admin the merchant already uses.
+
+What survives, verified against the same sources, is narrow and real:
+
+1. **Correctness, not presence.** Shopify reports whether a product appeared. Nothing in it checks whether the price or availability the assistant stated matches the live catalogue. Its nearest feature tells a merchant to improve their own product data, which is a different thing.
+2. **No record.** Shopify publishes no retention period, history or audit trail.
+3. **Two uncovered surfaces.** Shopify's channel list omits Perplexity and Claude, two of our six.
+
+So: US only, secondary to the non-Shopify motion, and pitched on the record and the uncovered surfaces. Never pitched on visibility or AI channel reporting, which Shopify supplies itself. `offeringFor(platform, market)` returns `out-of-scope` for Shopify in every other market, and that is enforced by test rather than by convention.
 
 ---
 
@@ -175,7 +215,7 @@ Next.js 15 on Netlify for the web app and marketing site; a separate worker serv
 
 Each engine gets an adapter that records its method on every observation:
 
-- **OpenAI:** the Responses API with web search and shopping-capable models where available, plus a consented panel of real ChatGPT sessions run by Facings staff and opted-in merchants for the consumer shopping surface. Card structure is captured from the rendered response.
+- **OpenAI:** the Responses API with web search and shopping-capable models where available, plus a consented panel of real ChatGPT sessions run by Showing Up staff and opted-in merchants for the consumer shopping surface. Card structure is captured from the rendered response.
 - **Google:** the Gemini API with Google Search grounding for Gemini; a consented browser panel for AI Mode, since it has no product-search API; Merchant Center diagnostics for eligibility.
 - **Microsoft Copilot:** consented browser panel; Microsoft Merchant Center diagnostics for eligibility.
 - **Perplexity:** the Perplexity API for text and citations, panel for card rendering.
@@ -193,7 +233,7 @@ Prompts generate attribute values only from the merchant's own product page, ima
 
 ### 4.7 Privacy, security, terms
 
-EU data residency. No merchant catalogue data used to train anything. Observation artefacts retained 24 months for the audit log, catalogue snapshots retained with them. SOC 2 readiness planned in year one because agencies and mid-market buyers ask. Terms make clear that Facings reports what engines rendered at a point in time and does not control engine behaviour.
+EU data residency. No merchant catalogue data used to train anything. Observation artefacts retained 24 months for the audit log, catalogue snapshots retained with them. SOC 2 readiness planned in year one because agencies and mid-market buyers ask. Terms make clear that Showing Up reports what engines rendered at a point in time and does not control engine behaviour.
 
 ---
 
@@ -207,7 +247,19 @@ EU data residency. No merchant catalogue data used to train anything. Observatio
 | Scale | £499 | daily on 200 queries, all markets, API access, priority observation, SSO, 24-month log |
 | Agency | £999 plus £99 per client store | workspace, white-label reports, roll-up, partner margin 30% on resold tiers |
 
-Rules: monthly and annual (two months free). Stripe managed payments, with Stripe as merchant of record for EU VAT. No usage overage in v1; tier limits are soft with a nudge. Free audit requires a work email; that list is the pipeline.
+Prices are listed in GBP and converted at a fixed rate per currency, reviewed quarterly, rounded to a whole unit. Fixed rather than live because a subscription price that moves with the spot rate is a support ticket, not a feature. Rates pinned in `packages/shared/src/pricing.ts` with the date they were set.
+
+| Tier | GBP | USD | EUR | Billed in CHF markets |
+| --- | --- | --- | --- | --- |
+| Audit | Free | Free | Free | Free |
+| Starter | 49 | 62 | 57 | EUR |
+| Growth | 149 | 189 | 174 | EUR |
+| Scale | 499 | 634 | 584 | EUR |
+| Agency | 999 plus 99 per store | 1269 plus 126 | 1169 plus 116 | EUR |
+
+Swiss customers are billed in EUR rather than CHF. Swiss consumer prices are a CHF question and the market model handles that; our own B2B subscription is not, and a fourth billing currency buys nothing.
+
+Rules: monthly and annual (two months free). Stripe managed payments, with Stripe as merchant of record, which covers EU and UK VAT and US sales tax registration on our own subscriptions. No usage overage in v1; tier limits are soft with a nudge. Free audit requires a work email; that list is the pipeline.
 
 Open risk on the agency tier, to settle before Phase 3 pricing goes live. Managed payments requires that we sell direct rather than through a platform or marketplace, and it does not support Connect. The 30% partner margin on resold tiers has to be squared with that: either the agency buys the stores itself and we bill the agency direct, or the margin is paid out separately rather than routed through the sale. If resale turns out to need Connect, that revenue cannot sit on managed payments and needs its own rail. Separately, managed payments sells digital products only and each tier needs an eligible tax code on its product; the business-use SaaS code is the expected one for a merchant-facing tool.
 
@@ -219,7 +271,11 @@ Unit economics: observation cost per store per day at Growth is roughly £0.30 t
 
 ### 6.1 Beachhead
 
-UK and Germany, non-Shopify merchants above £2m GMV on WooCommerce and Adobe Commerce, and the agencies that serve them. Two markets, two platforms, one buyer persona, for the first two quarters.
+Sequenced, not simultaneous. Three regions at once with one team is three half-launches.
+
+1. **Q4 2026, UK and DE.** Merchants above £2m GMV on WooCommerce and Adobe Commerce, and the agencies that serve them. Home market, existing network, one language pair, and the tightest consumer law, which is where the audit log argues best.
+2. **Q1 2027, AT and CH.** Near-zero marginal cost once German copy ships. Austria rides the German motion. Switzerland is a separate legal profile and a separate currency, and is worth its own landing page because the no-statutory-returns point is a genuine differentiator there.
+3. **Q2 2027, US.** Largest market and most competition. The primary motion here is the same as everywhere else, non-Shopify merchants sold presence, accuracy and the record; Shopify accuracy-only is a secondary segment worked after the primary one is proven, not the spearhead. Entered once the UK and DACH benchmark has produced its second edition and there is a published track record to sell from.
 
 ### 6.2 Pull channels (target 85% of pipeline)
 
@@ -278,7 +334,7 @@ One full-stack engineer on the app and connectors, one engineer on the observati
 
 ## 10. Brand assets and connectors
 
-Netlify hosts the web app and marketing site. Figma holds the logo, the grid component and the report templates; Google Drive holds the benchmark data room and the audit PDFs; Slack channels #facings-audits (every free audit result posts here for the founding team to read), #facings-pipeline and #facings-benchmark; Jira project FAC; Zoho CRM for the first-ten list, agencies and association contacts; n8n for the audit-to-CRM sync and the weekly reproducibility report. Higgsfield for a 30-second LinkedIn explainer built from the grid animation. Gmail label and filter for hello@facings.ai.
+Netlify hosts the web app and marketing site. Figma holds the logo, the grid component and the report templates; Google Drive holds the benchmark data room and the audit PDFs; Slack channels #showing-up-audits (every free audit result posts here for the founding team to read), #showing-up-pipeline and #showing-up-benchmark; Jira project FAC; Zoho CRM for the first-ten list, agencies and association contacts; n8n for the audit-to-CRM sync and the weekly reproducibility report. Higgsfield for a 30-second LinkedIn explainer built from the grid animation. Gmail label and filter for hello@showingup.ai.
 
 ---
 
@@ -298,16 +354,16 @@ Netlify hosts the web app and marketing site. Figma holds the logo, the grid com
 
 ## 12. Operator runbook delta (Taiwo)
 
-Everything in the Reinstate operator runbook applies for Stripe managed payments (a new Stripe account for Facings, with the four subscription products and annual variants), Supabase (EU region), Resend, Upstash, Sentry and Plausible. New or different:
+Everything in the Reinstate operator runbook applies for Stripe managed payments (a new Stripe account for Showing Up, with the four subscription products and annual variants), Supabase (EU region), Resend, Upstash, Sentry and Plausible. New or different:
 
-1. **API accounts for observation:** OpenAI (Responses API), Google AI Studio (Gemini), Perplexity API, Anthropic (existing). Read each provider's terms on automated use before Phase 0 and keep the consented-panel policy in Drive Facings / Legal.
+1. **API accounts for observation:** OpenAI (Responses API), Google AI Studio (Gemini), Perplexity API, Anthropic (existing). Read each provider's terms on automated use before Phase 0 and keep the consented-panel policy in Drive Showing Up / Legal.
 2. **Panel:** three to five people (staff and opted-in merchants) who run the human-initiated sessions in Phase 0; a one-page consent and instruction sheet.
 3. **Google Merchant Center and Microsoft Merchant Center** test accounts for eligibility diagnostics.
 4. **Associations:** IMRG and bevh membership enquiries this month; a speaking slot request for Q1 2027.
-5. **Legal:** terms that state Facings reports point-in-time renderings and controls no engine; a short opinion on presenting the audit log as a compliance record in the UK and Germany.
-6. **Trade mark check** on "Facings" in classes 9, 35 and 42 before the domain purchase.
+5. **Legal:** terms that state Showing Up reports point-in-time renderings and controls no engine; a short opinion on presenting the audit log as a compliance record in the UK and Germany.
+6. **Trade mark check** on "Showing Up" in classes 9, 35 and 42 before the domain purchase.
 7. **First-ten list** in Zoho by 19 September, from the validation memo's action 3.
-8. **Stripe managed payments:** confirm merchant-of-record coverage, EU VAT registration and remittance, and supported markets for the Facings entity before Phase 3 pricing goes live. Managed payments replaces the merchant-of-record role the plan previously gave Lemon Squeezy, so the VAT position is the thing to verify, not the card processing.
+8. **Stripe managed payments:** confirm merchant-of-record coverage, EU VAT registration and remittance, and supported markets for the Showing Up entity before Phase 3 pricing goes live. Managed payments replaces the merchant-of-record role the plan previously gave Lemon Squeezy, so the VAT position is the thing to verify, not the card processing.
 
 ---
 

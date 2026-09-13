@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises'
-import type { Product } from '@facings/shared'
+import type { Product } from '@showing-up/shared'
 import { productInputSchema, toProduct } from './catalogue.js'
 
 /**

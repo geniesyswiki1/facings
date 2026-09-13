@@ -1,4 +1,4 @@
-# Facings
+# Showing Up
 
 Show up, and show up correctly, when AI agents shop.
 
@@ -52,7 +52,7 @@ npm run audit -- run --url https://store.example --csv fixtures/demo-catalogue.c
   --engines all --fixtures fixtures/demo-observations.json
 ```
 
-`npm run audit -- --help` lists every option. The installed binary is `facings-audit`.
+`npm run audit -- --help` lists every option. The installed binary is `showing-up-audit`.
 
 ### Catalogue input
 
@@ -113,7 +113,7 @@ npm run audit -- run --url https://store.example --csv catalogue.csv --engines a
 A capture with no operator or consent reference is rejected. A query with no capture is
 recorded as not observed, never as an empty rendering, and never filled in from an API
 surface: what Gemini's API returned is not evidence about what Google AI Mode rendered.
-The consent sheet itself lives in Drive under Facings / Legal, not in this repository.
+The consent sheet itself lives in Drive under Showing Up / Legal, not in this repository.
 
 ## What the harness will not do
 
@@ -133,7 +133,7 @@ anything it cannot defend it does not say.
 
 ## Presence hosting, Phase 1
 
-Facings hosts the artefacts each surface reads, and the merchant points at them from their
+Showing Up hosts the artefacts each surface reads, and the merchant points at them from their
 own domain. Everything is public and unauthenticated, because agent crawlers fetch it
 without credentials.
 
@@ -156,12 +156,12 @@ npm run web:build     # bundle the deployable functions into apps/web/dist
 Two decisions in the protocol layer are deliberate and asserted by tests:
 
 - **`enable_checkout` is always false**, and the manifest declares **no payment handler**.
-  SPEC 1: Facings is not a checkout. Agents discover and redirect, and the merchant's own
+  SPEC 1: Showing Up is not a checkout. Agents discover and redirect, and the merchant's own
   checkout converts.
 - **A discontinued product is excluded from the feed** rather than published as
   `out_of_stock`. Out of stock tells an agent the product is coming back, and SPEC 3.1
   counts recommending a discontinued item as a critical finding, so publishing one would
-  have Facings creating the defect it sells the detection of.
+  have Showing Up creating the defect it sells the detection of.
 
 Protocol versions and capability identifiers are pinned as data in
 `packages/protocols/src/versions.ts`, per the SPEC 8 response to protocol churn. A pin
@@ -215,5 +215,5 @@ disk, and the PDF is one page.
 WooCommerce store on Adyen in Germany serves a UCP manifest that passes validation and a
 live ACP feed endpoint whose every item validates, with the manifest and the feed checked
 against each other. One honest limit: it validates against the rules the published
-specification states, which is what Facings can check itself. Running the manifest through
+specification states, which is what Showing Up can check itself. Running the manifest through
 Google's own validator is a manual step before any merchant is told they are compliant.

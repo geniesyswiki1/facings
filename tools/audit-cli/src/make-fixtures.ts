@@ -1,5 +1,5 @@
-import type { EngineId, Product, Query } from '@facings/shared'
-import { sha256 } from '@facings/shared'
+import type { EngineId, Product, Query } from '@showing-up/shared'
+import { sha256 } from '@showing-up/shared'
 
 /**
  * Synthetic surface generator.

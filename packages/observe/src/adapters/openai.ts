@@ -1,4 +1,4 @@
-import type { Card } from '@facings/shared'
+import type { Card } from '@showing-up/shared'
 import {
   type AdapterResult,
   type EngineAdapter,
@@ -24,7 +24,7 @@ export class OpenAiAdapter implements EngineAdapter {
 
   constructor(
     private readonly apiKey = process.env.OPENAI_API_KEY ?? '',
-    private readonly model = process.env.FACINGS_OPENAI_MODEL ?? 'gpt-4.1',
+    private readonly model = process.env.SHOWING_UP_OPENAI_MODEL ?? 'gpt-4.1',
     private readonly fetchImpl: typeof fetch = fetch,
   ) {}
 
@@ -33,7 +33,7 @@ export class OpenAiAdapter implements EngineAdapter {
   }
 
   configurationHint(): string {
-    return 'set OPENAI_API_KEY. Optional: FACINGS_OPENAI_MODEL.'
+    return 'set OPENAI_API_KEY. Optional: SHOWING_UP_OPENAI_MODEL.'
   }
 
   async observe(input: ObserveInput): Promise<AdapterResult> {

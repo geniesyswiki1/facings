@@ -3,22 +3,25 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { Command, InvalidArgumentError } from 'commander'
 import {
+  ALL_MARKETS,
   ENGINE_LABELS,
   HARNESS_VERSION,
   REPRODUCIBILITY_THRESHOLD,
+  isMarket,
+  marketProfile,
   type EngineId,
   type Language,
   type Market,
-} from '@facings/shared'
-import { detectPlatform } from '@facings/connectors'
-import { buildQueries } from '@facings/benchmark'
-import { panelCaptureTemplate, panelInstructionSheet } from '@facings/observe'
-import { importCsvFile, importFeedFile, importFeedUrl } from '@facings/connectors'
+} from '@showing-up/shared'
+import { detectPlatform } from '@showing-up/connectors'
+import { buildQueries } from '@showing-up/benchmark'
+import { panelCaptureTemplate, panelInstructionSheet } from '@showing-up/observe'
+import { importCsvFile, importFeedFile, importFeedUrl } from '@showing-up/connectors'
 import { ALL_ENGINES, API_ENGINES, PANEL_ENGINES, normaliseUrl, runAudit } from './audit.js'
 import { ALL_DEFECTS, type DefectKind, makeFixtures } from './make-fixtures.js'
 
 /**
- * facings-audit: the Phase 0 validation instrument.
+ * showing-up-audit: the Phase 0 validation instrument.
  *
  * Deliberately a CLI and a PDF rather than a product. Its job is to answer one
  * question, whether these surfaces can be observed compliantly and repeatably,
@@ -28,8 +31,8 @@ import { ALL_DEFECTS, type DefectKind, makeFixtures } from './make-fixtures.js'
 const program = new Command()
 
 program
-  .name('facings-audit')
-  .description('Facings Phase 0 audit harness. Store URL and SKUs in, accuracy report out.')
+  .name('showing-up-audit')
+  .description('Showing Up Phase 0 audit harness. Store URL and SKUs in, accuracy report out.')
   .version(HARNESS_VERSION)
 
 program
@@ -328,16 +331,15 @@ function parseEngines(raw: string): EngineId[] {
 
 function parseMarket(raw: string): Market {
   const value = raw.trim().toUpperCase()
-  const markets: Market[] = ['UK', 'DE', 'FR', 'NL', 'ES', 'IT']
-  if (!markets.includes(value as Market)) {
-    throw new InvalidArgumentError(`unknown market "${raw}". Available: ${markets.join(', ')}`)
+  if (!isMarket(value)) {
+    throw new InvalidArgumentError(`unknown market "${raw}". Available: ${ALL_MARKETS.join(', ')}`)
   }
-  return value as Market
+  return value
 }
 
+/** The market table decides the language, so the two cannot drift apart. */
 function defaultLanguage(market: Market): Language {
-  const map: Record<Market, Language> = { UK: 'en', DE: 'de', FR: 'fr', NL: 'nl', ES: 'es', IT: 'it' }
-  return map[market]
+  return marketProfile(market).language
 }
 
 function parseCount(raw: string): number {

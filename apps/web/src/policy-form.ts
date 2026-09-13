@@ -1,5 +1,5 @@
-import { policySchema, type Policy } from '@facings/protocols'
-import type { Market } from '@facings/shared'
+import { policySchema, type Policy } from '@showing-up/protocols'
+import type { Market } from '@showing-up/shared'
 
 /**
  * Parses the guided policy form back into a validated Policy.
@@ -49,11 +49,25 @@ export function parsePolicyForm(form: URLSearchParams, market: Market, language:
       url: form.get('returns.url') ?? '',
     },
     delivery,
-    vat: {
-      pricesIncludeVat: form.get('vat.pricesIncludeVat') === 'true',
-      ratePct: num(form.get('vat.ratePct')),
-      registrationNumber: form.get('vat.registrationNumber')?.trim() || undefined,
-    },
+    // The form posts whichever tax branch the market uses. An exclusive market
+    // has no rate to collect, so reading one would invent a number.
+    tax:
+      form.get('tax.mode') === 'exclusive'
+        ? {
+            mode: 'exclusive' as const,
+            collectsIn: (form.get('tax.collectsIn') ?? '')
+              .split(',')
+              .map((code) => code.trim().toUpperCase())
+              .filter(Boolean),
+            estimateShownBeforeCheckout: form.get('tax.estimateShownBeforeCheckout') === 'true',
+            registrationNumber: form.get('tax.registrationNumber')?.trim() || undefined,
+          }
+        : {
+            mode: 'inclusive' as const,
+            pricesIncludeTax: form.get('tax.pricesIncludeTax') === 'true',
+            ratePct: num(form.get('tax.ratePct')),
+            registrationNumber: form.get('tax.registrationNumber')?.trim() || undefined,
+          },
     warranty:
       warrantyMonths && warrantySummary
         ? { months: num(warrantyMonths), summary: warrantySummary }

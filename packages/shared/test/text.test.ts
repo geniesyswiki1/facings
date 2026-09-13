@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { enforceDashRule, findCopyViolations, jaccard, normaliseTitle, titleTokens } from '@facings/shared'
+import { enforceDashRule, findCopyViolations, jaccard, normaliseTitle, titleTokens } from '@showing-up/shared'
 
 describe('copy rules', () => {
   it('flags every banned dash, because the rule covers generated reports too', () => {

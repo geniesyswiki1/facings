@@ -1,5 +1,5 @@
-import type { Product } from '@facings/shared'
-import { normaliseTitle } from '@facings/shared'
+import type { Product } from '@showing-up/shared'
+import { normaliseTitle } from '@showing-up/shared'
 
 /**
  * Category inference for the query library.

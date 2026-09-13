@@ -71,9 +71,9 @@ export const MMC: SpecVersion = {
 export const SPEC_VERSIONS = { UCP, ACP, GMC, MMC } as const
 
 /**
- * UCP capability declarations Facings publishes on a merchant's behalf.
+ * UCP capability declarations Showing Up publishes on a merchant's behalf.
  *
- * Facings serves the discovery layer only. SPEC 1 is explicit that this is not
+ * Showing Up serves the discovery layer only. SPEC 1 is explicit that this is not
  * a checkout: agents discover and redirect, and the merchant's own checkout
  * converts. So no payment handler is ever declared here, and the capability set
  * stays read-only. Adding a checkout capability would be a product decision,

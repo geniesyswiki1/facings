@@ -1,4 +1,4 @@
-import { ENGINE_LABELS, escapeHtml } from '@facings/shared'
+import { ENGINE_LABELS, escapeHtml } from '@showing-up/shared'
 import type { StoreContext } from '../context.js'
 import { layout } from './layout.js'
 
@@ -7,7 +7,7 @@ export function homeScreen(contexts: StoreContext[]): string {
   const body = `
     <h1>Stores</h1>
     <p class="lead">
-      Presence hosting is live for these stores. Each one publishes a UCP manifest and a product feed that Facings
+      Presence hosting is live for these stores. Each one publishes a UCP manifest and a product feed that Showing Up
       hosts and the merchant points at from their own domain.
     </p>
 

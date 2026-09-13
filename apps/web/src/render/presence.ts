@@ -1,5 +1,5 @@
-import { ENGINE_LABELS, escapeHtml } from '@facings/shared'
-import { ACP, UCP } from '@facings/protocols'
+import { ENGINE_LABELS, escapeHtml } from '@showing-up/shared'
+import { ACP, UCP } from '@showing-up/protocols'
 import type { StoreContext } from '../context.js'
 import { layout } from './layout.js'
 
@@ -69,7 +69,7 @@ export function presenceScreen(context: StoreContext): string {
 
     <h2>Hosted endpoints</h2>
     <p class="lead">
-      Facings hosts these and the merchant points at them from their own domain. They are public and unauthenticated
+      Showing Up hosts these and the merchant points at them from their own domain. They are public and unauthenticated
       because agent crawlers read them without credentials.
     </p>
     ${endpointRow('UCP manifest', endpoints.ucp, `protocol ${UCP.version}`)}

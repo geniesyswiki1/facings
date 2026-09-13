@@ -1,8 +1,8 @@
 {
-  "name": "facings",
+  "name": "showing-up",
   "private": true,
   "version": "0.1.0",
-  "description": "Facings: the agent channel manager for merchants who are not on Shopify. Phase 0 audit harness.",
+  "description": "Showing Up: the agent channel manager for merchants who are not on Shopify. Phase 0 audit harness.",
   "license": "UNLICENSED",
   "type": "module",
   "engines": {

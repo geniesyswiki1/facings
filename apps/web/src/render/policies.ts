@@ -1,5 +1,5 @@
-import { escapeHtml } from '@facings/shared'
-import { policyGaps, catalogueHasSizes, type Policy } from '@facings/protocols'
+import { escapeHtml, marketProfile, taxPrompt } from '@showing-up/shared'
+import { policyGaps, catalogueHasSizes, type Policy } from '@showing-up/protocols'
 import type { StoreContext } from '../context.js'
 import { layout } from './layout.js'
 
@@ -15,11 +15,16 @@ import { layout } from './layout.js'
 export function policiesScreen(context: StoreContext, options: { writable: boolean; saved?: boolean; error?: string }): string {
   const { record } = context
   const policy = record.policy
-  const gaps = policyGaps(policy, { needsSizing: catalogueHasSizes(record.products) })
+  const market = policy?.market ?? record.store.market
+  const profile = marketProfile(market)
+  const gaps = policyGaps(policy, { market, needsSizing: catalogueHasSizes(record.products) })
   const blockers = gaps.filter((gap) => gap.severity === 'blocker')
   const recommended = gaps.filter((gap) => gap.severity === 'recommended')
 
   const deliveryRows = [...(policy?.delivery ?? []), emptyDelivery()]
+  // Narrowed once here so the template stays readable.
+  const inclusive = policy?.tax?.mode === 'inclusive' ? policy.tax : undefined
+  const exclusive = policy?.tax?.mode === 'exclusive' ? policy.tax : undefined
 
   const body = `
     <h1>Policies</h1>
@@ -103,24 +108,40 @@ export function policiesScreen(context: StoreContext, options: { writable: boole
       </fieldset>
 
       <fieldset>
-        <legend>VAT in this market</legend>
+        <legend>${escapeHtml(profile.taxLabel)} in this market</legend>
+        <input type="hidden" name="tax.mode" value="${profile.taxMode}">
+        <p class="field-note">${escapeHtml(taxPrompt(market, profile.locale))}</p>
         <div class="row">
-          <label>
-            <span>Do displayed prices include VAT? EU consumer law expects yes.</span>
-            <select name="vat.pricesIncludeVat">
-              ${option('true', 'Yes, prices include VAT', String(policy?.vat.pricesIncludeVat ?? ''))}
-              ${option('false', 'No, VAT is added at checkout', String(policy?.vat.pricesIncludeVat ?? ''))}
+          ${
+            profile.taxMode === 'inclusive'
+              ? `<label>
+            <span>Do displayed prices include ${escapeHtml(profile.taxLabel)}?</span>
+            <select name="tax.pricesIncludeTax">
+              ${option('true', `Yes, prices include ${profile.taxLabel}`, String(inclusive?.pricesIncludeTax ?? ''))}
+              ${option('false', `No, ${profile.taxLabel} is added at checkout`, String(inclusive?.pricesIncludeTax ?? ''))}
             </select>
           </label>
           <label>
             <span>Standard rate, percent</span>
-            <input name="vat.ratePct" type="number" min="0" max="100" step="0.1" value="${escapeHtml(
-              String(policy?.vat.ratePct ?? ''),
+            <input name="tax.ratePct" type="number" min="0" max="100" step="0.1" value="${escapeHtml(
+              String(inclusive?.ratePct ?? profile.standardTaxRatePct ?? ''),
             )}">
+          </label>`
+              : `<label>
+            <span>States you collect in, comma separated</span>
+            <input name="tax.collectsIn" value="${escapeHtml((exclusive?.collectsIn ?? []).join(', '))}">
           </label>
           <label>
-            <span>VAT registration, optional</span>
-            <input name="vat.registrationNumber" value="${escapeHtml(policy?.vat.registrationNumber ?? '')}">
+            <span>Is an estimate shown before checkout?</span>
+            <select name="tax.estimateShownBeforeCheckout">
+              ${option('true', 'Yes', String(exclusive?.estimateShownBeforeCheckout ?? ''))}
+              ${option('false', 'No', String(exclusive?.estimateShownBeforeCheckout ?? ''))}
+            </select>
+          </label>`
+          }
+          <label>
+            <span>${escapeHtml(profile.taxLabel)} registration, optional</span>
+            <input name="tax.registrationNumber" value="${escapeHtml(policy?.tax?.registrationNumber ?? '')}">
           </label>
         </div>
       </fieldset>

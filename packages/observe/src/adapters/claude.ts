@@ -22,7 +22,7 @@ export class ClaudeAdapter implements EngineAdapter {
 
   constructor(
     private readonly apiKey = process.env.ANTHROPIC_API_KEY ?? '',
-    private readonly model = process.env.FACINGS_ANTHROPIC_MODEL ?? 'claude-sonnet-4-5',
+    private readonly model = process.env.SHOWING_UP_ANTHROPIC_MODEL ?? 'claude-sonnet-4-5',
     private readonly fetchImpl: typeof fetch = fetch,
     private readonly baseUrl = process.env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com',
   ) {}
@@ -32,7 +32,7 @@ export class ClaudeAdapter implements EngineAdapter {
   }
 
   configurationHint(): string {
-    return 'set ANTHROPIC_API_KEY. Optional: FACINGS_ANTHROPIC_MODEL.'
+    return 'set ANTHROPIC_API_KEY. Optional: SHOWING_UP_ANTHROPIC_MODEL.'
   }
 
   async observe(input: ObserveInput): Promise<AdapterResult> {

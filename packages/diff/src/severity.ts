@@ -1,4 +1,4 @@
-import type { FindingType, Product, Query, Severity } from '@facings/shared'
+import type { FindingType, Product, Query, Severity } from '@showing-up/shared'
 
 /**
  * Severity and revenue at risk.

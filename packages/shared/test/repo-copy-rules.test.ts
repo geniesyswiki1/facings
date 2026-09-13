@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { findCopyViolations } from '@facings/shared'
+import { findCopyViolations } from '@showing-up/shared'
 
 /**
  * SPEC 2.3 puts the dash rule on everything, "including generated reports and

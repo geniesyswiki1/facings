@@ -1,11 +1,11 @@
-import type { Card, EngineId, ObservationMethod, Query } from '@facings/shared'
+import type { Card, EngineId, ObservationMethod, Query } from '@showing-up/shared'
 
 /**
  * The adapter contract. One per engine, per SPEC 4.4.
  *
  * An adapter either observes the surface through an official API, or it does
  * not observe it at all and says so. There is no third path: approximating a
- * surface Facings cannot reach would put an unfalsifiable claim into a document
+ * surface Showing Up cannot reach would put an unfalsifiable claim into a document
  * we sell as a compliance record.
  */
 export interface EngineAdapter {

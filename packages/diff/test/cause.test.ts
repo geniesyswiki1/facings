@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { Finding, Product } from '@facings/shared'
-import { inferCauses } from '@facings/diff'
+import type { Finding, Product } from '@showing-up/shared'
+import { inferCauses } from '@showing-up/diff'
 
 const product: Product = {
   storeId: 's1',

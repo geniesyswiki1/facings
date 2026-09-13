@@ -15,7 +15,7 @@ import {
   MARKET_CURRENCY,
   newRunId,
   stableId,
-} from '@facings/shared'
+} from '@showing-up/shared'
 import {
   connectorAvailable,
   detectPlatform,
@@ -23,8 +23,8 @@ import {
   importCsvFile,
   importFeedFile,
   importFeedUrl,
-} from '@facings/connectors'
-import { buildQueries } from '@facings/benchmark'
+} from '@showing-up/connectors'
+import { buildQueries } from '@showing-up/benchmark'
 import {
   ClaudeAdapter,
   type EngineAdapter,
@@ -39,8 +39,8 @@ import {
   representativeObservation,
   runObservations,
   type ProgressEvent,
-} from '@facings/observe'
-import { buildHeadlines, diffObservation, inferCauses, scorePresence } from '@facings/diff'
+} from '@showing-up/observe'
+import { buildHeadlines, diffObservation, inferCauses, scorePresence } from '@showing-up/diff'
 import { buildReportModel } from './report/model.js'
 import { renderReportHtml } from './report/html.js'
 import { renderPdf } from './report/pdf.js'
@@ -141,7 +141,7 @@ export async function runAudit(options: AuditOptions): Promise<AuditResult> {
     connectorStatus: options.woo ? 'connected' : options.csvPath ? 'manual' : 'feed',
   }
   if (detection.platform !== 'unknown' && !connectorAvailable(detection.platform)) {
-    notes.push(`Facings has no write connector for ${detection.platform} yet, so fixes would be suggestions only`)
+    notes.push(`Showing Up has no write connector for ${detection.platform} yet, so fixes would be suggestions only`)
   }
 
   // 3. Query set.

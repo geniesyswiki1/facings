@@ -1,5 +1,5 @@
 /**
- * Core types for the Facings Phase 0 audit harness.
+ * Core types for the Showing Up Phase 0 audit harness.
  *
  * These mirror the data model in SPEC.md section 4.3. Phase 0 keeps them in
  * memory and on disk; Phase 2 persists the same shapes to Postgres, so field
@@ -14,6 +14,9 @@ export type EngineId =
   | 'copilot'
   | 'perplexity'
   | 'claude'
+
+/** Every engine, in the order screens and reports list them. */
+export const ALL_ENGINES: EngineId[] = ['openai', 'gemini', 'google-ai-mode', 'copilot', 'perplexity', 'claude']
 
 /**
  * How an observation was made. Recorded on every stored result, without
@@ -30,8 +33,13 @@ export type ObservationMethod =
   /** Recorded fixture, replayed. Never valid evidence for a merchant report. */
   | 'fixture'
 
-export type Market = 'UK' | 'DE' | 'FR' | 'NL' | 'ES' | 'IT'
-export type Language = 'en' | 'de' | 'fr' | 'nl' | 'es' | 'it'
+// Markets, regions, locales and languages live in markets.js, which is the
+// single source of truth for what each one implies about currency, tax
+// presentation and statutory returns. Imported for use below and re-exported
+// so existing imports of Market and Language keep working.
+import type { Language, Market } from './markets.js'
+
+export type { Language, Locale, Market, MarketProfile, Region, TaxMode } from './markets.js'
 
 export type Platform =
   | 'woocommerce'

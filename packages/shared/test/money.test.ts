@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatMoney, parseMoney, priceDelta } from '@facings/shared'
+import { formatMoney, parseMoney, priceDelta } from '@showing-up/shared'
 
 describe('parseMoney', () => {
   it('reads the UK convention', () => {

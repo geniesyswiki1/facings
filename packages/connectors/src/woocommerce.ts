@@ -1,4 +1,4 @@
-import type { Product } from '@facings/shared'
+import type { Product } from '@showing-up/shared'
 import { productInputSchema, toProduct } from './catalogue.js'
 
 /**
@@ -61,7 +61,7 @@ export async function fetchWooProducts(
     headers: {
       authorization: `Basic ${auth}`,
       accept: 'application/json',
-      'user-agent': 'FacingsAudit/0.1',
+      'user-agent': 'ShowingUpAudit/0.1',
     },
   })
 

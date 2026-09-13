@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { gunzipSync } from 'node:zlib'
-import { findCopyViolations, PALETTE } from '@facings/shared'
+import { findCopyViolations, PALETTE } from '@showing-up/shared'
 import {
   MemoryRepository,
   demoRecord,
@@ -12,14 +12,14 @@ import {
   handleUcp,
   parseFeedPath,
   publishedSigningKeys,
-} from '@facings/web'
+} from '@showing-up/web'
 
 /** response.json() is typed unknown, and these tests assert on its shape. */
 async function json<T = any>(response: Response): Promise<T> {
   return (await response.json()) as T
 }
 
-const ORIGIN = 'https://facings.netlify.app'
+const ORIGIN = 'https://showing-up.netlify.app'
 
 function repo(options: { writable?: boolean } = {}) {
   return MemoryRepository.fromSeed([demoRecord()], options)
@@ -65,7 +65,7 @@ describe('the UCP manifest endpoint', () => {
     for (const key of manifest.signing_keys) expect('d' in key).toBe(false)
   })
 
-  it('declares no payment handler, because Facings is not a checkout', async () => {
+  it('declares no payment handler, because Showing Up is not a checkout', async () => {
     const manifest = await json(await handleUcp(request('/.well-known/ucp?store=nordlicht'), repo()))
     expect(manifest.ucp.payment_handlers).toEqual({})
   })
@@ -89,10 +89,10 @@ describe('the ACP feed endpoint', () => {
 
   it('reports the item and exclusion counts on the response', async () => {
     const response = await handleAcpFeed(request('/feeds/acp/nordlicht.jsonl'), repo())
-    expect(Number(response.headers.get('x-facings-item-count'))).toBeGreaterThan(0)
+    expect(Number(response.headers.get('x-showing-up-item-count'))).toBeGreaterThan(0)
     // The seed deliberately contains a discontinued product and one with no
     // description, so a zero here would mean the exclusion path stopped working.
-    expect(Number(response.headers.get('x-facings-excluded-count'))).toBe(2)
+    expect(Number(response.headers.get('x-showing-up-excluded-count'))).toBe(2)
   })
 
   it('serves CSV when asked', async () => {
@@ -161,7 +161,7 @@ describe('the screens', () => {
     expect(response.status).toBe(200)
     const body = await response.text()
     expect(body).toContain('nordlicht-audio.de')
-    expect(body).toContain('facings')
+    expect(body).toContain('showing up')
   })
 
   it('renders Presence with the endpoints and the feed exclusions', async () => {
@@ -241,8 +241,9 @@ describe('the policy editor POST', () => {
       'delivery.1.maxDays': '0',
       'delivery.1.cost': '0',
       'delivery.1.currency': '',
-      'vat.pricesIncludeVat': 'true',
-      'vat.ratePct': '19',
+      'tax.mode': 'inclusive',
+      'tax.pricesIncludeTax': 'true',
+      'tax.ratePct': '19',
       privacyPolicyUrl: 'https://nordlicht-audio.de/datenschutz',
       termsUrl: 'https://nordlicht-audio.de/agb',
       ...overrides,

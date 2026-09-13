@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { validateAcpItem, validateUcpManifest, UCP } from '@facings/protocols'
-import { MemoryRepository, demoRecord, handleAcpFeed, handleUcp } from '@facings/web'
+import { validateAcpItem, validateUcpManifest, UCP } from '@showing-up/protocols'
+import { MemoryRepository, demoRecord, handleAcpFeed, handleUcp } from '@showing-up/web'
 
 /**
  * The Phase 1 acceptance check, from SPEC 11:
@@ -11,7 +11,7 @@ import { MemoryRepository, demoRecord, handleAcpFeed, handleUcp } from '@facings
  * Written as a test so it runs on every commit rather than once by hand.
  *
  * One honest limit: this asserts the manifest conforms to the rules the
- * published specification states, which is what Facings can check itself.
+ * published specification states, which is what Showing Up can check itself.
  * Running it through Google's own validator is a manual step before a merchant
  * is told they are compliant, and it is on the Phase 1 handover list.
  */
@@ -21,7 +21,7 @@ async function json<T = any>(response: Response): Promise<T> {
   return (await response.json()) as T
 }
 
-const ORIGIN = 'https://facings.netlify.app'
+const ORIGIN = 'https://showing-up.netlify.app'
 const repository = () => MemoryRepository.fromSeed([demoRecord()])
 const request = (path: string) => new Request(`${ORIGIN}${path}`)
 
@@ -81,12 +81,12 @@ describe('Phase 1 check: a WooCommerce store on Adyen in Germany', () => {
     expect(advertised.startsWith(ORIGIN)).toBe(true)
     const feed = await handleAcpFeed(new Request(advertised), repository())
     expect(feed.status).toBe(200)
-    expect(Number(feed.headers.get('x-facings-item-count'))).toBeGreaterThan(0)
+    expect(Number(feed.headers.get('x-showing-up-item-count'))).toBeGreaterThan(0)
   })
 
   it('prices the feed in the market currency, VAT inclusive per the policy', async () => {
     const record = await repository().get('nordlicht')
-    expect(record?.policy?.vat.pricesIncludeVat).toBe(true)
+    expect((record?.policy?.tax as { pricesIncludeTax?: boolean } | undefined)?.pricesIncludeTax).toBe(true)
 
     const response = await handleAcpFeed(request('/feeds/acp/nordlicht.jsonl'), repository())
     const items = (await response.text()).split('\n').filter(Boolean).map((line) => JSON.parse(line))

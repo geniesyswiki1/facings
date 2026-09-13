@@ -1,4 +1,4 @@
-import type { EngineId, Product } from '@facings/shared'
+import type { EngineId, Product } from '@showing-up/shared'
 import type { BuildFeedResult } from './acp-feed.js'
 import type { ManifestValidation } from './ucp-manifest.js'
 import type { Policy } from './policy-schema.js'
@@ -9,7 +9,7 @@ import { policyGaps } from './policy-schema.js'
  *
  * Phase 0 could observe the other two directly. Ingested and rendering are
  * facts about what an engine did. Eligible is a fact about what the merchant
- * publishes, so it is computed here from the artefacts Facings hosts rather
+ * publishes, so it is computed here from the artefacts Showing Up hosts rather
  * than inferred from an observation.
  *
  * The distinction matters commercially: a store that is not eligible has a

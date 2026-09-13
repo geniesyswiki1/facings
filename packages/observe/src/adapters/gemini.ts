@@ -21,7 +21,7 @@ export class GeminiAdapter implements EngineAdapter {
 
   constructor(
     private readonly apiKey = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_AI_API_KEY ?? '',
-    private readonly model = process.env.FACINGS_GEMINI_MODEL ?? 'gemini-2.5-flash',
+    private readonly model = process.env.SHOWING_UP_GEMINI_MODEL ?? 'gemini-2.5-flash',
     private readonly fetchImpl: typeof fetch = fetch,
   ) {}
 
@@ -30,7 +30,7 @@ export class GeminiAdapter implements EngineAdapter {
   }
 
   configurationHint(): string {
-    return 'set GEMINI_API_KEY (or GOOGLE_AI_API_KEY). Optional: FACINGS_GEMINI_MODEL.'
+    return 'set GEMINI_API_KEY (or GOOGLE_AI_API_KEY). Optional: SHOWING_UP_GEMINI_MODEL.'
   }
 
   async observe(input: ObserveInput): Promise<AdapterResult> {

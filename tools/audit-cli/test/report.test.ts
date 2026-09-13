@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { PALETTE, findCopyViolations, type Finding, type Observation, type Product, type Query, type RunManifest } from '@facings/shared'
-import { buildHeadlines, diffObservation } from '@facings/diff'
-import { buildReportModel, issueLabel, observationsCsv, findingsCsv, renderReportHtml } from '@facings/audit-cli'
+import { PALETTE, findCopyViolations, type Finding, type Observation, type Product, type Query, type RunManifest } from '@showing-up/shared'
+import { buildHeadlines, diffObservation } from '@showing-up/diff'
+import { buildReportModel, issueLabel, observationsCsv, findingsCsv, renderReportHtml } from '@showing-up/audit-cli'
 
 const product: Product = {
   storeId: 's1',

@@ -4,7 +4,7 @@ import {
   toCsv,
   toJsonl,
   type MerchantCenterKind,
-} from '@facings/protocols'
+} from '@showing-up/protocols'
 import type { StoreRepository } from './repository.js'
 import { buildContext, originOf, SURFACES } from './context.js'
 import { homeScreen } from './render/home.js'
@@ -28,7 +28,7 @@ const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8' }
  * Resolved by the Host header first, because the merchant points their own
  * domain at this endpoint and an agent fetching nordlicht-audio.de/.well-known/ucp
  * must get that store. The ?store= parameter is the fallback for reading a
- * manifest from the Facings domain itself.
+ * manifest from the Showing Up domain itself.
  */
 export async function handleUcp(request: Request, repository: StoreRepository): Promise<Response> {
   const url = new URL(request.url)
@@ -40,7 +40,7 @@ export async function handleUcp(request: Request, repository: StoreRepository): 
     return new Response(
       JSON.stringify({
         error: 'no store is served at this host',
-        detail: `point the domain at Facings, or fetch /.well-known/ucp?store=<id>. Host seen: ${host}`,
+        detail: `point the domain at Showing Up, or fetch /.well-known/ucp?store=<id>. Host seen: ${host}`,
       }),
       { status: 404, headers: JSON_HEADERS },
     )
@@ -56,7 +56,7 @@ export async function handleUcp(request: Request, repository: StoreRepository): 
     'cache-control': 'public, max-age=300',
   }
   if (!context.validation.valid) {
-    headers['x-facings-manifest-valid'] = 'false'
+    headers['x-showing-up-manifest-valid'] = 'false'
   }
 
   return new Response(JSON.stringify(context.manifest, null, 2), { status: 200, headers })
@@ -79,8 +79,8 @@ export async function handleAcpFeed(request: Request, repository: StoreRepositor
     'cache-control': 'public, max-age=300',
     // The count is on the response so a merchant can see at a glance whether
     // the feed they are serving matches the catalogue they think they have.
-    'x-facings-item-count': String(context.feed.items.length),
-    'x-facings-excluded-count': String(context.feed.exclusions.length),
+    'x-showing-up-item-count': String(context.feed.items.length),
+    'x-showing-up-excluded-count': String(context.feed.exclusions.length),
   }
 
   if (gzipped) {
@@ -117,7 +117,7 @@ export async function handleMerchantFeed(
     headers: {
       'content-type': 'application/xml; charset=utf-8',
       'cache-control': 'public, max-age=300',
-      'x-facings-item-count': String(context.record.products.length),
+      'x-showing-up-item-count': String(context.record.products.length),
     },
   })
 }

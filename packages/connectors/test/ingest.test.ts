@@ -6,7 +6,7 @@ import {
   importFeedXml,
   normaliseAvailability,
   parseCsv,
-} from '@facings/connectors'
+} from '@showing-up/connectors'
 
 describe('parseCsv', () => {
   it('handles quoted fields, escaped quotes and CRLF', () => {

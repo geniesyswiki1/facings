@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { Card, Product } from '@facings/shared'
-import { MATCH_FLOOR, matchCard, matchCards } from '@facings/diff'
+import type { Card, Product } from '@showing-up/shared'
+import { MATCH_FLOOR, matchCard, matchCards } from '@showing-up/diff'
 
 function product(overrides: Partial<Product> = {}): Product {
   return {

@@ -47,7 +47,7 @@ async function main(): Promise<void> {
   await writeFile(
     join(outDir, 'package.json'),
     `${JSON.stringify(
-      { name: 'facings-web-deploy', private: true, type: 'module', dependencies: { '@netlify/blobs': '^11.0.3' } },
+      { name: 'showing-up-web-deploy', private: true, type: 'module', dependencies: { '@netlify/blobs': '^11.0.3' } },
       null,
       2,
     )}\n`,

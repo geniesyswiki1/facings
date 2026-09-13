@@ -1,7 +1,7 @@
 import { gunzipSync } from 'node:zlib'
 import { describe, expect, it } from 'vitest'
-import { findCopyViolations } from '@facings/shared'
-import { FIELD_LIMITS, buildAcpFeed, formatAcpPrice, gzip, toCsv, toJsonl, validateAcpItem } from '@facings/protocols'
+import { findCopyViolations } from '@showing-up/shared'
+import { FIELD_LIMITS, buildAcpFeed, formatAcpPrice, gzip, toCsv, toJsonl, validateAcpItem } from '@showing-up/protocols'
 import { catalogue, germanPolicy, product } from './fixtures.js'
 
 describe('buildAcpFeed', () => {
@@ -20,8 +20,8 @@ describe('buildAcpFeed', () => {
   })
 
   it('never enables checkout, on any product', () => {
-    // SPEC 1: Facings is not a checkout. Publishing true would advertise a
-    // capability neither Facings nor the merchant has wired up.
+    // SPEC 1: Showing Up is not a checkout. Publishing true would advertise a
+    // capability neither Showing Up nor the merchant has wired up.
     const { items } = buildAcpFeed(catalogue(), { policy: germanPolicy() })
     expect(items.every((item) => item.enable_checkout === false)).toBe(true)
   })
@@ -29,7 +29,7 @@ describe('buildAcpFeed', () => {
   it('excludes a discontinued product rather than calling it out of stock', () => {
     // Out of stock tells an agent the product is coming back. SPEC 3.1 counts
     // recommending a discontinued item as a critical finding, so publishing
-    // one would have Facings creating the defect it sells the detection of.
+    // one would have Showing Up creating the defect it sells the detection of.
     const { items, exclusions } = buildAcpFeed(catalogue(), { policy: germanPolicy() })
     expect(items.some((item) => item.id === 'NLA-TT2')).toBe(false)
     const excluded = exclusions.find((entry) => entry.sku === 'NLA-TT2')

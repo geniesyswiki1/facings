@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { Market } from '@facings/shared'
+import { MARKETS, type Market } from '@showing-up/shared'
 
 /**
  * Machine-readable merchant policies. SPEC 3.1, job 1.
@@ -57,25 +57,57 @@ export const sizingSchema = z.object({
 })
 
 /**
- * VAT presentation per market. Getting this wrong is a consumer law problem in
- * the EU rather than a formatting one, so the flag is explicit and there is no
- * default: an unanswered question is a blocker, not an assumed "yes".
+ * Tax presentation per market.
+ *
+ * Two genuinely different models, not one model with a flag, which is why this
+ * is a discriminated union:
+ *
+ * inclusive (UK, DE, AT, CH): the shopper sees a price that already contains
+ * the tax, because price marking law in each of those markets requires it. An
+ * explicit "no" here is a finding rather than a preference.
+ *
+ * exclusive (US): tax is added at checkout once the destination is known. The
+ * rate depends on the shipping address and on where the seller has nexus, so
+ * there is no single rate to declare and asking a US merchant to state one
+ * would produce a number that is wrong for most of their customers.
+ *
+ * Neither branch has a default. An unanswered question is a blocker, not an
+ * assumed yes.
  */
-export const vatSchema = z.object({
-  /** True when displayed prices include VAT, as EU consumer law requires. */
-  pricesIncludeVat: z.boolean(),
+export const inclusiveTaxSchema = z.object({
+  mode: z.literal('inclusive'),
+  /** True when displayed prices already contain the tax. */
+  pricesIncludeTax: z.boolean(),
   /** Standard rate applied in this market, as a percentage. */
   ratePct: z.number().min(0).max(100),
-  /** The merchant's VAT registration for this market, when they have one. */
+  /** The merchant's tax registration for this market, when they have one. */
   registrationNumber: z.string().max(40).optional(),
 })
+
+export const exclusiveTaxSchema = z.object({
+  mode: z.literal('exclusive'),
+  /**
+   * Jurisdictions where the seller is registered and collects, such as US
+   * state codes. Empty is legitimate for a seller under every threshold, so it
+   * is recorded rather than treated as an omission.
+   */
+  collectsIn: z.array(z.string().max(40)).default([]),
+  /**
+   * True when the storefront shows an estimated tax before the checkout step.
+   * Agents read this to answer "what will it actually cost me".
+   */
+  estimateShownBeforeCheckout: z.boolean().default(false),
+  registrationNumber: z.string().max(40).optional(),
+})
+
+export const taxSchema = z.discriminatedUnion('mode', [inclusiveTaxSchema, exclusiveTaxSchema])
 
 export const policySchema = z.object({
   market: z.custom<Market>((value) => typeof value === 'string'),
   language: z.string().min(2).max(5),
   returns: returnsPolicySchema,
   delivery: z.array(deliveryPromiseSchema).min(1),
-  vat: vatSchema,
+  tax: taxSchema,
   warranty: warrantySchema.optional(),
   sizing: sizingSchema.optional(),
   /** Published policy pages, required by ACP before checkout may be enabled. */
@@ -86,7 +118,9 @@ export const policySchema = z.object({
 
 export type Policy = z.infer<typeof policySchema>
 export type ReturnsPolicy = z.infer<typeof returnsPolicySchema>
-export type Vat = z.infer<typeof vatSchema>
+export type Tax = z.infer<typeof taxSchema>
+export type InclusiveTax = z.infer<typeof inclusiveTaxSchema>
+export type ExclusiveTax = z.infer<typeof exclusiveTaxSchema>
 
 export interface PolicyGap {
   field: string
@@ -96,6 +130,12 @@ export interface PolicyGap {
 }
 
 export interface PolicyGapOptions {
+  /**
+   * The market the policy is for. Supplied wherever it is known, because the
+   * law does half the work here: a returns window that is generous in Zurich
+   * is unlawful in Vienna, and neither can be judged without knowing which.
+   */
+  market?: Market
   /**
    * True when the catalogue has products that come in sizes. Sizing is only
    * asked for when it applies: telling a hifi merchant to publish a size chart
@@ -140,12 +180,48 @@ export function policyGaps(policy: Partial<Policy> | undefined, options: PolicyG
     })
   }
 
-  if (!policy.vat) {
+  const profile = options.market ? MARKETS[options.market] : undefined
+
+  if (!policy.tax) {
     gaps.push({
-      field: 'vat',
-      consequence: 'VAT presentation is undeclared, so a quoted price cannot be shown as VAT inclusive in the EU',
+      field: 'tax',
+      consequence: profile
+        ? `${profile.taxLabel} presentation is undeclared, so an agent cannot state what this product actually costs in ${profile.country}`
+        : 'tax presentation is undeclared, so an agent cannot state what this product actually costs',
       severity: 'blocker',
     })
+  } else if (policy.tax.mode === 'inclusive' && !policy.tax.pricesIncludeTax) {
+    // Not a preference. Price marking law in every inclusive market we sell
+    // into requires the consumer-facing price to contain the tax, so an agent
+    // quoting the excluding price quotes a price the shopper cannot pay.
+    gaps.push({
+      field: 'tax.pricesIncludeTax',
+      consequence: profile
+        ? `displayed prices exclude ${profile.taxLabel}, which price marking law in this market does not allow for a consumer price`
+        : 'displayed prices exclude tax, which price marking law in this market does not allow for a consumer price',
+      severity: 'blocker',
+    })
+  }
+
+  // Returns against the statutory floor. Two distinct failures: a window
+  // shorter than the law allows, and a market with no statutory window at all,
+  // where whatever the merchant publishes is the entire protection and its
+  // absence is therefore worth more than a nudge.
+  if (profile && policy.returns) {
+    if (profile.statutoryReturnDays > 0 && policy.returns.windowDays < profile.statutoryReturnDays) {
+      gaps.push({
+        field: 'returns.windowDays',
+        consequence: `the published window is ${policy.returns.windowDays} days but the law in this market already gives the shopper ${profile.statutoryReturnDays}, so the published figure understates their rights`,
+        severity: 'blocker',
+      })
+    }
+    if (profile.statutoryReturnDays === 0 && policy.returns.windowDays === 0) {
+      gaps.push({
+        field: 'returns.windowDays',
+        consequence: 'this market has no statutory returns window and none is published, so an agent has nothing to tell a shopper who asks',
+        severity: 'recommended',
+      })
+    }
   }
 
   if (!policy.privacyPolicyUrl || !policy.termsUrl) {

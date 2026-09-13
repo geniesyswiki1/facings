@@ -1,4 +1,4 @@
-# Facings web app. SPEC 3.2 screens and the hosted protocol endpoints.
+# Showing Up web app. SPEC 3.2 screens and the hosted protocol endpoints.
 #
 # The endpoints an agent crawler reads are public and unauthenticated by
 # design: the UCP manifest and the product feeds are discovery surfaces, and

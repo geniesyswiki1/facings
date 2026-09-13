@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, join, relative } from 'node:path'
-import type { EngineId, RawRef } from '@facings/shared'
-import { sha256 } from '@facings/shared'
+import type { EngineId, RawRef } from '@showing-up/shared'
+import { sha256 } from '@showing-up/shared'
 
 /**
  * The evidence store.

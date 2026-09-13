@@ -1,5 +1,5 @@
 {
-  "name": "@facings/connectors",
+  "name": "@showing-up/connectors",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -8,7 +8,7 @@
     "./*": "./src/*.ts"
   },
   "dependencies": {
-    "@facings/shared": "*",
+    "@showing-up/shared": "*",
     "fast-xml-parser": "^5.11.1",
     "zod": "^3.24.1"
   }

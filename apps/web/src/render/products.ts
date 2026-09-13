@@ -1,4 +1,4 @@
-import { escapeHtml, formatMoney } from '@facings/shared'
+import { escapeHtml, formatMoney } from '@showing-up/shared'
 import type { StoreContext } from '../context.js'
 import { layout } from './layout.js'
 

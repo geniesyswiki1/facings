@@ -1,4 +1,4 @@
-import { DISPLAY_FONT, PALETTE, POSITIONING, TEXT_FONT, escapeHtml, logoSvg } from '@facings/shared'
+import { DISPLAY_FONT, PALETTE, POSITIONING, TEXT_FONT, escapeHtml, logoSvg } from '@showing-up/shared'
 
 /**
  * The app shell. Same six colours and two families as the audit report, per
@@ -28,7 +28,7 @@ export function layout(options: LayoutOptions, body: string): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${escapeHtml(options.title)} | Facings</title>
+<title>${escapeHtml(options.title)} | Showing Up</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -95,7 +95,7 @@ export function layout(options: LayoutOptions, body: string): string {
 <div class="wrap">
   <header class="top">
     <div>
-      <div class="brand">${logoSvg(20)}<span class="wordmark">facings</span></div>
+      <div class="brand">${logoSvg(20)}<span class="wordmark">showing up</span></div>
       <div class="tagline">${escapeHtml(POSITIONING)}</div>
     </div>
     <div class="meta">${(options.meta ?? []).map((line) => `<div>${line}</div>`).join('')}</div>
@@ -111,7 +111,7 @@ export function layout(options: LayoutOptions, body: string): string {
 ${body}
   </section>
   <footer>
-    Facings reports what each surface rendered at a point in time. It does not control any surface, and it does not
+    Showing Up reports what each surface rendered at a point in time. It does not control any surface, and it does not
     claim a ranking or a revenue effect.
   </footer>
 </div>

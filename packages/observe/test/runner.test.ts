@@ -2,15 +2,15 @@ import { mkdtemp, readFile, readdir } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import type { Query, Store } from '@facings/shared'
-import { sha256 } from '@facings/shared'
+import type { Query, Store } from '@showing-up/shared'
+import { sha256 } from '@showing-up/shared'
 import {
   type AdapterResult,
   type EngineAdapter,
   EvidenceStore,
   type ObserveInput,
   runObservations,
-} from '@facings/observe'
+} from '@showing-up/observe'
 
 const store: Store = {
   id: 's1',
@@ -67,7 +67,7 @@ class UnconfiguredAdapter implements EngineAdapter {
 }
 
 async function evidenceDir(): Promise<{ dir: string; evidence: EvidenceStore }> {
-  const dir = await mkdtemp(join(tmpdir(), 'facings-run-'))
+  const dir = await mkdtemp(join(tmpdir(), 'showing-up-run-'))
   return { dir, evidence: new EvidenceStore(dir) }
 }
 
