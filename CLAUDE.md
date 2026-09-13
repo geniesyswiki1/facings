@@ -64,8 +64,8 @@ in the connectors package is the check.
 
 ## Observation constraints
 
-These are why the audit log can be sold as a compliance artefact. They are not
-preferences and should not be traded away for coverage:
+These are why the audit log can be sold as evidence. They are not preferences
+and should not be traded away for coverage:
 
 - Every stored observation records the method it was made by.
 - Never touch a consumer surface outside a consented panel session. Google AI
@@ -111,6 +111,28 @@ Protocol versions and capability identifiers are pinned as data in
 `packages/protocols/src/versions.ts`. A pin whose `canonical` flag is false has
 not been confirmed against the published specification, and the validator
 reports it as a warning rather than passing it silently.
+
+## Claims we do not make
+
+Verified 13 September 2026 against primary sources. Do not reintroduce these:
+
+- **Not** "the FTC requires accurate AI product representation". The 1 July 2026
+  policy statement is proposed, not final, and addresses AI providers who
+  configure systems toward undisclosed objectives, not merchants misdescribed
+  by a third-party assistant.
+- **Not** "the EU AI Act requires accurate product information". Article 50 is
+  transparency only: disclose that a system is AI, mark generated output. No
+  product-accuracy obligation exists in it.
+- **Not** any published rate for how often assistants state a wrong price or
+  recommend a discontinued product. No such measurement exists anywhere. The
+  benchmark is how we produce the first one, so citing a made-up figure would
+  destroy the asset before it is built.
+- **Not** the Salesforce "$262bn, 20% of retail" figure as agentic commerce
+  sizing. Salesforce never defines "AI-influenced" and the number bundles
+  on-site recommendation engines with third-party agent referral.
+
+The audit log is sold as **evidence**, not as a regulatory requirement. Never
+claim a legal obligation we cannot cite to a published, in-force instrument.
 
 Never commit secrets. Credentials come from the environment; `.env.example`
 lists the names.

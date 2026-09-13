@@ -114,7 +114,11 @@ No gradients, no shadows, no illustrations. Product images appear only inside ca
 - Daily observation across ChatGPT, Gemini and Google AI Mode, Copilot, Perplexity and Claude using the observation methods in 4.4. For each query and engine: card presence, position, product identity, price, variant, availability, rating, image, competitor adjacency, and the landing URL.
 - Diff against the live catalogue: wrong price, wrong variant, discontinued item recommended, bestseller absent, competitor substituted, broken image, stale availability.
 - Alerts by severity, with the SKU and the probable cause (missing attribute, stale feed, price mismatch between feed and page, no policy data).
-- The audit log: every observation stored with timestamp, engine, method, raw response reference and the catalogue state at that moment. Exportable as PDF and CSV. Retained 24 months. This is the compliance artefact for the FTC policy statement and for EU consumer law questions about representations made through agents.
+- The audit log: every observation stored with timestamp, engine, method, raw response reference and the catalogue state at that moment. Exportable as PDF and CSV. Retained 24 months.
+
+  **What this log is, stated accurately.** Earlier drafts of this spec called it "the compliance artefact for the FTC policy statement and for EU consumer law". That claim does not survive the primary sources and is withdrawn. The FTC statement of 1 July 2026 is *proposed*, not final, and addresses AI providers who configure systems toward undisclosed objectives, not merchants whose products a third-party assistant misdescribes. EU AI Act Article 50, applicable from 2 August 2026, is a transparency regime: it requires disclosure that a system is AI and machine-readable marking of its output, and contains no product-accuracy obligation.
+
+  What the log defensibly is: evidence. It is the only dated record of how a merchant's products were represented at a given moment, which is what answers a customer dispute, a marketplace or platform challenge, a chargeback, or an internal question about when a price went wrong and for how long. General consumer protection law on misleading commercial practices continues to apply to the merchant's own representations, and the regulatory picture is moving; neither of those is the same as a rule that exists today, and we do not sell it as one. Never claim a legal requirement we cannot cite.
 
 **Job 3, Action.**
 
