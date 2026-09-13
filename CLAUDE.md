@@ -58,9 +58,9 @@ Copy is authored in British English and localised on the way out:
 `localiseSpelling` handles en-US, and German comes from the message catalogue
 in `packages/shared/src/messages.ts`. Code identifiers stay British.
 
-Shopify is in scope **in the US only**, on a narrow accuracy-only tier.
-`offeringFor(platform, market)` in the connectors package is the check, and it
-returns `out-of-scope` for Shopify anywhere else.
+Shopify is in scope in **all five markets**, on a narrow accuracy-only tier.
+`offeringFor(platform)` in the connectors package is the check: it takes no
+market, because the answer does not vary by one.
 
 Corrected 13 September 2026, and the corrected version matters. Shopify's
 Spring 2026 Edition ships **Search Intelligence** (top AI queries in a
@@ -76,8 +76,22 @@ What Shopify still does not do, per its own wording:
 - publish any retention period, history or audit trail;
 - cover **Perplexity or Claude**, which are absent from its channel list.
 
-Those three are the entire Shopify pitch. Never pitch a Shopify merchant on
-"visibility" or "AI channel reporting", which they already have from Shopify.
+Those three are the entire Shopify pitch, and they are held in
+`SHOPIFY_SELLABLE`. `sellableToShopify()` returns false for `presence` and
+`visibility`, so a screen cannot quietly widen the offer back into what Shopify
+already gives them in the admin they open every morning. Never pitch a Shopify
+merchant on visibility or AI channel reporting.
+
+We never generate presence artefacts for a Shopify store, and the `deliver`
+command enforces that: it prints the three sellable things instead. Verified
+against allbirds.com rather than asserted.
+
+The wedge is three features wide against an incumbent already inside the
+merchant's admin. Search Intelligence already knows which queries to ask and
+already holds the catalogue to compare against, so Shopify adding correctness
+is a plausible release rather than a remote risk. Re-verify the gap before
+building on it; do not treat a build date set months out as evidence it still
+exists.
 
 ## Observation constraints
 
