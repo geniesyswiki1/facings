@@ -28,7 +28,7 @@ Definition of done for the MVP (end of Phase 3): a merchant on WooCommerce with 
 
 **Why we win:** Stripe's Agentic Commerce Suite solves protocol plumbing for Stripe merchants only; Adyen, Mollie, Worldpay and Checkout.com merchants are on their own. That is the wedge, and it is a payment provider question rather than a platform question. Feed tools syndicate data but do not observe the result. The visibility startups are small, enterprise-priced and single-region. Nobody owns self-serve, multi-region, provider agnostic, with correctness and the record built in.
 
-Shopify is a partial exception and the honest version matters. It does presence for its own merchants better than we could, and since its Spring 2026 Edition it also ships Search Intelligence, which reports the top AI queries in a merchant's category and which of them they rank for, plus an agentic dashboard with full channel attribution. What it does not do is check whether the price or availability an assistant **stated** is correct against the live catalogue, keep a dated record of any of it, or cover Perplexity and Claude. Those three are the only things we sell a Shopify merchant, and only in the US. See 3.5.
+Shopify is a partial exception and the honest version matters. It does presence for its own merchants better than we could, and since its Spring 2026 Edition it also ships Search Intelligence, which reports the top AI queries in a merchant's category and which of them they rank for, plus an agentic dashboard with full channel attribution. What it does not do is check whether the price or availability an assistant **stated** is correct against the live catalogue, or keep a dated record of any of it. Those two are the only things we sell a Shopify merchant, and they hold in every packaged market. See 3.5.
 
 **What it is not:** not a checkout. In-chat checkout stalled in March 2026; agents discover and redirect, and the merchant's own checkout converts. Not a PIM. Not a brand-level GEO tool.
 
@@ -174,7 +174,7 @@ Checkout of any kind. Brand-level GEO content generation (blog posts, Reddit see
 
 The original exclusion assumed a Europe-first product where Shopify's share of the bracket is modest. That held. Extending to the US changed it, because Shopify's share of US merchants in the two to fifty million bracket is large enough that a blanket exclusion would cut the biggest segment of the biggest new region.
 
-The US-only compromise that followed was then dropped as well. Once the offer is narrowed to three things Shopify demonstrably does not do, there is no reason those three stop being true in Manchester or Zurich. Restricting them to one market was a hedge against our own uncertainty about the wedge, not a fact about the wedge.
+The US-only compromise that followed was then dropped as well. Once the offer is narrowed to what Shopify demonstrably does not do, there is no reason those things stop being true in Manchester or Zurich. Restricting them to one market was a hedge against our own uncertainty about the wedge, not a fact about the wedge.
 
 The first revision then over-corrected, on the claim that Shopify "does not observe what the surfaces say back". Checked against Shopify's own announcements, that is false. Its Spring 2026 Edition ships Search Intelligence, reporting the top AI queries in a merchant's category and which of them they rank for, and an agentic dashboard attributing orders, sales and conversions across ChatGPT, Copilot, Google AI Mode, Gemini and Shop. That is presence observation and attribution, inside the admin the merchant already uses.
 
@@ -184,11 +184,11 @@ What survives, verified against the same sources, is narrow and real:
 2. **No record.** Shopify publishes no retention period, history or audit trail.
 3. ~~**Two uncovered surfaces.**~~ **Withdrawn 13 September 2026.** Shopify's channel list omitted Perplexity and Claude when this was written. Claude Commerce Agents launched on 2 September 2026 with Shopify as a named partner and a public Shopify implementation inside 48 hours, which leaves Perplexity alone. Perplexity is 2.6% of LLM referral traffic to online stores (Alhena, July 2026, 310 retail brands, 189.76m visitors, 1.6m checkouts) inside a channel three independent cohorts put at roughly 0.24% of retail visits. Surface coverage is therefore a fact we record, not a thing we sell, and the Shopify pitch is two items rather than three.
 
-So: every packaged market, secondary to the non-Shopify motion everywhere, and pitched on those three and nothing else. Never pitched on visibility or AI channel reporting, which Shopify supplies itself.
+So: every packaged market, secondary to the non-Shopify motion everywhere, and pitched on those two and nothing else. Never pitched on visibility or AI channel reporting, which Shopify supplies itself.
 
-Enforced rather than remembered. `offeringFor(platform)` returns `accuracy-only` for Shopify and `presence` for everything else, and takes no market because the answer does not vary by one. The three sellable things live in `SHOPIFY_SELLABLE`, and `sellableToShopify()` returns false for `presence` and `visibility` so a screen cannot widen the offer back. The `deliver` command generates no presence artefacts for a Shopify store and prints the three instead, which is verified against a live Shopify storefront rather than asserted.
+Enforced rather than remembered. `offeringFor(platform)` returns `accuracy-only` for Shopify and `presence` for everything else, and takes no market because the answer does not vary by one. The two sellable things live in `SHOPIFY_SELLABLE`, and `sellableToShopify()` returns false for `presence`, `visibility` and `uncovered-surfaces` so a screen cannot widen the offer back. The `deliver` command generates no presence artefacts for a Shopify store and prints the two instead, which is verified against a live Shopify storefront rather than asserted.
 
-The standing risk, which no amount of code enforcement addresses: this wedge is three features wide against a company already inside the merchant's admin. Search Intelligence already knows which queries to ask and already holds the catalogue to compare against, so Shopify shipping correctness is a plausible release. Re-verify the gap before building further on it.
+The standing risk, which no amount of code enforcement addresses: this wedge is two features wide against a company already inside the merchant's admin. Search Intelligence already knows which queries to ask and already holds the catalogue to compare against, so Shopify shipping correctness is a plausible release. Re-verify the gap before building further on it.
 
 ---
 
@@ -327,7 +327,31 @@ Balanced scorecard, SMART for the first two quarters:
   the financial target misses however well direct selling goes. Track the two
   separately and never report a blended store count that hides which one moved.
 - **Customer:** free-audit-to-paid conversion above 6%; monthly logo churn under 2.5%; NPS above 40 from Growth and Scale.
-- **Internal:** observation reproducibility above 80% per surface, measured weekly; median time from finding to applied fix under 48 hours for Growth stores.
+- **Internal:** observation reproducibility above 80% per surface, measured weekly; median time from finding to applied fix under 48 hours for Growth stores; **shareable query fraction above 45% per category-market by 30 June 2027, from a measured 20% baseline.**
+
+  Added 13 September 2026, because the moat had no metric. The cost of an
+  observation scales with category times market times query times engine times
+  repeat. Revenue scales with store count. Those are different denominators,
+  so gross margin improves as stores cluster inside a category-market only to
+  the extent that one observation answers for more than one store. That is the
+  supply-side scale economy the SPEC 8 panel-cost row already gestures at when
+  it says the benchmark library turns observation into a shared asset, and it
+  is the only candidate moat a better-funded entrant cannot buy without buying
+  our customers.
+
+  The baseline is measured, not estimated: `shareableQueryFraction` in the
+  benchmark package reports **20%** on an English catalogue. 45% of the twenty
+  query slots go to product-name and comparison intents, which name a specific
+  product and can never be shared, and most of the rest render a type string
+  taken from a product title. So four fifths of observation cost currently
+  falls on one store and density buys much less than the risk table assumes.
+
+  The German set measures 60%, and that is a defect rather than a result: the
+  German templates render a bare category label, producing queries no shopper
+  would type. Fixing them will move the number down before it moves up.
+
+  Raising this is a query-mix decision and nothing else. It is the cheapest
+  strategic experiment available and it does not need Phase 2.
 - **Organisational:** benchmark published on the first Tuesday of every month without a miss; two association sessions per quarter delivered.
 - **Operational:** connector uptime 99.5%; daily observation completion above 97% of scheduled runs; audit-log export under 60 seconds.
 
@@ -340,11 +364,11 @@ Quarterly re-scoring of these KPIs is scheduled alongside the validation re-scor
 | Risk | Response in the next 90 days |
 | --- | --- |
 | Surfaces cannot be observed compliantly (M1) | Phase 0 measures it first; surfaces below 80% reproducibility are reported as not observable, and the product's claims shrink to match |
-| Google or OpenAI ship merchant-side accuracy reporting free | Stay multi-engine and PSP-agnostic; own the cross-engine log and the European market data; sell the compliance artefact, which a single engine will not produce about itself |
+| Google or OpenAI ship merchant-side accuracy reporting free | Stay multi-engine and PSP-agnostic; own the cross-engine log and the European market data; sell the record as evidence, which a single engine will not produce about itself |
 | Protocol churn (UCP has moved several times) | Protocol adapters are data-driven and versioned; a spec change is a config release, not a rebuild |
 | Agent traffic is still immaterial for European merchants (M2) | Price the Starter tier low enough to be bought as insurance; lead with presence and the benchmark until traffic arrives |
 | Wildcard, Alhena or a feed tool moves down-market into Europe | Move first with the associations and the marketplaces; agencies are sticky once white-label reports are in client decks |
-| Panel cost scales with stores | Deduplicate queries across stores in the same category and market; the benchmark library turns observation into a shared asset |
+| Panel cost scales with stores | Deduplicate queries across stores in the same category and market; the benchmark library turns observation into a shared asset. Measured at 20% shareable today, so this mitigation is currently worth a fifth of what the row implies; the SPEC 7 internal metric tracks it |
 
 ---
 
@@ -362,7 +386,7 @@ Netlify hosts the web app and marketing site. Figma holds the logo, the grid com
 
 ## 11. Build order for Claude Code
 
-**Phase 0: audit harness (validation instrument, 1 week).** /tools/audit-cli: take a store URL, detect platform, ingest 20 SKUs (connector or manual CSV), build 20 queries, run the observation adapters in 4.4 (API methods first, panel instructions generated for the human-run sessions), normalise cards, diff against catalogue, render a one-page PDF with the grid and three findings, and log reproducibility per surface. Check: run on five real merchants; report reproducibility per engine; this number decides whether Phase 1 starts.
+**Phase 0: audit harness (validation instrument, 1 week).** /tools/audit-cli: take a store URL, detect platform, ingest 20 SKUs (connector or manual CSV), build 20 queries, run the observation adapters in 4.4 (API methods first, panel instructions generated for the human-run sessions), normalise cards, diff against catalogue, render a one-page PDF with the grid and three findings, and log reproducibility per surface. Check: run on five real merchants; report reproducibility per engine, which decides whether Phase 1 starts, and the shareable query fraction per category-market, which is the first read on whether the scale economy in SPEC 7 exists. Both print in the run summary and land in the manifest.
 
 **Phase 1: presence (3 weeks).** Connectors for WooCommerce and Adobe Commerce, generic feed import, ACP feed and UCP manifest hosting, Merchant Center supplementary feed, policy schema and editor, presence scores. Check: a WooCommerce store on Adyen in Germany passes Google's UCP manifest validation and has a live ACP feed endpoint.
 

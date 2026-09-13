@@ -25,7 +25,7 @@ import {
   importFeedUrl,
   discoverPublicCatalogue,
 } from '@showing-up/connectors'
-import { buildQueries } from '@showing-up/benchmark'
+import { buildQueries, shareableQueryFraction } from '@showing-up/benchmark'
 import {
   ClaudeAdapter,
   type EngineAdapter,
@@ -245,6 +245,12 @@ export async function runAudit(options: AuditOptions): Promise<AuditResult> {
   )
 
   // 10. Manifest, report, exports.
+  // The shareable fraction is the Phase 0 read on whether observation cost
+  // falls per store as density inside a category-market rises. SPEC 7.
+  const shareable = shareableQueryFraction(queries)
+  notes.push(
+    `${(shareable * 100).toFixed(0)}% of this run's queries are shareable across stores in the same category and market`,
+  )
   const manifest: RunManifest = {
     runId,
     startedAt: new Date().toISOString(),
@@ -259,6 +265,7 @@ export async function runAudit(options: AuditOptions): Promise<AuditResult> {
     findingCount: findings.length,
     reproducibility: run.reproducibility,
     presence,
+    shareableQueryFraction: shareable,
     fixtureMode,
   }
 

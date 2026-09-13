@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { importCsvText } from '@showing-up/connectors'
-import { INTENT_MIX, buildQueries, inferCategory, inferStoreCategory, productType } from '@showing-up/benchmark'
+import {
+  INTENT_MIX,
+  buildQueries,
+  inferCategory,
+  inferStoreCategory,
+  productType,
+  shareableQueryFraction,
+} from '@showing-up/benchmark'
 import { findCopyViolations } from '@showing-up/shared'
 
 const csv = [
@@ -94,5 +101,71 @@ describe('category inference', () => {
 
   it('drops the brand, the model code and the unit words from the type phrase', () => {
     expect(productType(products[0] as (typeof products)[number], 'electronics')).toBe('bookshelf speaker')
+  })
+})
+
+describe('query shareability, the unit economic', () => {
+  // Observation cost scales with category times market times query times
+  // engine times repeat. Revenue scales with store count. Gross margin
+  // therefore improves with density inside a category-market only to the
+  // extent that queries are shareable, so this is measured rather than
+  // assumed. SPEC 7.
+  const uk = buildQueries(products, { storeId: 's1', market: 'UK', language: 'en' })
+
+  it('marks every query one way or the other', () => {
+    for (const query of uk) expect(typeof query.shareable).toBe('boolean')
+  })
+
+  it('never calls a query naming a specific product shareable', () => {
+    for (const query of uk) {
+      if (!query.shareable) continue
+      expect(query.text.toLowerCase()).not.toContain('northfield')
+      expect(query.text.toLowerCase()).not.toContain('am10')
+    }
+  })
+
+  it('shares a category-level query, which needs no product at all', () => {
+    const returns = uk.find((query) => query.text === 'electronics with a long returns window')
+    expect(returns?.shareable).toBe(true)
+    // The sibling template renders "bookshelf speaker with free returns", where
+    // the type came from a product title, so it is shareable with nobody.
+    const typed = uk.find((query) => query.text === 'bookshelf speaker with free returns')
+    expect(typed?.shareable).toBe(false)
+  })
+
+  it('does not share a product-name query', () => {
+    const named = uk.filter((query) => query.source === 'catalogue')
+    expect(named.length).toBeGreaterThan(0)
+    for (const query of named) expect(query.shareable).toBe(false)
+  })
+
+  it('reports the fraction, and counts an unflagged query as not shareable', () => {
+    const fraction = shareableQueryFraction(uk)
+    expect(fraction).toBeGreaterThan(0)
+    expect(fraction).toBeLessThan(1)
+    expect(shareableQueryFraction([])).toBe(0)
+    const unflagged = uk.map(({ shareable, ...rest }) => rest)
+    expect(shareableQueryFraction(unflagged)).toBe(0)
+  })
+
+  it('measures 20% on an English catalogue, which is the number to improve', () => {
+    // Pinned deliberately. 45% of the 20 slots go to product_name and
+    // comparison, which name a product and can never be shared, and most of
+    // the rest render an English {type} from the product title. So four fifths
+    // of observation cost currently falls on a single store, and density
+    // inside a category-market buys much less than SPEC 8 assumes. Raising
+    // this is a query-mix decision, and this test is what makes a change to it
+    // visible.
+    expect(shareableQueryFraction(uk)).toBeCloseTo(0.2, 2)
+  })
+
+  it('reads higher in German only because the German type is too generic', () => {
+    // German {type} always renders a bare category label, so it measures 60%.
+    // That is not a better cost curve, it is a worse query: "bester Elektronik
+    // fuer den Alltag" is not something a shopper types, and it also does not
+    // agree in gender. Fixing the German templates will push this number down
+    // towards the English one, and that is the correct direction.
+    const de = buildQueries(products, { storeId: 's1', market: 'DE', language: 'de' })
+    expect(shareableQueryFraction(de)).toBeGreaterThan(shareableQueryFraction(uk))
   })
 })

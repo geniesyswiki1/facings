@@ -46,8 +46,8 @@ program
   .option('--feed-url <url>', 'Google Merchant Center XML feed URL')
   .option('--woo-key <key>', 'WooCommerce read-scope consumer key')
   .option('--woo-secret <secret>', 'WooCommerce consumer secret')
-  .option('-m, --market <market>', 'market: UK, DE, FR, NL, ES or IT', 'UK')
-  .option('-l, --language <language>', 'language: en, de, fr, nl, es or it')
+  .option('-m, --market <market>', `market: ${ALL_MARKETS.join(', ')}`, 'UK')
+  .option('-l, --language <language>', 'language: en or de. Defaults to the market\'s language.')
   .option('-e, --engines <list>', `comma separated surfaces, or "api", "panel", "all". Available: ${ALL_ENGINES.join(', ')}`, 'api')
   .option('-r, --repeats <n>', 'repeats per query per surface, two or more to measure reproducibility', parseCount, 3)
   .option('-n, --skus <n>', 'SKUs to audit', parseCount, 20)
@@ -311,6 +311,10 @@ function printSummary(result: Awaited<ReturnType<typeof runAudit>>): void {
   console.log(`run ${manifest.runId}, ${manifest.store.domain}, ${manifest.store.market}`)
   console.log(
     `${manifest.productCount} SKUs, ${manifest.queryCount} queries, ${manifest.observationCount} observations, ${manifest.findingCount} findings`,
+  )
+  console.log('')
+  console.log(
+    `shareable queries: ${(manifest.shareableQueryFraction * 100).toFixed(0)}% of ${manifest.queryCount}, answerable once for every store in this category and market`,
   )
   console.log('')
   console.log('reproducibility per surface, the number that decides Phase 1:')
