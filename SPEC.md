@@ -301,7 +301,25 @@ To be named in the validation sprint (memo action 3). The list is drawn from All
 
 Balanced scorecard, SMART for the first two quarters:
 
-- **Financial:** £50k MRR by end of Q1 2027; blended £200 per store; gross margin above 75%.
+- **Financial:** £50k MRR by end of **Q2** 2027; blended £200 per store; gross margin above 75%.
+
+  Corrected 13 September 2026. This read Q1 2027, which the plan's own ramp
+  cannot support: 40 paying stores by 31 March against the 250 that £50k at
+  £200 blended implies. A target an investor can disprove in ten minutes is
+  worse than no target. Rebuilt from the section 5 price card, including the
+  agency tier the 250-store reading ignores:
+
+  | Gate | Direct stores | Agency workspaces | MRR |
+  | --- | --- | --- | --- |
+  | 15 Dec 2026 | 10 | 2 | £6.4k |
+  | 31 Mar 2027 | 40 | 5 | £18.9k |
+  | 30 Jun 2027 | 120 | 12 | £50.2k |
+
+  One agency workspace at twelve client stores bills £2,187 a month, which is
+  **eleven direct stores**. The agency channel therefore carries most of the
+  path to £50k, and a quarter where agency signings stall is a quarter where
+  the financial target misses however well direct selling goes. Track the two
+  separately and never report a blended store count that hides which one moved.
 - **Customer:** free-audit-to-paid conversion above 6%; monthly logo churn under 2.5%; NPS above 40 from Growth and Scale.
 - **Internal:** observation reproducibility above 80% per surface, measured weekly; median time from finding to applied fix under 48 hours for Growth stores.
 - **Organisational:** benchmark published on the first Tuesday of every month without a miss; two association sessions per quarter delivered.
