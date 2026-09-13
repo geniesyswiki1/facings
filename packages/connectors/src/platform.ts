@@ -219,7 +219,7 @@ export function offeringFor(platform: Platform): Offering {
 }
 
 /**
- * The only three things a Shopify merchant may be sold. Anything outside this
+ * The only two things a Shopify merchant may be sold. Anything outside this
  * list, presence hosting and AI channel visibility above all, is something
  * Shopify already gives them in the admin they open every morning.
  */

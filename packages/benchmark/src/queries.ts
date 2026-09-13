@@ -125,6 +125,20 @@ export interface BuildQueryOptions {
 }
 
 /**
+ * Share of a query set that one observation could answer for every store in
+ * the same category and market, 0 to 1.
+ *
+ * The number that decides whether the cost of observation falls per store as
+ * density inside a category-market rises. A query with no flag counts as not
+ * shareable, so this never reads high by accident.
+ */
+export function shareableQueryFraction(queries: Query[]): number {
+  if (queries.length === 0) return 0
+  const shared = queries.filter((query) => query.shareable === true).length
+  return shared / queries.length
+}
+
+/**
  * Builds the query set. Deterministic for a given catalogue so two runs of the
  * same audit are comparable, which is what makes reproducibility measurable.
  */
@@ -133,7 +147,14 @@ export function buildQueries(products: Product[], options: BuildQueryOptions): Q
   const queries: Query[] = []
   const seen = new Set<string>()
 
-  const push = (text: string, source: Query['source'], intent: QueryIntent, expectedSkus: string[], category?: string) => {
+  const push = (
+    text: string,
+    source: Query['source'],
+    intent: QueryIntent,
+    expectedSkus: string[],
+    category?: string,
+    shareable = false,
+  ) => {
     const trimmed = text.replace(/\s+/g, ' ').trim()
     const key = trimmed.toLowerCase()
     if (!trimmed || seen.has(key) || queries.length >= count) return
@@ -149,6 +170,7 @@ export function buildQueries(products: Product[], options: BuildQueryOptions): Q
       expectedSkus,
     }
     if (category) query.category = category
+    query.shareable = shareable
     queries.push(query)
   }
 
@@ -179,6 +201,19 @@ export function buildQueries(products: Product[], options: BuildQueryOptions): Q
     const type = language === 'de' ? CATEGORY_LABELS_DE[category] : productType(product, category)
     const other = ranked[(productIndex + 1) % ranked.length]
 
+    // Shareable means the text is reconstructible from this query's own
+    // category, market and language, so one observation answers for every
+    // store in that category and market. Two substitutions break it:
+    // {product}, {other} and {brand} name a specific product or merchant, and
+    // in English {type} is the product title tail unless productType fell back
+    // to the category label. German {type} is always a category label, so it
+    // never breaks shareability. {price} survives because roundPriceBand turns
+    // it into a band that many stores in the category land in.
+    const ownCategoryLabel = language === 'de' ? CATEGORY_LABELS_DE[category] : CATEGORY_LABELS[category]
+    const namesAProduct = template.includes('{product}') || template.includes('{other}') || template.includes('{brand}')
+    const typeIsTitleDerived = template.includes('{type}') && type !== ownCategoryLabel
+    const shareable = !namesAProduct && !typeIsTitleDerived
+
     const text = template
       .replace('{product}', productPhrase(product))
       .replace('{other}', other && other.sku !== product.sku ? productPhrase(other) : categoryLabel)
@@ -194,7 +229,7 @@ export function buildQueries(products: Product[], options: BuildQueryOptions): Q
     // broader intents expect any of the merchant's SKUs to render, so an
     // absent verdict there means the store rendered nothing at all.
     const expected = intent === 'product_name' || intent === 'comparison' ? [product.sku] : allSkus
-    push(text, intent === 'product_name' ? 'catalogue' : 'benchmark', intent, expected, category)
+    push(text, intent === 'product_name' ? 'catalogue' : 'benchmark', intent, expected, category, shareable)
   }
 
   const budget: Array<[QueryIntent, number]> = Object.entries(INTENT_MIX) as Array<[QueryIntent, number]>

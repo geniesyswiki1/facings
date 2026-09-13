@@ -97,6 +97,23 @@ export interface Query {
   expectedSkus: string[]
   /** Category label from the benchmark library, used for query dedupe in Phase 2. */
   category?: string
+  /**
+   * True when this query's text is reconstructible from category, market and
+   * language alone, so one observation of it answers for every store in the
+   * same category and market.
+   *
+   * This is the unit economic of the whole business and not a detail. The cost
+   * of an observation scales with category times market times query times
+   * engine times repeat; revenue scales with store count. Those are different
+   * denominators, so gross margin improves with density inside a
+   * category-market only to the extent that queries are shareable. A query
+   * naming a specific product, brand or title-derived type is shareable with
+   * nobody and its cost falls on one store.
+   *
+   * Optional because a hand-built Query in a test does not measure this.
+   * Undefined counts as not shareable, which is the conservative direction.
+   */
+  shareable?: boolean
 }
 
 /**
@@ -229,6 +246,13 @@ export interface RunManifest {
   findingCount: number
   reproducibility: EngineReproducibility[]
   presence: Presence[]
+  /**
+   * Share of this run's queries that one observation could answer for every
+   * store in the same category and market, 0 to 1. Phase 0 reports it because
+   * it is the cheapest available test of whether the scale economy exists.
+   * See Query.shareable.
+   */
+  shareableQueryFraction: number
   /** Set when any engine ran on fixtures. Marks the run as non-evidential. */
   fixtureMode: boolean
 }

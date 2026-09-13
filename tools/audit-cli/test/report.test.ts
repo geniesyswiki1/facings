@@ -73,6 +73,7 @@ const manifest: RunManifest = {
   harnessVersion: '0.1.0',
   engines: ['openai', 'gemini', 'copilot'],
   repeats: 3,
+  shareableQueryFraction: 0.5,
   productCount: 1,
   queryCount: 2,
   observationCount: 6,
