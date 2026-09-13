@@ -214,13 +214,23 @@ async function sitemapCandidates(
   for (const path of ['/sitemap.xml', '/sitemap_index.xml', '/sitemap-index.xml']) {
     candidates.push(new URL(path, origin).toString())
   }
-  return [...new Set(candidates)].slice(0, 6)
+  return [...new Set(candidates)].slice(0, 8)
 }
 
 /** True when a body is actually XML, rather than a soft 404 serving the homepage. */
 function looksLikeSitemap(body: string): boolean {
   return /<(?:urlset|sitemapindex)\b/i.test(body)
 }
+
+/**
+ * What we say when nothing was readable.
+ *
+ * Exported and asserted by a test so the claim cannot drift back into "an
+ * agent reading this store would find nothing either", which the capped page
+ * sample does not support.
+ */
+export const NOT_READABLE =
+  'no catalogue was readable by any credential-free method: no Shopify or WooCommerce endpoint, and no Product JSON-LD on the sitemap pages sampled. This is not evidence that the store publishes nothing, because the sample is capped. Connect a catalogue to establish what an agent can actually read.'
 
 /** Every <loc> in a sitemap document. */
 function sitemapLocs(body: string): string[] {
@@ -244,31 +254,36 @@ async function productUrlsFromSitemap(
   fetchImpl: typeof fetch,
   timeoutMs: number,
 ): Promise<string[]> {
-  let root: string | undefined
+  // Every declared sitemap, not the first one that parses.
+  //
+  // Tooled-Up declares sitemap1.xml and sitemap2.xml in robots.txt. The first
+  // holds the site pages (/, /blog/, /brand/) and the second holds every
+  // product. Stopping at the first sitemap that parsed read the wrong half of
+  // the store and reported a hundred thousand SKUs as no catalogue at all.
+  const roots: string[] = []
   for (const candidate of await sitemapCandidates(origin, fetchImpl, timeoutMs)) {
-    const body = await getText(candidate, fetchImpl, timeoutMs)
     // A soft 404 returns the homepage with a 200, so the shape is the only
     // reliable check that this is a sitemap at all.
-    if (body && looksLikeSitemap(body)) {
-      root = body
-      break
-    }
+    const body = await getText(candidate, fetchImpl, timeoutMs)
+    if (body && looksLikeSitemap(body)) roots.push(body)
   }
-  if (!root) return []
+  if (roots.length === 0) return []
 
   const pages: string[] = []
-  if (/<sitemapindex\b/i.test(root)) {
-    for (const child of sitemapLocs(root).slice(0, 6)) {
-      if (pages.length >= budget) break
-      const body = await getText(child, fetchImpl, timeoutMs)
-      if (!body || !looksLikeSitemap(body)) continue
-      // One level of nesting only. A deeper index is rare and the page budget
-      // is better spent reading product pages than walking more indexes.
-      if (/<sitemapindex\b/i.test(body)) continue
-      pages.push(...sitemapLocs(body))
+  for (const root of roots) {
+    if (/<sitemapindex\b/i.test(root)) {
+      for (const child of sitemapLocs(root).slice(0, 6)) {
+        if (pages.length >= budget * 4) break
+        const body = await getText(child, fetchImpl, timeoutMs)
+        if (!body || !looksLikeSitemap(body)) continue
+        // One level of nesting only. A deeper index is rare and the page budget
+        // is better spent reading product pages than walking more indexes.
+        if (/<sitemapindex\b/i.test(body)) continue
+        pages.push(...sitemapLocs(body))
+      }
+    } else {
+      pages.push(...sitemapLocs(root))
     }
-  } else {
-    pages.push(...sitemapLocs(root))
   }
 
   // Ranked, not filtered. Whether a page is a product page is decided by
@@ -363,10 +378,17 @@ async function fromJsonLd(
  * Reads what a store publishes about itself, in descending order of evidence
  * quality, and reports which method worked.
  *
- * Never invents a catalogue. A store that publishes nothing readable returns
- * zero products with method "none", which is a valid audit result and is
- * reported as one: the merchant learns that an agent trying to read them today
- * would find nothing either, which is itself the finding.
+ * Never invents a catalogue. When nothing is readable the result is zero
+ * products with method "none", which is a valid audit result.
+ *
+ * It is reported as "not readable by these methods", never as "this store
+ * publishes nothing". The difference is not pedantry. Discovery samples a
+ * capped number of sitemap pages, so on a store with a hundred thousand SKUs a
+ * miss is a sampling limit and not a fact about the merchant. Tooled-Up is the
+ * case that forced this: its sitemap lists category pages, whose markup is
+ * ItemList rather than Product, and the product pages sit deeper than the
+ * budget reaches. Telling that merchant they publish no catalogue would be
+ * false, and they would know it.
  */
 export async function discoverPublicCatalogue(
   storeUrl: string,
@@ -422,7 +444,7 @@ export async function discoverPublicCatalogue(
     confidence: 'none',
     warnings: [
       ...warnings,
-      'no public catalogue endpoint was readable. An agent reading this store today would find nothing either, which is the finding. Connect a catalogue to go further.',
+      NOT_READABLE,
     ],
   }
 }

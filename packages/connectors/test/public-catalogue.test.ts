@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { discoverPublicCatalogue } from '../src/index.js'
+import { discoverPublicCatalogue, NOT_READABLE } from '../src/index.js'
 
 /**
  * Credential-free discovery. The free audit depends on this working against a
@@ -135,7 +135,16 @@ describe('public catalogue discovery', () => {
     })
     expect(result.method).toBe('none')
     expect(result.products).toEqual([])
-    expect(result.warnings.some((w) => w.includes('An agent reading this store today would find nothing'))).toBe(true)
+    expect(result.warnings.some((w) => w.includes('no catalogue was readable by any credential-free method'))).toBe(true)
+  })
+
+  it('never claims the store publishes nothing, because the sample is capped', () => {
+    // Tooled-Up lists category pages in its sitemap and keeps product pages
+    // deeper than the page budget reaches. Telling a merchant with a hundred
+    // thousand SKUs that they publish no catalogue would be false, and they
+    // would know it. "Not readable by these methods" is the claim we can make.
+    expect(NOT_READABLE).toContain('not evidence that the store publishes nothing')
+    expect(NOT_READABLE).not.toContain('would find nothing')
   })
 
   it('prefers a platform API over a scrape even when both would work', async () => {
