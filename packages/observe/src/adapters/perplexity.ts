@@ -21,7 +21,7 @@ export class PerplexityAdapter implements EngineAdapter {
 
   constructor(
     private readonly apiKey = process.env.PERPLEXITY_API_KEY ?? '',
-    private readonly model = process.env.FACINGS_PERPLEXITY_MODEL ?? 'sonar',
+    private readonly model = process.env.SHOWING_UP_PERPLEXITY_MODEL ?? 'sonar',
     private readonly fetchImpl: typeof fetch = fetch,
   ) {}
 
@@ -30,7 +30,7 @@ export class PerplexityAdapter implements EngineAdapter {
   }
 
   configurationHint(): string {
-    return 'set PERPLEXITY_API_KEY. Optional: FACINGS_PERPLEXITY_MODEL.'
+    return 'set PERPLEXITY_API_KEY. Optional: SHOWING_UP_PERPLEXITY_MODEL.'
   }
 
   async observe(input: ObserveInput): Promise<AdapterResult> {

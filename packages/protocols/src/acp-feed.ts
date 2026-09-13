@@ -1,6 +1,6 @@
 import { gzipSync } from 'node:zlib'
-import type { Availability, Product } from '@facings/shared'
-import { enforceDashRule, truncate } from '@facings/shared'
+import type { Availability, Product } from '@showing-up/shared'
+import { enforceDashRule, truncate } from '@showing-up/shared'
 import type { Policy } from './policy-schema.js'
 
 /**
@@ -12,15 +12,15 @@ import type { Policy } from './policy-schema.js'
  *
  * Two decisions here follow from the product rather than the protocol:
  *
- * 1. enable_checkout is always false. SPEC 1: Facings is not a checkout, and
+ * 1. enable_checkout is always false. SPEC 1: Showing Up is not a checkout, and
  *    in-chat checkout stalled in March 2026. Agents discover and redirect, and
  *    the merchant's own checkout converts. Publishing true would advertise a
- *    capability neither Facings nor the merchant has wired up.
+ *    capability neither Showing Up nor the merchant has wired up.
  * 2. A discontinued product is excluded from the feed rather than mapped onto
  *    one of the three availability values the specification allows. The
  *    nearest value, out_of_stock, tells an agent the product is coming back.
  *    SPEC 3.1 counts a discontinued item being recommended as a critical
- *    finding, so publishing one as merely out of stock would have Facings
+ *    finding, so publishing one as merely out of stock would have Showing Up
  *    creating the exact defect it sells the detection of.
  */
 
@@ -173,7 +173,7 @@ export function validateAcpItem(item: AcpItem): ItemIssue[] {
   if (typeof item.enable_search !== 'boolean') issues.push({ field: 'enable_search', message: 'must be a boolean' })
   if (typeof item.enable_checkout !== 'boolean') issues.push({ field: 'enable_checkout', message: 'must be a boolean' })
   if (item.enable_checkout) {
-    issues.push({ field: 'enable_checkout', message: 'must be false: Facings serves discovery, not checkout' })
+    issues.push({ field: 'enable_checkout', message: 'must be false: Showing Up serves discovery, not checkout' })
   }
 
   if (item.id && item.id.length > FIELD_LIMITS.id) issues.push({ field: 'id', message: `exceeds ${FIELD_LIMITS.id} characters` })

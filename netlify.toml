@@ -1,4 +1,4 @@
-# Facings web app, SPEC 4.1 and SPEC 3.2.
+# Showing Up web app, SPEC 4.1 and SPEC 3.2.
 #
 # The functions are bundled ahead of deploy by `npm run web:build`, because
 # they import workspace packages that only resolve inside this monorepo.

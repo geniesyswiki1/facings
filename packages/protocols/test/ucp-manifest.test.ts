@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Store } from '@facings/shared'
+import type { Store } from '@showing-up/shared'
 import {
   UCP,
   UCP_CAPABILITIES,
@@ -8,7 +8,7 @@ import {
   manifestReadiness,
   namespaceAuthority,
   validateUcpManifest,
-} from '@facings/protocols'
+} from '@showing-up/protocols'
 import { germanPolicy } from './fixtures.js'
 
 const store: Store = {
@@ -28,7 +28,7 @@ function manifest(overrides: Parameters<typeof buildUcpManifest>[0] | null = nul
   return buildUcpManifest(
     overrides ?? {
       store,
-      acpFeedUrl: 'https://feeds.facings.ai/acp/str_1.jsonl.gz',
+      acpFeedUrl: 'https://feeds.showingup.ai/acp/str_1.jsonl.gz',
       signingKeys: [publicJwk],
       policy: germanPolicy(),
     },
@@ -68,7 +68,7 @@ describe('buildUcpManifest', () => {
 
   it('declares the catalog service as an absolute https endpoint', () => {
     const built = manifest()
-    expect(built.ucp.services.catalog?.[0]?.endpoint).toBe('https://feeds.facings.ai/acp/str_1.jsonl.gz')
+    expect(built.ucp.services.catalog?.[0]?.endpoint).toBe('https://feeds.showingup.ai/acp/str_1.jsonl.gz')
     expect(built.ucp.services.catalog?.[0]?.transport).toBe('https')
   })
 
@@ -80,7 +80,7 @@ describe('buildUcpManifest', () => {
     }
   })
 
-  it('declares no payment handler, because Facings is not a checkout', () => {
+  it('declares no payment handler, because Showing Up is not a checkout', () => {
     // SPEC 1. If this ever becomes non empty it is a product decision, not a
     // configuration one, and this test should be the thing that stops it.
     expect(manifest().ucp.payment_handlers).toEqual({})
@@ -152,7 +152,7 @@ describe('validateUcpManifest', () => {
     expect(validateUcpManifest(broken).valid).toBe(false)
   })
 
-  it('warns, without failing, on a capability identifier Facings has not confirmed', () => {
+  it('warns, without failing, on a capability identifier Showing Up has not confirmed', () => {
     const result = validateUcpManifest(manifest())
     const warnings = result.issues.filter((issue) => issue.severity === 'warning')
     expect(warnings.length).toBeGreaterThan(0)
@@ -164,7 +164,7 @@ describe('validateUcpManifest', () => {
 describe('namespaceAuthority', () => {
   it('binds the dev.ucp namespace to ucp.dev and leaves others open', () => {
     expect(namespaceAuthority('dev.ucp.shopping.catalog')).toBe('https://ucp.dev/')
-    expect(namespaceAuthority('ai.facings.custom')).toBeUndefined()
+    expect(namespaceAuthority('ai.showingup.custom')).toBeUndefined()
   })
 })
 

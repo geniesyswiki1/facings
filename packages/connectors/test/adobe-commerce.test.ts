@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { fetchAdobeProducts } from '@facings/connectors'
+import { fetchAdobeProducts } from '@showing-up/connectors'
 
 const item = {
   sku: 'NLA-AM10',

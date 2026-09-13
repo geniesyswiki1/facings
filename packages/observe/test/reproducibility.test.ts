@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import type { Card, EngineId, Observation } from '@facings/shared'
-import { REPRODUCIBILITY_THRESHOLD } from '@facings/shared'
-import { representativeObservation, scoreReproducibility } from '@facings/observe'
+import type { Card, EngineId, Observation } from '@showing-up/shared'
+import { REPRODUCIBILITY_THRESHOLD } from '@showing-up/shared'
+import { representativeObservation, scoreReproducibility } from '@showing-up/observe'
 
 /**
  * These tests guard the number Phase 0 exists to produce. If the threshold

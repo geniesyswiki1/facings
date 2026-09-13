@@ -1,5 +1,5 @@
-import type { Product, Store } from '@facings/shared'
-import type { Policy } from '@facings/protocols'
+import type { Product, Store } from '@showing-up/shared'
+import type { Policy } from '@showing-up/protocols'
 
 /**
  * Store data access.

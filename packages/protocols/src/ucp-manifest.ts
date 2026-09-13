@@ -1,5 +1,5 @@
 import { createHash, generateKeyPairSync } from 'node:crypto'
-import type { Store } from '@facings/shared'
+import type { Store } from '@showing-up/shared'
 import { UCP, UCP_CAPABILITIES, type CapabilityPin, namespaceAuthority } from './versions.js'
 import type { Policy } from './policy-schema.js'
 import { policyGaps } from './policy-schema.js'
@@ -9,10 +9,10 @@ import { policyGaps } from './policy-schema.js'
  *
  * This is the single integration surface a merchant has to expose, and it is
  * fetched unauthenticated by agent crawlers, so it carries no secret and needs
- * no credential to read. Facings hosts it and the merchant points at it from
+ * no credential to read. Showing Up hosts it and the merchant points at it from
  * their own domain.
  *
- * Facings declares discovery capabilities only. No payment handler is ever
+ * Showing Up declares discovery capabilities only. No payment handler is ever
  * declared: SPEC 1 says this is not a checkout, agents discover and redirect,
  * and the merchant's own checkout converts. An empty payment_handlers map is
  * the accurate statement of that, and is deliberate rather than unfinished.
@@ -121,7 +121,7 @@ export interface ManifestValidation {
  *
  * Enforced rather than trusted, because the merchant-facing claim is that
  * their manifest passes validation. A capability in the dev.ucp namespace must
- * carry a spec from ucp.dev, and a pin Facings has not confirmed against the
+ * carry a spec from ucp.dev, and a pin Showing Up has not confirmed against the
  * published specification is reported as a warning rather than passed
  * silently.
  */
@@ -182,13 +182,13 @@ export function validateUcpManifest(manifest: UcpManifest, pins: CapabilityPin[]
   if (manifest.ucp?.payment_handlers === undefined) {
     issues.push({
       field: 'ucp.payment_handlers',
-      message: 'must be present. Facings declares an empty map because it is not a checkout',
+      message: 'must be present. Showing Up declares an empty map because it is not a checkout',
       severity: 'error',
     })
   } else if (Object.keys(manifest.ucp.payment_handlers).length > 0) {
     issues.push({
       field: 'ucp.payment_handlers',
-      message: 'Facings must not declare a payment handler. SPEC 1: agents discover and redirect, the merchant checkout converts',
+      message: 'Showing Up must not declare a payment handler. SPEC 1: agents discover and redirect, the merchant checkout converts',
       severity: 'error',
     })
   }

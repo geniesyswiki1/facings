@@ -6,8 +6,8 @@ import type {
   Product,
   Query,
   Severity,
-} from '@facings/shared'
-import { normaliseTitle, priceDelta, stableId, titleTokens, jaccard } from '@facings/shared'
+} from '@showing-up/shared'
+import { normaliseTitle, priceDelta, stableId, titleTokens, jaccard } from '@showing-up/shared'
 import { matchCards } from './match.js'
 import { baseSeverity, deescalate, escalate, revenueAtRisk } from './severity.js'
 

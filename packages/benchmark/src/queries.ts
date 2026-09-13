@@ -1,5 +1,5 @@
-import type { Language, Market, Product, Query } from '@facings/shared'
-import { MARKET_CURRENCY, stableId, titleTokens } from '@facings/shared'
+import type { Language, Market, Product, Query } from '@showing-up/shared'
+import { MARKET_CURRENCY, stableId, titleTokens } from '@showing-up/shared'
 import { CATEGORY_LABELS, inferCategory, inferStoreCategory, productType, type CategoryKey } from './categories.js'
 
 /**
@@ -56,54 +56,50 @@ const TEMPLATES: Record<Language, Templates> = {
     returns: ['{type} with free returns', '{category} with a long returns window'],
   },
   de: {
-    product_name: ['wo kann ich {product} kaufen', 'ist {product} verfuegbar', '{product} preis'],
-    category_use: ['bester {type} fuer den Alltag', 'gute {category} fuer eine kleine Wohnung', 'empfehle mir einen guten {type}'],
-    price_bounded: ['bester {type} unter {price} Euro', 'guenstiger {type} mit guter Qualitaet', '{category} unter {price} Euro'],
+    product_name: ['wo kann ich {product} kaufen', 'ist {product} verfügbar', '{product} Preis'],
+    category_use: ['bester {type} für den Alltag', 'gute {category} für eine kleine Wohnung', 'empfehle mir einen guten {type}'],
+    price_bounded: ['bester {type} unter {price} {currencyWord}', 'günstiger {type} mit guter Qualität', '{category} unter {price} {currencyWord}'],
     comparison: ['{product} oder {other}', 'was ist besser, {product} oder {other}', 'Alternativen zu {product}'],
-    delivery: ['{type} mit schneller Lieferung nach Deutschland', '{category} diese Woche geliefert'],
-    returns: ['{type} mit kostenloser Rueckgabe', '{category} mit langer Rueckgabefrist'],
-  },
-  fr: {
-    product_name: ['ou acheter {product}', '{product} en stock', 'prix {product}'],
-    category_use: ['meilleur {type} pour un usage quotidien', 'bonne {category} pour un petit appartement', 'recommande un {type}'],
-    price_bounded: ['meilleur {type} a moins de {price} euros', '{type} pas cher et de bonne qualite', '{category} a moins de {price} euros'],
-    comparison: ['{product} ou {other}', 'lequel est meilleur, {product} ou {other}', 'alternatives a {product}'],
-    delivery: ['{type} avec livraison rapide', '{category} livre cette semaine'],
-    returns: ['{type} avec retour gratuit', '{category} avec long delai de retour'],
-  },
-  nl: {
-    product_name: ['waar kan ik {product} kopen', 'is {product} op voorraad', '{product} prijs'],
-    category_use: ['beste {type} voor dagelijks gebruik', 'goede {category} voor een klein huis', 'adviseer een {type}'],
-    price_bounded: ['beste {type} onder {price} euro', 'goedkope {type} met goede kwaliteit', '{category} onder {price} euro'],
-    comparison: ['{product} of {other}', 'wat is beter, {product} of {other}', 'alternatieven voor {product}'],
-    delivery: ['{type} met snelle levering', '{category} deze week bezorgd'],
-    returns: ['{type} met gratis retour', '{category} met lange retourtermijn'],
-  },
-  es: {
-    product_name: ['donde comprar {product}', '{product} disponible', 'precio {product}'],
-    category_use: ['mejor {type} para uso diario', 'buena {category} para una casa pequena', 'recomienda un {type}'],
-    price_bounded: ['mejor {type} por menos de {price} euros', '{type} barato y de buena calidad', '{category} por menos de {price} euros'],
-    comparison: ['{product} o {other}', 'cual es mejor, {product} o {other}', 'alternativas a {product}'],
-    delivery: ['{type} con envio rapido', '{category} entregado esta semana'],
-    returns: ['{type} con devolucion gratuita', '{category} con plazo de devolucion largo'],
-  },
-  it: {
-    product_name: ['dove comprare {product}', '{product} disponibile', 'prezzo {product}'],
-    category_use: ['miglior {type} per uso quotidiano', 'buona {category} per una casa piccola', 'consiglia un {type}'],
-    price_bounded: ['miglior {type} sotto {price} euro', '{type} economico di buona qualita', '{category} sotto {price} euro'],
-    comparison: ['{product} o {other}', 'quale e migliore, {product} o {other}', 'alternative a {product}'],
-    delivery: ['{type} con consegna rapida', '{category} consegnato questa settimana'],
-    returns: ['{type} con reso gratuito', '{category} con lungo periodo di reso'],
+    delivery: ['{type} mit schneller Lieferung {market}', '{category} diese Woche geliefert {market}'],
+    returns: ['{type} mit kostenloser Rückgabe', '{category} mit langer Rückgabefrist'],
   },
 }
 
 const MARKET_NAMES: Record<Market, string> = {
+  US: 'the US',
   UK: 'the UK',
   DE: 'Germany',
-  FR: 'France',
-  NL: 'the Netherlands',
-  ES: 'Spain',
-  IT: 'Italy',
+  AT: 'Austria',
+  CH: 'Switzerland',
+}
+
+/**
+ * German market phrases carry their own preposition. "nach Deutschland" and
+ * "in die Schweiz" do not share one, and a query with the wrong preposition is
+ * not a query a shopper types.
+ */
+const MARKET_NAMES_DE: Record<Market, string> = {
+  US: 'in die USA',
+  UK: 'nach Großbritannien',
+  DE: 'nach Deutschland',
+  AT: 'nach Österreich',
+  CH: 'in die Schweiz',
+}
+
+/** The word a German speaker uses for the amount, not the ISO code. */
+const CURRENCY_WORD_DE: Record<string, string> = {
+  EUR: 'Euro',
+  CHF: 'Franken',
+  USD: 'Dollar',
+  GBP: 'Pfund',
+}
+
+/** Symbol per currency for the English price-bounded templates. */
+const CURRENCY_SYMBOL: Record<string, string> = {
+  GBP: '£',
+  EUR: '€',
+  USD: '$',
+  CHF: 'CHF ',
 }
 
 const CATEGORY_LABELS_DE: Record<CategoryKey, string> = {
@@ -165,7 +161,9 @@ export function buildQueries(products: Product[], options: BuildQueryOptions): Q
   const storeCategory = inferStoreCategory(products)
   const categoryLabel = language === 'de' ? CATEGORY_LABELS_DE[storeCategory] : CATEGORY_LABELS[storeCategory]
   const templates = TEMPLATES[language]
-  const currency = MARKET_CURRENCY[market] === 'GBP' ? '£' : '€'
+  const currencyCode = MARKET_CURRENCY[market] ?? 'EUR'
+  const currency = CURRENCY_SYMBOL[currencyCode] ?? `${currencyCode} `
+  const currencyWord = CURRENCY_WORD_DE[currencyCode] ?? currencyCode
 
   // Bestseller proxy: the catalogue order the connector returned, which is
   // popularity for WooCommerce and feed order otherwise.
@@ -189,7 +187,8 @@ export function buildQueries(products: Product[], options: BuildQueryOptions): Q
       .replace('{brand}', product.brand ?? '')
       .replace('{price}', String(roundPriceBand(product.price)))
       .replace('{currency}', currency)
-      .replace('{market}', MARKET_NAMES[market])
+      .replace('{currencyWord}', currencyWord)
+      .replace('{market}', language === 'de' ? MARKET_NAMES_DE[market] : MARKET_NAMES[market])
 
     // Product-name and comparison queries expect that specific SKU. The
     // broader intents expect any of the merchant's SKUs to render, so an

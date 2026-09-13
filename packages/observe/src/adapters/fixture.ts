@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import { z } from 'zod'
-import type { EngineId } from '@facings/shared'
-import { ENGINE_LABELS } from '@facings/shared'
+import type { EngineId } from '@showing-up/shared'
+import { ENGINE_LABELS } from '@showing-up/shared'
 import type { AdapterResult, EngineAdapter, ObserveInput } from '../adapter.js'
 import { normaliseCards, rawCardListSchema } from '../cards.js'
 

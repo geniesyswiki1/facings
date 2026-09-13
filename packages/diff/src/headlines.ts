@@ -1,5 +1,5 @@
-import type { Finding, Product } from '@facings/shared'
-import { ENGINE_LABELS, formatMoney } from '@facings/shared'
+import type { Finding, Product } from '@showing-up/shared'
+import { ENGINE_LABELS, formatMoney } from '@showing-up/shared'
 import { severityRank } from './severity.js'
 
 /**

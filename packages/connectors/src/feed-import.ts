@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { XMLParser } from 'fast-xml-parser'
-import type { Product } from '@facings/shared'
+import type { Product } from '@showing-up/shared'
 import { productInputSchema, toProduct } from './catalogue.js'
 
 /**
@@ -109,7 +109,7 @@ export async function importFeedUrl(
   limit?: number,
   fetchImpl: typeof fetch = fetch,
 ): Promise<FeedImportResult> {
-  const response = await fetchImpl(url, { headers: { 'user-agent': 'FacingsAudit/0.1' } })
+  const response = await fetchImpl(url, { headers: { 'user-agent': 'ShowingUpAudit/0.1' } })
   if (!response.ok) throw new Error(`feed URL returned HTTP ${response.status}`)
   return importFeedXml(storeId, await response.text(), limit)
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cardIdentity, extractCardJson, normaliseCardAvailability, normaliseCards, rawCardListSchema } from '@facings/observe'
+import { cardIdentity, extractCardJson, normaliseCardAvailability, normaliseCards, rawCardListSchema } from '@showing-up/observe'
 
 describe('extractCardJson', () => {
   it('reads a bare JSON object', () => {

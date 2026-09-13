@@ -1,20 +1,20 @@
 {
-  "name": "@facings/audit-cli",
+  "name": "@showing-up/audit-cli",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "bin": {
-    "facings-audit": "./bin/facings-audit.mjs"
+    "showing-up-audit": "./bin/showing-up-audit.mjs"
   },
   "exports": {
     ".": "./src/index.ts",
     "./*": "./src/*.ts"
   },
   "dependencies": {
-    "@facings/benchmark": "*",
-    "@facings/connectors": "*",
-    "@facings/diff": "*",
-    "@facings/observe": "*",
-    "@facings/shared": "*"
+    "@showing-up/benchmark": "*",
+    "@showing-up/connectors": "*",
+    "@showing-up/diff": "*",
+    "@showing-up/observe": "*",
+    "@showing-up/shared": "*"
   }
 }

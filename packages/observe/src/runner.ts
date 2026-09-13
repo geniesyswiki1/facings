@@ -4,8 +4,8 @@ import type {
   Observation,
   Query,
   Store,
-} from '@facings/shared'
-import { stableId } from '@facings/shared'
+} from '@showing-up/shared'
+import { stableId } from '@showing-up/shared'
 import type { EngineAdapter } from './adapter.js'
 import { EvidenceStore } from './evidence.js'
 import { scoreReproducibility } from './reproducibility.js'

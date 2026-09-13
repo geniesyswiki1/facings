@@ -1,6 +1,6 @@
-import type { Card, Finding, Observation, Product, Query, RunManifest } from '@facings/shared'
-import { enforceDashRule } from '@facings/shared'
-import { matchCards } from '@facings/diff'
+import type { Card, Finding, Observation, Product, Query, RunManifest } from '@showing-up/shared'
+import { enforceDashRule } from '@showing-up/shared'
+import { matchCards } from '@showing-up/diff'
 
 /**
  * The audit log export.

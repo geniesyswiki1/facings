@@ -1,5 +1,5 @@
-import type { Product, Store } from '@facings/shared'
-import type { Policy, SigningKey } from '@facings/protocols'
+import type { Product, Store } from '@showing-up/shared'
+import type { Policy, SigningKey } from '@showing-up/protocols'
 import type { StoreRecord } from './repository.js'
 
 /**
@@ -16,10 +16,10 @@ import type { StoreRecord } from './repository.js'
 /**
  * Public signing key for the demo store.
  *
- * Public halves only. Facings publishes nothing signed in Phase 1, so no
+ * Public halves only. Showing Up publishes nothing signed in Phase 1, so no
  * private key is needed to serve the manifest, and none is stored in this
  * repository. Production reads the key from the environment: see
- * FACINGS_SIGNING_PUBLIC_JWK below.
+ * SHOWING_UP_SIGNING_PUBLIC_JWK below.
  */
 export const DEMO_PUBLIC_KEY: SigningKey = {
   kid: '20a1bA8KyGBo1NwUzJa-Mn8kWbijmoHWdk7Q8ZPLAFI',
@@ -38,7 +38,7 @@ export const DEMO_PUBLIC_KEY: SigningKey = {
  * configuration rather than by code path.
  */
 export function publishedSigningKeys(env: Record<string, string | undefined> = process.env): SigningKey[] {
-  const raw = env.FACINGS_SIGNING_PUBLIC_JWK
+  const raw = env.SHOWING_UP_SIGNING_PUBLIC_JWK
   if (!raw) return [DEMO_PUBLIC_KEY]
   try {
     const parsed = JSON.parse(raw) as SigningKey | SigningKey[]
@@ -76,7 +76,7 @@ export const DEMO_POLICY: Policy = {
     { country: 'AT', minDays: 2, maxDays: 5, cost: 9.9, currency: 'EUR', carrier: 'DHL' },
     { country: 'NL', minDays: 2, maxDays: 4, cost: 7.5, currency: 'EUR', carrier: 'DHL' },
   ],
-  vat: { pricesIncludeVat: true, ratePct: 19, registrationNumber: 'DE123456789' },
+  tax: { mode: 'inclusive' as const, pricesIncludeTax: true, ratePct: 19, registrationNumber: 'DE123456789' },
   warranty: { months: 24, summary: 'Two year manufacturer warranty on all electronics.' },
   privacyPolicyUrl: 'https://nordlicht-audio.de/datenschutz',
   termsUrl: 'https://nordlicht-audio.de/agb',

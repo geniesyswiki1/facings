@@ -2,10 +2,10 @@ import { mkdtemp, readFile, readdir, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { beforeAll, describe, expect, it } from 'vitest'
-import { importCsvText } from '@facings/connectors'
-import { buildQueries } from '@facings/benchmark'
-import { sha256 } from '@facings/shared'
-import { type AuditResult, makeFixtures, normaliseUrl, runAudit } from '@facings/audit-cli'
+import { importCsvText } from '@showing-up/connectors'
+import { buildQueries } from '@showing-up/benchmark'
+import { sha256 } from '@showing-up/shared'
+import { type AuditResult, makeFixtures, normaliseUrl, runAudit } from '@showing-up/audit-cli'
 
 /**
  * The whole harness, end to end, on recorded responses: URL and SKUs in, a
@@ -21,7 +21,7 @@ let result: AuditResult
 let outRoot: string
 
 beforeAll(async () => {
-  outRoot = await mkdtemp(join(tmpdir(), 'facings-e2e-'))
+  outRoot = await mkdtemp(join(tmpdir(), 'showing-up-e2e-'))
   const csv = await readFile(CATALOGUE, 'utf8')
   const { products } = importCsvText('fixture-store', csv)
   const queries = buildQueries(products, { storeId: 'fixture-store', market: 'UK', language: 'en', count: 20 })

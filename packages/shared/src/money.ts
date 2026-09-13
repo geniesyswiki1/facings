@@ -1,19 +1,20 @@
 /** Currency handling. Prices are compared numerically, never as strings. */
 
+import { MARKETS } from './markets.js'
+
 const CURRENCY_SYMBOLS: Record<string, string> = {
   '£': 'GBP',
   '€': 'EUR',
   $: 'USD',
 }
 
-export const MARKET_CURRENCY: Record<string, string> = {
-  UK: 'GBP',
-  DE: 'EUR',
-  FR: 'EUR',
-  NL: 'EUR',
-  ES: 'EUR',
-  IT: 'EUR',
-}
+/**
+ * Currency per packaged market, derived from the market table so the two can
+ * never disagree. markets.ts is the source of truth.
+ */
+export const MARKET_CURRENCY: Record<string, string> = Object.fromEntries(
+  Object.values(MARKETS).map((profile) => [profile.market, profile.currency]),
+)
 
 export interface ParsedMoney {
   amount: number
@@ -75,6 +76,8 @@ function parseNumber(raw: string): number | undefined {
 export function formatMoney(amount: number, currency: string): string {
   const symbol = currency === 'GBP' ? '£' : currency === 'EUR' ? '€' : currency === 'USD' ? '$' : ''
   const value = amount.toFixed(2)
+  // CHF has no symbol in common use, so it renders as a suffixed code, which
+  // is also how Swiss price marking presents it.
   return symbol ? `${symbol}${value}` : `${value} ${currency}`
 }
 

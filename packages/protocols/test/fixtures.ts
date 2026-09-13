@@ -1,5 +1,5 @@
-import type { Product } from '@facings/shared'
-import type { Policy } from '@facings/protocols'
+import type { Product } from '@showing-up/shared'
+import type { Policy } from '@showing-up/protocols'
 
 /**
  * A WooCommerce store on Adyen in Germany: the exact case SPEC 11 uses as the
@@ -21,7 +21,7 @@ export function germanPolicy(overrides: Partial<Policy> = {}): Policy {
       { country: 'DE', minDays: 1, maxDays: 3, cost: 0, currency: 'EUR', carrier: 'DHL' },
       { country: 'AT', minDays: 2, maxDays: 5, cost: 9.9, currency: 'EUR', carrier: 'DHL' },
     ],
-    vat: { pricesIncludeVat: true, ratePct: 19, registrationNumber: 'DE123456789' },
+    tax: { mode: 'inclusive' as const, pricesIncludeTax: true, ratePct: 19, registrationNumber: 'DE123456789' },
     warranty: { months: 24, summary: 'Two year manufacturer warranty on all electronics.' },
     privacyPolicyUrl: 'https://nordlicht-audio.de/datenschutz',
     termsUrl: 'https://nordlicht-audio.de/agb',

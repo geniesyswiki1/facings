@@ -2,7 +2,7 @@ import { mkdtemp, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import type { Query } from '@facings/shared'
+import type { Query } from '@showing-up/shared'
 import {
   ClaudeAdapter,
   GeminiAdapter,
@@ -12,7 +12,7 @@ import {
   loadPanelCaptures,
   panelCaptureTemplate,
   panelInstructionSheet,
-} from '@facings/observe'
+} from '@showing-up/observe'
 
 const query: Query = {
   id: 'qry_1',
@@ -131,7 +131,7 @@ describe('API adapters', () => {
 
 describe('consented panel', () => {
   async function panelDir(capture: unknown, name = 'capture-copilot.json'): Promise<string> {
-    const dir = await mkdtemp(join(tmpdir(), 'facings-panel-'))
+    const dir = await mkdtemp(join(tmpdir(), 'showing-up-panel-'))
     await writeFile(join(dir, name), JSON.stringify(capture), 'utf8')
     return dir
   }

@@ -9,8 +9,8 @@ import {
   escapeHtml,
   logoSvg,
   truncate,
-} from '@facings/shared'
-import type { EngineId, Presence } from '@facings/shared'
+} from '@showing-up/shared'
+import type { EngineId, Presence } from '@showing-up/shared'
 import type { GridCell, ReportModel } from './model.js'
 
 /**
@@ -37,7 +37,7 @@ export function renderReportHtml(model: ReportModel): string {
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Facings audit, ${escapeHtml(store.domain)}</title>
+<title>Showing Up audit, ${escapeHtml(store.domain)}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -127,7 +127,7 @@ export function renderReportHtml(model: ReportModel): string {
 <div class="page">
   <header>
     <div>
-      <div class="brand">${logoSvg(14)}<span class="wordmark">facings</span></div>
+      <div class="brand">${logoSvg(14)}<span class="wordmark">showing up</span></div>
       <h1>Accuracy audit, ${escapeHtml(store.domain)}</h1>
       <div class="positioning">${escapeHtml(POSITIONING)}</div>
     </div>
@@ -208,7 +208,7 @@ export function renderReportHtml(model: ReportModel): string {
     <div class="line">Every observation in this report is stored with its timestamp, surface, method and the raw provider response, under run ${escapeHtml(
       model.manifest.runId,
     )}. Harness version ${escapeHtml(model.manifest.harnessVersion)}.</div>
-    <div class="line">Facings reports what each surface rendered at a point in time. It does not control any surface, and it does not claim a ranking or a revenue effect.</div>
+    <div class="line">Showing Up reports what each surface rendered at a point in time. It does not control any surface, and it does not claim a ranking or a revenue effect.</div>
   </footer>
 </div>
 </body>

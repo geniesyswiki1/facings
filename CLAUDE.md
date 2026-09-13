@@ -1,4 +1,4 @@
-# Facings: working notes for Claude
+# Showing Up: working notes for Claude
 
 Read [SPEC.md](SPEC.md) for the product. This file holds the standing decisions
 and the constraints that are easy to break by accident.
@@ -8,18 +8,18 @@ and the constraints that are easy to break by accident.
 **Every app we build takes its own revenue through Stripe managed payments.**
 Not Lemon Squeezy, not Paddle, not Gumroad. Stripe is the merchant of record,
 which is what covers EU VAT registration and remittance. This applies to
-Facings and to every future product, so default to it without asking.
+Showing Up and to every future product, so default to it without asking.
 
 Two different things both involve payment providers, and conflating them undoes
 the whole product thesis. Keep them apart:
 
-1. **Our billing rail.** How Facings charges merchants for a subscription.
+1. **Our billing rail.** How Showing Up charges merchants for a subscription.
    Stripe managed payments. Always.
 2. **A merchant's own payment provider.** Adyen, Mollie, Worldpay,
-   Checkout.com, Stripe, anything. Facings is deliberately **provider
+   Checkout.com, Stripe, anything. Showing Up is deliberately **provider
    agnostic** here, and that is the wedge: Stripe's own Agentic Commerce Suite
    serves Stripe merchants only, so everyone else is unserved. Never narrow
-   this to Stripe, and never describe Facings as needing a merchant to be on
+   this to Stripe, and never describe Showing Up as needing a merchant to be on
    Stripe. SPEC 1 and SPEC 3.1 job 1 carry the positioning.
 
 ## Copy rules that are enforced, not aspirational
@@ -37,6 +37,30 @@ fails the build on the first two:
 
 Six colours and two type families only, per SPEC 2.4. The palette lives in
 `packages/shared/src/brand.ts` and a test asserts the report uses nothing else.
+
+## Markets
+
+v1 packages three regions and five markets: US, UK, and DACH (DE, AT, CH).
+`packages/shared/src/markets.ts` is the single source of truth for what each
+market implies, and nothing downstream may restate it:
+
+- **DACH is not one market.** One language, three currencies, two legal
+  regimes. Austria is EU at 20%, Switzerland is outside it at 8.1%.
+- **Switzerland and the US have no statutory returns window.** Whatever the
+  merchant publishes is the whole of the shopper protection there. Austria,
+  Germany and the UK are 14 days and a shorter published window is a blocker.
+- **US sales tax is never shown as a rate.** It depends on the destination and
+  on seller nexus, so the US policy branch asks which states the merchant
+  collects in. The tax schema is a discriminated union for this reason, not a
+  boolean with an exception.
+
+Copy is authored in British English and localised on the way out:
+`localiseSpelling` handles en-US, and German comes from the message catalogue
+in `packages/shared/src/messages.ts`. Code identifiers stay British.
+
+Shopify merchants are in scope on the **accuracy-only** tier: we never sell
+them presence hosting, because Shopify already publishes them. `offeringFor()`
+in the connectors package is the check.
 
 ## Observation constraints
 
@@ -76,7 +100,7 @@ npm run web:build # bundle the deployable functions
 ### Two standing decisions in the protocol layer
 
 - **enable_checkout is always false** in the ACP feed, and the UCP manifest
-  declares **no payment handler**. SPEC 1: Facings is not a checkout. Both are
+  declares **no payment handler**. SPEC 1: Showing Up is not a checkout. Both are
   asserted by tests, so changing either is a product decision rather than a
   configuration one.
 - **A discontinued product is excluded from the feed**, never mapped onto

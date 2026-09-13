@@ -1,5 +1,5 @@
-import type { EngineId, EngineReproducibility, Observation, ObservationMethod } from '@facings/shared'
-import { REPRODUCIBILITY_THRESHOLD, jaccard } from '@facings/shared'
+import type { EngineId, EngineReproducibility, Observation, ObservationMethod } from '@showing-up/shared'
+import { REPRODUCIBILITY_THRESHOLD, jaccard } from '@showing-up/shared'
 import { cardIdentity } from './cards.js'
 
 /**

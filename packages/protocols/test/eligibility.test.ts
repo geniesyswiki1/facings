@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { EngineId, Store } from '@facings/shared'
+import type { EngineId, Store } from '@showing-up/shared'
 import {
   buildAcpFeed,
   catalogueHasSizes,
@@ -9,7 +9,7 @@ import {
   scoreAllEligibility,
   scoreEligibility,
   validateUcpManifest,
-} from '@facings/protocols'
+} from '@showing-up/protocols'
 import { catalogue, germanPolicy, product } from './fixtures.js'
 
 const store: Store = {
@@ -32,7 +32,7 @@ function context(overrides: { policy?: ReturnType<typeof germanPolicy> | undefin
   const manifest = validateUcpManifest(
     buildUcpManifest({
       store,
-      acpFeedUrl: 'https://feeds.facings.ai/acp/str_1.jsonl.gz',
+      acpFeedUrl: 'https://feeds.showingup.ai/acp/str_1.jsonl.gz',
       signingKeys: [publicJwk],
       ...(policy ? { policy } : {}),
     }),
@@ -141,9 +141,9 @@ describe('policyGaps', () => {
   })
 
   it('treats missing delivery and VAT as blockers', () => {
-    const gaps = policyGaps({ ...germanPolicy(), delivery: [], vat: undefined as never })
+    const gaps = policyGaps({ ...germanPolicy(), delivery: [], tax: undefined as never })
     const blockers = gaps.filter((gap) => gap.severity === 'blocker').map((gap) => gap.field)
     expect(blockers).toContain('delivery')
-    expect(blockers).toContain('vat')
+    expect(blockers).toContain('tax')
   })
 })

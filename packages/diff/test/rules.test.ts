@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import type { Card, Observation, Product, Query } from '@facings/shared'
-import { findCopyViolations } from '@facings/shared'
-import { buildHeadlines, diffObservation, revenueAtRisk, scorePresence, severityRank } from '@facings/diff'
+import type { Card, Observation, Product, Query } from '@showing-up/shared'
+import { findCopyViolations } from '@showing-up/shared'
+import { buildHeadlines, diffObservation, revenueAtRisk, scorePresence, severityRank } from '@showing-up/diff'
 
 function product(overrides: Partial<Product> = {}): Product {
   return {

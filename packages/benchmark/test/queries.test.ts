@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { importCsvText } from '@facings/connectors'
-import { INTENT_MIX, buildQueries, inferCategory, inferStoreCategory, productType } from '@facings/benchmark'
-import { findCopyViolations } from '@facings/shared'
+import { importCsvText } from '@showing-up/connectors'
+import { INTENT_MIX, buildQueries, inferCategory, inferStoreCategory, productType } from '@showing-up/benchmark'
+import { findCopyViolations } from '@showing-up/shared'
 
 const csv = [
   'sku,title,price,url,availability,brand,gtin',

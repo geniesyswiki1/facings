@@ -1,5 +1,5 @@
-import type { Product } from '@facings/shared'
-import { enforceDashRule, escapeHtml } from '@facings/shared'
+import type { Product } from '@showing-up/shared'
+import { enforceDashRule, escapeHtml } from '@showing-up/shared'
 import type { Policy } from './policy-schema.js'
 
 /**
@@ -7,7 +7,7 @@ import type { Policy } from './policy-schema.js'
  *
  * Google takes a supplementary feed, which adds and overrides attributes on
  * products the merchant's primary feed already carries, matched on id. It
- * never introduces new products, so Facings uses it for exactly what it is
+ * never introduces new products, so Showing Up uses it for exactly what it is
  * good for: publishing the attributes and policy links it generates, without
  * touching the merchant's own primary feed.
  *
@@ -25,7 +25,7 @@ export interface MerchantFeedOptions {
   policy?: Policy
   /**
    * Attribute keys from the catalogue to publish. Supplementary feeds should
-   * carry what Facings adds, not a copy of the merchant's primary feed.
+   * carry what Showing Up adds, not a copy of the merchant's primary feed.
    */
   attributeKeys?: string[]
   now?: Date
@@ -45,7 +45,7 @@ export function buildMerchantFeed(products: Product[], options: MerchantFeedOpti
     kind,
     title,
     link,
-    description = `Facings supplementary feed for ${title}`,
+    description = `Showing Up supplementary feed for ${title}`,
     policy,
     attributeKeys = DEFAULT_SUPPLEMENTARY_ATTRIBUTES,
     now = new Date(),

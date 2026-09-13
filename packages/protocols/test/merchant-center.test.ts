@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { XMLParser } from 'fast-xml-parser'
-import { buildMerchantFeed } from '@facings/protocols'
+import { buildMerchantFeed } from '@showing-up/protocols'
 import { catalogue, germanPolicy, product } from './fixtures.js'
 
 const options = {

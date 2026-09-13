@@ -1,5 +1,5 @@
-import type { Card, Product } from '@facings/shared'
-import { jaccard, normaliseTitle, titleTokens } from '@facings/shared'
+import type { Card, Product } from '@showing-up/shared'
+import { jaccard, normaliseTitle, titleTokens } from '@showing-up/shared'
 
 /**
  * Identity matching: which of the merchant's SKUs, if any, is this card.

@@ -1,5 +1,5 @@
 {
-  "name": "@facings/web",
+  "name": "@showing-up/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -11,10 +11,10 @@
     "build": "tsx scripts/build.ts"
   },
   "dependencies": {
-    "@facings/connectors": "*",
-    "@facings/diff": "*",
-    "@facings/protocols": "*",
-    "@facings/shared": "*",
+    "@showing-up/connectors": "*",
+    "@showing-up/diff": "*",
+    "@showing-up/protocols": "*",
+    "@showing-up/shared": "*",
     "@netlify/blobs": "^11.0.3"
   },
   "devDependencies": {

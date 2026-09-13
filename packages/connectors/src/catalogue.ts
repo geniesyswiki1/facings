@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { Availability, Product } from '@facings/shared'
+import type { Availability, Product } from '@showing-up/shared'
 
 /** Shared normalisation for every ingest path, so a CSV row and a WooCommerce
  * product reach the diff engine in the same shape. */

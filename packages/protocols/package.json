@@ -1,5 +1,5 @@
 {
-  "name": "@facings/protocols",
+  "name": "@showing-up/protocols",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -8,7 +8,7 @@
     "./*": "./src/*.ts"
   },
   "dependencies": {
-    "@facings/shared": "*",
+    "@showing-up/shared": "*",
     "zod": "^3.24.1"
   }
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { connectorAvailable, detectPlatform, detectPlatformFromHtml } from '@facings/connectors'
+import { connectorAvailable, detectPlatform, detectPlatformFromHtml } from '@showing-up/connectors'
 
 describe('detectPlatformFromHtml', () => {
   it('identifies WooCommerce from the plugin path', () => {
@@ -68,7 +68,7 @@ describe('detectPlatform', () => {
         return new Response('<html></html>', { status: 200 })
       },
     })
-    expect(seen).toContain('FacingsAudit')
+    expect(seen).toContain('ShowingUpAudit')
   })
 })
 

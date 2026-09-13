@@ -6,7 +6,7 @@ import type {
   Presence,
   Product,
   Query,
-} from '@facings/shared'
+} from '@showing-up/shared'
 import { matchCards } from './match.js'
 
 /**

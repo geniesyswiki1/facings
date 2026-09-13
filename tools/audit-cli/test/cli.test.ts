@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { promisify } from 'node:util'
 import { describe, expect, it } from 'vitest'
-import { panelCaptureSchema } from '@facings/observe'
+import { panelCaptureSchema } from '@showing-up/observe'
 
 /**
  * Smoke tests for the operator surface. The pipeline is covered end to end
@@ -13,12 +13,12 @@ import { panelCaptureSchema } from '@facings/observe'
  */
 
 const run = promisify(execFile)
-const CLI = new URL('../bin/facings-audit.mjs', import.meta.url).pathname
+const CLI = new URL('../bin/showing-up-audit.mjs', import.meta.url).pathname
 const CATALOGUE = new URL('../../../fixtures/demo-catalogue.csv', import.meta.url).pathname
 
-describe('facings-audit panel', () => {
+describe('showing-up-audit panel', () => {
   it('writes the session sheet and a capture template per surface', async () => {
-    const out = await mkdtemp(join(tmpdir(), 'facings-cli-panel-'))
+    const out = await mkdtemp(join(tmpdir(), 'showing-up-cli-panel-'))
     await run(process.execPath, [CLI, 'panel', '--url', 'https://northfieldaudio.example', '--csv', CATALOGUE, '--out', out])
 
     const files = await readdir(out)
@@ -36,7 +36,7 @@ describe('facings-audit panel', () => {
   }, 60_000)
 
   it('refuses to write a sheet with no catalogue, since the queries would be invented', async () => {
-    const out = await mkdtemp(join(tmpdir(), 'facings-cli-panel-'))
+    const out = await mkdtemp(join(tmpdir(), 'showing-up-cli-panel-'))
     // Exits non zero as well as saying why, so a scripted run fails loudly.
     await expect(
       run(process.execPath, [CLI, 'panel', '--url', 'https://northfieldaudio.example', '--out', out]),
@@ -44,9 +44,9 @@ describe('facings-audit panel', () => {
   }, 60_000)
 })
 
-describe('facings-audit fixtures', () => {
+describe('showing-up-audit fixtures', () => {
   it('records a replay fixture for every requested surface', async () => {
-    const out = await mkdtemp(join(tmpdir(), 'facings-cli-fix-'))
+    const out = await mkdtemp(join(tmpdir(), 'showing-up-cli-fix-'))
     const path = join(out, 'fixtures.json')
     await run(process.execPath, [
       CLI,
@@ -71,7 +71,7 @@ describe('facings-audit fixtures', () => {
   }, 60_000)
 })
 
-describe('facings-audit run', () => {
+describe('showing-up-audit run', () => {
   it('rejects an unknown surface by name instead of silently skipping it', async () => {
     await expect(
       run(process.execPath, [CLI, 'run', '--url', 'https://northfieldaudio.example', '--engines', 'bing']),
@@ -79,15 +79,23 @@ describe('facings-audit run', () => {
   }, 60_000)
 
   it('rejects a market it has no query library for', async () => {
+    // FR is on the roadmap, not in the packaged set. US, UK, DE, AT and CH are
+    // packaged, so the rejection has to be checked against one that is not.
     await expect(
-      run(process.execPath, [CLI, 'run', '--url', 'https://northfieldaudio.example', '--market', 'US']),
+      run(process.execPath, [CLI, 'run', '--url', 'https://northfieldaudio.example', '--market', 'FR']),
     ).rejects.toMatchObject({ stderr: expect.stringContaining('unknown market') })
+  }, 60_000)
+
+  it('names the packaged markets when it rejects one', async () => {
+    await expect(
+      run(process.execPath, [CLI, 'run', '--url', 'https://northfieldaudio.example', '--market', 'FR']),
+    ).rejects.toMatchObject({ stderr: expect.stringContaining('US, UK, DE, AT, CH') })
   }, 60_000)
 
   it('warns that one repeat cannot measure reproducibility', async () => {
     // Round trips the two commands an operator uses for an offline check:
     // record a fixture, then run the audit against it.
-    const out = await mkdtemp(join(tmpdir(), 'facings-cli-run-'))
+    const out = await mkdtemp(join(tmpdir(), 'showing-up-cli-run-'))
     const fixtures = join(out, 'fixtures.json')
     await run(process.execPath, [
       CLI,

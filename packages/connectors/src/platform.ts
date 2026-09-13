@@ -1,10 +1,10 @@
-import type { Platform } from '@facings/shared'
+import type { Platform } from '@showing-up/shared'
 
 /**
  * Platform detection from a store's public homepage.
  *
  * Read-only, one GET of a page the merchant already serves to the public, with
- * a Facings user agent so the request is attributable. This is the merchant's
+ * a Showing Up user agent so the request is attributable. This is the merchant's
  * own site, not a consumer AI surface, so no panel consent applies.
  */
 
@@ -105,7 +105,7 @@ export async function detectPlatform(url: string, options: DetectOptions = {}): 
       redirect: 'follow',
       signal: controller.signal,
       headers: {
-        'user-agent': 'FacingsAudit/0.1 (+https://facings.ai/bot)',
+        'user-agent': 'ShowingUpAudit/0.1 (+https://showingup.ai/bot)',
         accept: 'text/html,application/xhtml+xml',
       },
     })
@@ -130,7 +130,29 @@ export async function detectPlatform(url: string, options: DetectOptions = {}): 
   }
 }
 
-/** Whether Facings has a write-capable connector for this platform in Phase 1. */
+/** Whether Showing Up has a write-capable connector for this platform in Phase 1. */
 export function connectorAvailable(platform: Platform): boolean {
   return platform === 'woocommerce' || platform === 'adobe-commerce' || platform === 'wix'
+}
+
+/**
+ * Whether we can read this platform's catalogue at all.
+ *
+ * Wider than connectorAvailable on purpose. Shopify is read-only here: the
+ * store is sold accuracy monitoring and the audit record rather than presence
+ * hosting, because Shopify already publishes its own merchants to the AI
+ * surfaces and does not observe what those surfaces then say back.
+ */
+export function readConnectorAvailable(platform: Platform): boolean {
+  return connectorAvailable(platform) || platform === 'shopify'
+}
+
+/**
+ * What we sell a store on this platform.
+ *
+ * presence: we host the manifest and feeds and monitor the result.
+ * accuracy-only: the platform already publishes, so we monitor and record.
+ */
+export function offeringFor(platform: Platform): 'presence' | 'accuracy-only' {
+  return platform === 'shopify' ? 'accuracy-only' : 'presence'
 }

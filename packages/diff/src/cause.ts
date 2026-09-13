@@ -1,7 +1,7 @@
 import { z } from 'zod'
-import type { Finding, Product } from '@facings/shared'
-import { attributeCompleteness } from '@facings/connectors'
-import { enforceDashRule, truncate } from '@facings/shared'
+import type { Finding, Product } from '@showing-up/shared'
+import { attributeCompleteness } from '@showing-up/connectors'
+import { enforceDashRule, truncate } from '@showing-up/shared'
 
 /**
  * Model pass for cause inference.
@@ -52,7 +52,7 @@ export async function inferCauses(
   if (findings.length === 0) return { findings }
 
   const {
-    model = process.env.FACINGS_ANTHROPIC_MODEL ?? 'claude-sonnet-4-5',
+    model = process.env.SHOWING_UP_ANTHROPIC_MODEL ?? 'claude-sonnet-4-5',
     baseUrl = process.env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com',
     fetchImpl = fetch,
     batchSize = 25,

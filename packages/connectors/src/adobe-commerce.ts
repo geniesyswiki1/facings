@@ -1,4 +1,4 @@
-import type { Product } from '@facings/shared'
+import type { Product } from '@showing-up/shared'
 import { productInputSchema, toProduct } from './catalogue.js'
 
 /**
@@ -64,7 +64,7 @@ export async function fetchAdobeProducts(
   const { limit = 20, fetchImpl = fetch, defaultCurrency = 'EUR' } = options
   const warnings: string[] = []
 
-  const query = `query FacingsCatalogue($pageSize: Int!) {
+  const query = `query Showing UpCatalogue($pageSize: Int!) {
   products(filter: ${ALL_PRODUCTS_FILTER}, pageSize: $pageSize, currentPage: 1, sort: { position: ASC }) {
     total_count
     items {
@@ -85,7 +85,7 @@ export async function fetchAdobeProducts(
   const headers: Record<string, string> = {
     'content-type': 'application/json',
     accept: 'application/json',
-    'user-agent': 'FacingsAudit/0.1',
+    'user-agent': 'ShowingUpAudit/0.1',
   }
   if (credentials.accessToken) headers.authorization = `Bearer ${credentials.accessToken}`
   if (credentials.storeCode) headers.store = credentials.storeCode

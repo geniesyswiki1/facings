@@ -7,9 +7,9 @@ import type {
   Product,
   Query,
   RunManifest,
-} from '@facings/shared'
-import { matchCards } from '@facings/diff'
-import type { Headline } from '@facings/diff'
+} from '@showing-up/shared'
+import { matchCards } from '@showing-up/diff'
+import type { Headline } from '@showing-up/diff'
 
 /**
  * The report view model.

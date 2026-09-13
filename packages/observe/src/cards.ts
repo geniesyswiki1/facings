@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import type { Card } from '@facings/shared'
-import { enforceDashRule, parseMoney, truncate } from '@facings/shared'
+import type { Card } from '@showing-up/shared'
+import { enforceDashRule, parseMoney, truncate } from '@showing-up/shared'
 
 /**
  * Normalisation of engine output into cards.

@@ -1,4 +1,4 @@
-import type { EngineId } from '@facings/shared'
+import type { EngineId } from '@showing-up/shared'
 import {
   type BuildFeedResult,
   type EligibilityResult,
@@ -8,7 +8,7 @@ import {
   buildUcpManifest,
   scoreAllEligibility,
   validateUcpManifest,
-} from '@facings/protocols'
+} from '@showing-up/protocols'
 import { MemoryRepository, type StoreRecord, type StoreRepository } from './repository.js'
 import { demoRecord, publishedSigningKeys } from './seed.js'
 
@@ -86,7 +86,7 @@ export async function getRepository(): Promise<StoreRepository> {
   const base = MemoryRepository.fromSeed([demoRecord()])
   try {
     const { getStore } = await import('@netlify/blobs')
-    const blobs = getStore('facings-policies')
+    const blobs = getStore('showing-up-policies')
     const { BlobPolicyOverlay } = await import('./repository.js')
     return new BlobPolicyOverlay(base, blobs as never)
   } catch {

@@ -1,8 +1,8 @@
 import { readdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { z } from 'zod'
-import type { Card, EngineId } from '@facings/shared'
-import { ENGINE_LABELS } from '@facings/shared'
+import type { Card, EngineId } from '@showing-up/shared'
+import { ENGINE_LABELS } from '@showing-up/shared'
 import type { AdapterResult, EngineAdapter, ObserveInput } from '../adapter.js'
 import { normaliseCards, rawCardListSchema } from '../cards.js'
 
@@ -126,7 +126,7 @@ export class PanelAdapter implements EngineAdapter {
   }
 
   configurationHint(): string {
-    return `place panel capture files in ${this.captureDir}. Generate the sheet with: facings-audit panel`
+    return `place panel capture files in ${this.captureDir}. Generate the sheet with: showing-up-audit panel`
   }
 
   async observe(input: ObserveInput): Promise<AdapterResult> {
@@ -165,7 +165,7 @@ export function panelInstructionSheet(params: {
   queries: Array<{ id: string; text: string }>
 }): string {
   const lines: string[] = []
-  lines.push('# Facings panel session sheet')
+  lines.push('# Showing Up panel session sheet')
   lines.push('')
   lines.push(`Store: ${params.storeDomain}`)
   lines.push(`Market: ${params.market}. Language: ${params.language}.`)
