@@ -40,11 +40,19 @@ const RULES: SignalRule[] = [
   { platform: 'woocommerce', pattern: /wc-block|wc_add_to_cart/i, label: 'woocommerce blocks', weight: 0.5 },
   { platform: 'woocommerce', pattern: /wp-content\/themes/i, label: 'wordpress theme path', weight: 0.2 },
 
-  { platform: 'adobe-commerce', pattern: /Magento_|mage\/|magento-init/i, label: 'magento modules', weight: 0.9 },
+  // The alternative used to be a bare mage\/, which matches "image/". Every
+  // page carrying type="image/webp" or an og:image scored Adobe Commerce at
+  // 90%, and four stores in one prospect pack were misidentified: three run
+  // Next.js or Nuxt and one runs Rails. Platform decides offeringFor(), which
+  // decides what a merchant is pitched, so a false positive here is a sales
+  // call that falls apart. Anchored to a path segment and a module prefix.
+  { platform: 'adobe-commerce', pattern: /\bMagento_|\/mage\/|magento-init/i, label: 'magento modules', weight: 0.9 },
   { platform: 'adobe-commerce', pattern: /static\/version\d+\/frontend/i, label: 'magento static path', weight: 0.8 },
   { platform: 'adobe-commerce', pattern: /data-mage-init/i, label: 'mage init attribute', weight: 0.6 },
 
-  { platform: 'prestashop', pattern: /prestashop/i, label: 'prestashop marker', weight: 0.9 },
+  // Same shape as the Shopware fix above and tightened for the same reason: a
+  // bare vendor name matches an icon class, a footer credit or a blog post.
+  { platform: 'prestashop', pattern: /\/prestashop\/|prestashop\.js|var\s+prestashop|data-prestashop|generator["'][^>]{0,40}prestashop|x-powered-by:\s*prestashop/i, label: 'prestashop marker', weight: 0.9 },
   { platform: 'prestashop', pattern: /\/modules\/ps_/i, label: 'prestashop module path', weight: 0.7 },
 
   { platform: 'bigcommerce', pattern: /cdn\d*\.bigcommerce\.com/i, label: 'bigcommerce cdn', weight: 0.9 },
@@ -53,7 +61,11 @@ const RULES: SignalRule[] = [
   { platform: 'wix', pattern: /static\.parastorage\.com|wixstatic\.com/i, label: 'wix static host', weight: 0.9 },
   { platform: 'wix', pattern: /wix-warmup-data|X-Wix-/i, label: 'wix runtime data', weight: 0.7 },
 
-  { platform: 'shopware', pattern: /shopware|\/bundles\/storefront/i, label: 'shopware storefront', weight: 0.8 },
+  // Not a bare /shopware/. Font Awesome ships a fa-shopware brand icon, so
+  // every site loading the full icon set matched, and Scout & Nimble, which
+  // runs Rails and Nuxt, scored Shopware at 80% on the strength of a CSS class
+  // it never uses. Anchored to markers a Shopware storefront actually emits.
+  { platform: 'shopware', pattern: /\/bundles\/storefront|window\.shopware|data-shopware|\/_shopware\/|x-shopware/i, label: 'shopware storefront', weight: 0.8 },
 
   { platform: 'shopify', pattern: /cdn\.shopify\.com|shopify-features/i, label: 'shopify cdn', weight: 0.95 },
 ]

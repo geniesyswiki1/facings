@@ -87,3 +87,52 @@ describe('connectorAvailable', () => {
     expect(connectorAvailable('unknown')).toBe(false)
   })
 })
+
+describe('platform detection false positives', () => {
+  // Platform decides offeringFor(), which decides what a merchant is pitched.
+  // A store wrongly read as Adobe Commerce is a sales call that falls apart,
+  // and a Shopify store wrongly read as anything else would be pitched
+  // presence, which SHOPIFY_SELLABLE exists to prevent.
+  const IMAGE_ONLY = `<html><head>
+    <meta property="og:image" content="https://cdn.example/x.png">
+    <link rel="apple-touch-icon" type="image/png" href="/icon.png">
+    <source srcset="/hero.webp" type="image/webp">
+  </head><body>A plain shop with no platform markers.</body></html>`
+
+  it('does not read image/ as a Magento marker', () => {
+    // "mage/" is a substring of "image/", so this page used to score
+    // adobe-commerce at 90% on the strength of a MIME type.
+    const result = detectPlatformFromHtml(IMAGE_ONLY)
+    expect(result.platform).not.toBe('adobe-commerce')
+  })
+
+  it('still detects a real Magento storefront', () => {
+    const magento = `<html><head><script>require(['Magento_Ui/js/core/app'])</script>
+      <link href="/static/version1699/frontend/Vendor/theme/en_GB/mage/calendar.css"></head><body></body></html>`
+    const result = detectPlatformFromHtml(magento)
+    expect(result.platform).toBe('adobe-commerce')
+    expect(result.confidence).toBeGreaterThan(0.8)
+  })
+})
+
+describe('vendor names that are not platform markers', () => {
+  // Three detectors in a row matched a bare vendor name anywhere in the page.
+  // A bare name appears in icon fonts, footer credits and blog copy, so it
+  // identifies nothing.
+  it('does not read a Font Awesome brand icon as Shopware', () => {
+    const fontAwesome = '<style>.fa-shopping-cart:before{content:"\\f07a"}.fa-shopware:before{content:"\\f5b5"}</style>'
+    expect(detectPlatformFromHtml(fontAwesome).platform).not.toBe('shopware')
+  })
+
+  it('still detects a real Shopware storefront', () => {
+    expect(detectPlatformFromHtml('<script src="/bundles/storefront/js/all.js"></script>').platform).toBe('shopware')
+  })
+
+  it('does not read a footer credit as PrestaShop', () => {
+    expect(detectPlatformFromHtml('<footer>Powered by PrestaShop, our favourite platform</footer>').platform).not.toBe('prestashop')
+  })
+
+  it('still detects a real PrestaShop storefront', () => {
+    expect(detectPlatformFromHtml('<script>var prestashop = {"cart":{}};</script>').platform).toBe('prestashop')
+  })
+})
