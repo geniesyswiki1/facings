@@ -48,6 +48,46 @@ Domain preference order: showingup.ai, showingup.io, getshowingup.com. Fallback 
 
 Handles: @showingup on X and LinkedIn (LinkedIn is the channel that matters for this buyer).
 
+**Names considered and rejected.** Recorded 13 September 2026 so the question is
+not reopened without the evidence that closed it. None of this is legal advice
+and none of it is a register search: the UK IPO returns 403 to automated
+requests and the USPTO search API is not publicly queryable, so everything
+below is marketplace evidence. Nothing here licenses the sentence "no conflict
+exists", in any market.
+
+- **ShowUp, as one word.** Rejected on three grounds. First, closing the space
+  buys no distinctiveness: UK, EU and US practice assess a compound of two
+  ordinary words as those words, and SHOWUP and SHOW UP are aurally and
+  conceptually identical, so the objection is the same objection. Second, it is
+  arguably weaker than Showing Up, because "show up" is a bare imperative and a
+  common exhortation, and short two-word compounds are the most crowded corner
+  of class 42. Third, and decisively, there is a live same-class conflict:
+  **ShowUp.io is an operating B2B SaaS product, "simple, automated employee
+  pulse survey software", backed by DOVICO** (retrieved 13 September 2026).
+  Class 42 is the class we cannot do without. There is also a ShowUp Android
+  app for conference networking whose package identifier is
+  com.showupone.showupai, which is adjacent to a domain we would have wanted.
+
+  The domains are worse too: showup.io is in use, showup.com is brokered on
+  Atom, showup.app is listed at 6,499 US dollars, showup.co is parked for sale,
+  and showup.ai did not respond, which is consistent with unregistered but is
+  not proof of it.
+
+- **Showing Up, kept.** Its nearest conflict is the 2022 A24 feature film
+  directed by Kelly Reichardt, which sits in classes 9 and 41. Those are
+  classes the product can live without, and a film title for a single work is
+  itself hard to assert as a mark. The weak flank is **class 35**, where
+  "showing up" describes the outcome the service delivers, and that is the
+  specific question to put to an attorney rather than the class 42 filing.
+
+The conclusion that matters: a shorter version of the same ordinary phrase does
+not fix an ordinary phrase. Either file the composite as planned above, or
+choose a coined mark. **Cardstand is the stronger mark on the register** and it
+is already the fallback: an invented compound with no descriptive meaning for
+software, registrable without a logo to lean on. cardstand.io and cardstand.ai
+did not respond; cardstand.com is live and belongs to someone else. Decide
+between the composite and the coined mark before buying a domain, not after.
+
 ### 2.2 Positioning
 
 One line, used everywhere: **"Show up, and show up correctly, when AI agents shop."**

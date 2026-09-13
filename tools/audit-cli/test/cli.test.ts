@@ -40,7 +40,7 @@ describe('showing-up-audit panel', () => {
     // Exits non zero as well as saying why, so a scripted run fails loudly.
     await expect(
       run(process.execPath, [CLI, 'panel', '--url', 'https://northfieldaudio.example', '--out', out]),
-    ).rejects.toMatchObject({ stderr: expect.stringContaining('no catalogue supplied') })
+    ).rejects.toMatchObject({ stderr: expect.stringContaining('no catalogue readable') })
   }, 60_000)
 })
 

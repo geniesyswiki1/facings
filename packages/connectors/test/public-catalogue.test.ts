@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { discoverPublicCatalogue } from '../src/index.js'
+import { discoverPublicCatalogue, NOT_READABLE, sitemapRank } from '../src/index.js'
 
 /**
  * Credential-free discovery. The free audit depends on this working against a
@@ -135,7 +135,16 @@ describe('public catalogue discovery', () => {
     })
     expect(result.method).toBe('none')
     expect(result.products).toEqual([])
-    expect(result.warnings.some((w) => w.includes('An agent reading this store today would find nothing'))).toBe(true)
+    expect(result.warnings.some((w) => w.includes('no catalogue was readable by any credential-free method'))).toBe(true)
+  })
+
+  it('never claims the store publishes nothing, because the sample is capped', () => {
+    // Tooled-Up lists category pages in its sitemap and keeps product pages
+    // deeper than the page budget reaches. Telling a merchant with a hundred
+    // thousand SKUs that they publish no catalogue would be false, and they
+    // would know it. "Not readable by these methods" is the claim we can make.
+    expect(NOT_READABLE).toContain('not evidence that the store publishes nothing')
+    expect(NOT_READABLE).not.toContain('would find nothing')
   })
 
   it('prefers a platform API over a scrape even when both would work', async () => {
@@ -146,5 +155,183 @@ describe('public catalogue discovery', () => {
       ]),
     })
     expect(result.method).toBe('shopify-products-json')
+  })
+})
+
+describe('sitemap discovery, against the shapes real stores actually use', () => {
+  // Every case here is a store this failed on before the fix. None of them
+  // were the merchant's problem: an agent reading them would have found the
+  // catalogue, so reporting "publishes nothing" would have been our bug
+  // printed in their report.
+  const PRODUCT_PAGE = `<html><head><script type="application/ld+json">
+    {"@type":"Product","name":"Bench clamp","sku":"BC-1","offers":{"@type":"Offer","price":"24.99","priceCurrency":"USD","availability":"https://schema.org/InStock"}}
+  </script></head><body></body></html>`
+
+  function store(routes: Record<string, string>): typeof fetch {
+    return (async (input: string | URL) => {
+      const url = typeof input === 'string' ? input : input.toString()
+      const path = new URL(url).pathname
+      const body = routes[path]
+      if (body === undefined) return { ok: false, status: 404, text: async () => '', json: async () => ({}) }
+      return { ok: true, status: 200, text: async () => body, json: async () => JSON.parse(body) }
+    }) as unknown as typeof fetch
+  }
+
+  it('reads the sitemap location out of robots.txt', async () => {
+    // Rockler declares /media/sitemap.xml, which is the documented place to
+    // declare it. A request to /sitemap.xml returned the HTML homepage with a
+    // 200, so nothing errored and the store looked empty.
+    const result = await discoverPublicCatalogue('https://rockler.example', {
+      limit: 2,
+      fetchImpl: store({
+        '/robots.txt': 'User-agent: *\nSitemap: https://rockler.example/media/sitemap.xml\n',
+        '/sitemap.xml': '<!doctype html><html><body>homepage</body></html>',
+        '/media/sitemap.xml': '<urlset><url><loc>https://rockler.example/hand-tools/clamps</loc></url></urlset>',
+        '/hand-tools/clamps': PRODUCT_PAGE,
+      }),
+    })
+    expect(result.method).toBe('json-ld')
+    expect(result.products).toHaveLength(1)
+  })
+
+  it('does not mistake a soft 404 homepage for a sitemap', async () => {
+    const result = await discoverPublicCatalogue('https://soft404.example', {
+      limit: 2,
+      fetchImpl: store({ '/sitemap.xml': '<!doctype html><html><body>nope</body></html>' }),
+    })
+    expect(result.method).toBe('none')
+    expect(result.products).toHaveLength(0)
+  })
+
+  it('follows a sitemap index whose children are not named .xml', async () => {
+    // Sportsman's Warehouse indexes children at /customsitemap/HOMEPAGE-en-USD.
+    // Matching the URL string for ".xml" discarded every child it had.
+    const result = await discoverPublicCatalogue('https://sportsmans.example', {
+      limit: 2,
+      fetchImpl: store({
+        '/robots.txt': 'Sitemap: https://sportsmans.example/sitemap.xml\n',
+        '/sitemap.xml': '<sitemapindex><sitemap><loc>https://sportsmans.example/customsitemap/PRODUCTS-en-USD</loc></sitemap></sitemapindex>',
+        '/customsitemap/PRODUCTS-en-USD': '<urlset><url><loc>https://sportsmans.example/marlin-xt-22-magazine</loc></url></urlset>',
+        '/marlin-xt-22-magazine': PRODUCT_PAGE,
+      }),
+    })
+    expect(result.method).toBe('json-ld')
+    expect(result.products[0]?.sku).toBe('BC-1')
+  })
+
+  it('accepts a clean product URL with no /product/ in it', async () => {
+    const result = await discoverPublicCatalogue('https://clean.example', {
+      limit: 2,
+      fetchImpl: store({
+        '/sitemap.xml': '<urlset><url><loc>https://clean.example/power-tools/dust-collection</loc></url></urlset>',
+        '/power-tools/dust-collection': PRODUCT_PAGE,
+      }),
+    })
+    expect(result.products).toHaveLength(1)
+  })
+
+  it('says the catalogue is a sample rather than the whole of it', async () => {
+    const result = await discoverPublicCatalogue('https://sample.example', {
+      limit: 1,
+      fetchImpl: store({
+        '/sitemap.xml': '<urlset><url><loc>https://sample.example/a-clamp</loc></url></urlset>',
+        '/a-clamp': PRODUCT_PAGE,
+      }),
+    })
+    expect(result.warnings.some((w) => w.includes('sample rather than the whole'))).toBe(true)
+  })
+})
+
+describe('sitemap ranking', () => {
+  // This ranking silently did nothing at all on every store for a while,
+  // because it tested the whole URL for the bare substring "item" and the word
+  // "sitemap" contains it. Every candidate scored top rank, so the sort was a
+  // no-op and the page budget went wherever declaration order happened to
+  // point. A no-op heuristic is worse than no heuristic: it looks like it works.
+  const SM = 'https://shop.example/sitemaps/'
+
+  it('does not match "item" inside the word sitemap', () => {
+    expect(sitemapRank(`${SM}custom.xml`)).toBe(2)
+    expect(sitemapRank('https://shop.example/sitemap.xml')).toBe(2)
+  })
+
+  it('puts product sitemaps first and content sitemaps last', () => {
+    expect(sitemapRank(`${SM}sitemap-pdps.xml`)).toBe(0)
+    expect(sitemapRank(`${SM}products.xml`)).toBe(0)
+    expect(sitemapRank(`${SM}sitemap-plps.xml`)).toBe(1)
+    expect(sitemapRank(`${SM}fundraising.xml`)).toBe(3)
+    expect(sitemapRank(`${SM}design_ideas.xml`)).toBe(3)
+  })
+
+  it('ranks the product sitemap above one declared before it', () => {
+    // CustomInk declares eleven sitemaps and sitemap-pdps.xml is the tenth.
+    const declared = [`${SM}custom.xml`, `${SM}design_ideas.xml`, `${SM}sitemap-pdps.xml`]
+    expect([...declared].sort((a, b) => sitemapRank(a) - sitemapRank(b))[0]).toBe(`${SM}sitemap-pdps.xml`)
+  })
+})
+
+describe('Product JSON-LD as real stores emit it', () => {
+  function page(body: string): typeof fetch {
+    return (async (input: string | URL) => {
+      const path = new URL(typeof input === 'string' ? input : input.toString()).pathname
+      const routes: Record<string, string> = {
+        '/sitemap.xml': '<urlset><url><loc>https://shop.example/a-shirt</loc></url></urlset>',
+        '/a-shirt': body,
+      }
+      const found = routes[path]
+      if (found === undefined) return { ok: false, status: 404, text: async () => '', json: async () => ({}) }
+      return { ok: true, status: 200, text: async () => found, json: async () => JSON.parse(found) }
+    }) as unknown as typeof fetch
+  }
+
+  it('reads a lowercase @type, which Rugbystore emits', async () => {
+    // A case-sensitive check skipped every product this store publishes.
+    const result = await discoverPublicCatalogue('https://shop.example', {
+      limit: 2,
+      fetchImpl: page(`<html><script type="application/ld+json">
+        {"@type":"product","name":"Wales travel polo","sku":"WAL-1","offers":{"@type":"Offer","price":"45.00","priceCurrency":"GBP","availability":"https://schema.org/InStock"}}
+      </script></html>`),
+    })
+    expect(result.products).toHaveLength(1)
+    expect(result.products[0]?.title).toBe('Wales travel polo')
+  })
+
+  it('keys on productID when there is no sku, which CustomInk emits', async () => {
+    const result = await discoverPublicCatalogue('https://shop.example', {
+      limit: 2,
+      fetchImpl: page(`<html><script type="application/ld+json">
+        {"@type":"Product","name":"Youth sunglasses","productID":"1130700","offers":{"@type":"Offer","price":"3.50","priceCurrency":"USD"}}
+      </script></html>`),
+    })
+    expect(result.products[0]?.sku).toBe('1130700')
+  })
+
+  it('skips a block with malformed JSON instead of losing the whole page', async () => {
+    // Rugbystore serves two blocks per page and one has raw control
+    // characters inside a string literal. The good block must still be read.
+    const result = await discoverPublicCatalogue('https://shop.example', {
+      limit: 2,
+      fetchImpl: page(`<html>
+        <script type="application/ld+json">{ "@context": "https://www.schema.org", "broken": "line
+        break" }</script>
+        <script type="application/ld+json">{"@type":"Product","name":"Softshell jacket","sku":"SSJ-1","offers":{"price":"89.99","priceCurrency":"GBP"}}</script>
+      </html>`),
+    })
+    expect(result.products).toHaveLength(1)
+    expect(result.products[0]?.sku).toBe('SSJ-1')
+  })
+
+  it('finds no product where a store publishes only ItemPage, as Mattress Online does', async () => {
+    // Not our bug and not to be papered over: their product pages carry
+    // ItemPage and ItemList with no Product node, so an agent reading them
+    // finds no product entity. That is the finding.
+    const result = await discoverPublicCatalogue('https://shop.example', {
+      limit: 2,
+      fetchImpl: page(`<html><script type="application/ld+json">
+        {"@type":"ItemPage","name":"Hypnos Wheatley Supreme"}
+      </script></html>`),
+    })
+    expect(result.method).toBe('none')
+    expect(result.products).toHaveLength(0)
   })
 })
