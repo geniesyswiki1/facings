@@ -14,7 +14,7 @@ import {
   type Language,
   type Market,
 } from '@showing-up/shared'
-import { detectPlatform } from '@showing-up/connectors'
+import { discoverPublicCatalogue, detectPlatform } from '@showing-up/connectors'
 import { deliver } from './deliver.js'
 import { buildQueries } from '@showing-up/benchmark'
 import { panelCaptureTemplate, panelInstructionSheet } from '@showing-up/observe'
@@ -202,9 +202,9 @@ program
     const domain = new URL(url).host.replace(/^www\./, '')
     const storeId = `panel-${domain}`
 
-    const products = await loadProductsForPanel(storeId, options)
+    const products = await loadProductsForPanel(storeId, options, url)
     if (products.length === 0) {
-      console.error('no catalogue supplied. Pass --csv, --feed or --feed-url so the sheet lists the real queries.')
+      console.error('no catalogue readable. This store publishes none, so pass --csv, --feed or --feed-url to build the sheet.')
       process.exitCode = 1
       return
     }
@@ -269,9 +269,9 @@ program
     const url = normaliseUrl(options.url)
     const storeId = `fixture-${new URL(url).host.replace(/^www\./, '')}`
 
-    const products = (await loadProductsForPanel(storeId, options)).slice(0, options.skus as number)
+    const products = (await loadProductsForPanel(storeId, options, url)).slice(0, options.skus as number)
     if (products.length === 0) {
-      console.error('no catalogue supplied. Pass --csv or --feed.')
+      console.error('no catalogue readable. This store publishes none, so pass --csv or --feed.')
       process.exitCode = 1
       return
     }
@@ -353,10 +353,23 @@ function printSummary(result: Awaited<ReturnType<typeof runAudit>>): void {
   if (!result.pdfWritten) console.log('\nthe PDF was not rendered, the HTML report holds the same content')
 }
 
-async function loadProductsForPanel(storeId: string, options: Record<string, string>) {
+/**
+ * Catalogue for the panel and fixture commands.
+ *
+ * Falls back to public discovery when no explicit source is given, the same as
+ * `run` and `deliver` already do. Without this, panel prep was the only part of
+ * the harness that could not start from a URL alone, which is the one thing the
+ * whole tool is supposed to accept.
+ */
+async function loadProductsForPanel(storeId: string, options: Record<string, string>, url?: string) {
   if (options.csv) return (await importCsvFile(storeId, options.csv)).products
   if (options.feed) return (await importFeedFile(storeId, options.feed)).products
   if (options.feedUrl) return (await importFeedUrl(storeId, options.feedUrl)).products
+  if (url) {
+    const found = await discoverPublicCatalogue(url, { limit: 50 })
+    for (const warning of found.warnings) console.log(`  note: ${warning}`)
+    return found.products
+  }
   return []
 }
 
