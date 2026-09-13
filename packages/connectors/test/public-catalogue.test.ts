@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { discoverPublicCatalogue, NOT_READABLE } from '../src/index.js'
+import { discoverPublicCatalogue, NOT_READABLE, sitemapRank } from '../src/index.js'
 
 /**
  * Credential-free discovery. The free audit depends on this working against a
@@ -239,5 +239,33 @@ describe('sitemap discovery, against the shapes real stores actually use', () =>
       }),
     })
     expect(result.warnings.some((w) => w.includes('sample rather than the whole'))).toBe(true)
+  })
+})
+
+describe('sitemap ranking', () => {
+  // This ranking silently did nothing at all on every store for a while,
+  // because it tested the whole URL for the bare substring "item" and the word
+  // "sitemap" contains it. Every candidate scored top rank, so the sort was a
+  // no-op and the page budget went wherever declaration order happened to
+  // point. A no-op heuristic is worse than no heuristic: it looks like it works.
+  const SM = 'https://shop.example/sitemaps/'
+
+  it('does not match "item" inside the word sitemap', () => {
+    expect(sitemapRank(`${SM}custom.xml`)).toBe(2)
+    expect(sitemapRank('https://shop.example/sitemap.xml')).toBe(2)
+  })
+
+  it('puts product sitemaps first and content sitemaps last', () => {
+    expect(sitemapRank(`${SM}sitemap-pdps.xml`)).toBe(0)
+    expect(sitemapRank(`${SM}products.xml`)).toBe(0)
+    expect(sitemapRank(`${SM}sitemap-plps.xml`)).toBe(1)
+    expect(sitemapRank(`${SM}fundraising.xml`)).toBe(3)
+    expect(sitemapRank(`${SM}design_ideas.xml`)).toBe(3)
+  })
+
+  it('ranks the product sitemap above one declared before it', () => {
+    // CustomInk declares eleven sitemaps and sitemap-pdps.xml is the tenth.
+    const declared = [`${SM}custom.xml`, `${SM}design_ideas.xml`, `${SM}sitemap-pdps.xml`]
+    expect([...declared].sort((a, b) => sitemapRank(a) - sitemapRank(b))[0]).toBe(`${SM}sitemap-pdps.xml`)
   })
 })

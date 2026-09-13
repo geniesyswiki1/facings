@@ -214,7 +214,11 @@ async function sitemapCandidates(
   for (const path of ['/sitemap.xml', '/sitemap_index.xml', '/sitemap-index.xml']) {
     candidates.push(new URL(path, origin).toString())
   }
-  return [...new Set(candidates)].slice(0, 8)
+  // Rank before the cap, never after. CustomInk declares eleven sitemaps and
+  // sitemap-pdps.xml, the only one holding product pages, is the tenth. Taking
+  // the first eight in declaration order threw it away before anything had a
+  // chance to prefer it.
+  return [...new Set(candidates)].sort((a, b) => sitemapRank(a) - sitemapRank(b)).slice(0, 8)
 }
 
 /** True when a body is actually XML, rather than a soft 404 serving the homepage. */
@@ -234,7 +238,43 @@ export const NOT_READABLE =
 
 /** Every <loc> in a sitemap document. */
 function sitemapLocs(body: string): string[] {
-  return [...body.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)].map((match) => match[1] ?? '').filter(Boolean)
+  // XML requires & to be escaped, so a sitemap URL carrying a query string
+  // arrives as ...xmlsitemap.php?type=products&amp;page=1. Fetching that
+  // literally sends the wrong query and returns an empty document, which is
+  // how Hyperdrug's product sitemap read as zero URLs. Same entity bug already
+  // fixed once on the feed side; decodeEntities is the same helper.
+  return [...body.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)]
+    .map((match) => decodeEntities(match[1] ?? ''))
+    .filter(Boolean)
+}
+
+/**
+ * How likely a sitemap is to hold product pages, from its own URL.
+ *
+ * CustomInk declares eleven sitemaps, one of which is sitemap-pdps.xml, and
+ * pdp is the standard abbreviation for a product detail page. Reading them in
+ * declaration order spent the whole page budget on fundraising pages and never
+ * reached it. Lower sorts first.
+ */
+export function sitemapRank(url: string): number {
+  // Tokenised, and matched on whole tokens only.
+  //
+  // The first version tested the whole URL for bare substrings, and one of
+  // them was "item". Every sitemap URL contains the word "sitemap", and
+  // "sitemap" contains "item", so every candidate scored top rank and the
+  // ranking silently did nothing at all on every store. The word that broke it
+  // is gone and the rest are matched between delimiters.
+  const tokens = url
+    .toLowerCase()
+    .replace(/^https?:\/\/[^/]+/, '')
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean)
+    .filter((token) => token !== 'sitemap' && token !== 'sitemaps')
+  const has = (...words: string[]) => words.some((word) => tokens.includes(word))
+  if (has('pdp', 'pdps', 'product', 'products', 'catalog', 'catalogue', 'sku', 'skus')) return 0
+  if (has('plp', 'plps', 'category', 'categories', 'shop', 'collection', 'collections', 'brand', 'brands')) return 1
+  if (has('blog', 'blogs', 'news', 'article', 'articles', 'idea', 'ideas', 'fundraising', 'design', 'designs', 'stores', 'pages')) return 3
+  return 2
 }
 
 /**
@@ -260,29 +300,38 @@ async function productUrlsFromSitemap(
   // holds the site pages (/, /blog/, /brand/) and the second holds every
   // product. Stopping at the first sitemap that parsed read the wrong half of
   // the store and reported a hundred thousand SKUs as no catalogue at all.
-  const roots: string[] = []
-  for (const candidate of await sitemapCandidates(origin, fetchImpl, timeoutMs)) {
+  const candidates = await sitemapCandidates(origin, fetchImpl, timeoutMs)
+
+  const roots: { body: string; url: string }[] = []
+  for (const candidate of candidates) {
     // A soft 404 returns the homepage with a 200, so the shape is the only
     // reliable check that this is a sitemap at all.
     const body = await getText(candidate, fetchImpl, timeoutMs)
-    if (body && looksLikeSitemap(body)) roots.push(body)
+    if (body && looksLikeSitemap(body)) roots.push({ body, url: candidate })
   }
   if (roots.length === 0) return []
 
-  const pages: string[] = []
+  // Capped per sitemap. CustomInk's inkofweek.xml alone holds fifty thousand
+  // URLs, which swamped every other sitemap it declares including the product
+  // one, so each contributes a bounded share and rank decides the order.
+  const PER_SITEMAP = Math.max(budget * 5, 200)
+  const pages: { url: string; rank: number }[] = []
   for (const root of roots) {
-    if (/<sitemapindex\b/i.test(root)) {
-      for (const child of sitemapLocs(root).slice(0, 6)) {
-        if (pages.length >= budget * 4) break
+    const rank = sitemapRank(root.url)
+    if (/<sitemapindex\b/i.test(root.body)) {
+      const children = sitemapLocs(root.body).sort((a, b) => sitemapRank(a) - sitemapRank(b))
+      for (const child of children.slice(0, 6)) {
         const body = await getText(child, fetchImpl, timeoutMs)
         if (!body || !looksLikeSitemap(body)) continue
         // One level of nesting only. A deeper index is rare and the page budget
         // is better spent reading product pages than walking more indexes.
         if (/<sitemapindex\b/i.test(body)) continue
-        pages.push(...sitemapLocs(body))
+        for (const loc of sitemapLocs(body).slice(0, PER_SITEMAP)) {
+          pages.push({ url: loc, rank: sitemapRank(child) })
+        }
       }
     } else {
-      pages.push(...sitemapLocs(root))
+      for (const loc of sitemapLocs(root.body).slice(0, PER_SITEMAP)) pages.push({ url: loc, rank })
     }
   }
 
@@ -291,12 +340,34 @@ async function productUrlsFromSitemap(
   // only decides which pages to spend the budget on first. Rockler and three
   // other real stores publish clean URLs such as /hand-tools/clamps, so a
   // /product/ filter removed every candidate they had.
+
+  // No guessing where in a sitemap the products are.
+  //
+  // An earlier version broke the tie by URL depth, deepest first. That was
+  // fitted to Rockler, whose products sit at /hand-tools/clamps, and it is
+  // exactly wrong for Hyperdrug, whose products sit at the root as
+  // /hedrin-4-lotion-150ml/ while its articles are eight segments deep. The
+  // depth heuristic spent the whole budget reading articles on a store whose
+  // product markup is textbook correct.
+  //
+  // Depth is not a signal for productness, and neither is position. So rank
+  // only on things that carry real information, the sitemap a URL came from
+  // and an explicit /product/ style path segment, then sample the remainder at
+  // an even stride across the whole list. A store whose products are shallow,
+  // deep, first or last is represented either way.
   const hinted = (loc: string) => (/\/(product|products|shop|p|dp|item|sku)\//i.test(loc) ? 0 : 1)
-  const depth = (loc: string) => loc.split('/').length
-  return [...new Set(pages)]
-    .filter((loc) => !/\.(xml|txt|gz|jpg|png|pdf)($|\?)/i.test(loc))
-    .sort((a, b) => hinted(a) - hinted(b) || depth(b) - depth(a))
-    .slice(0, budget)
+  const seen = new Set<string>()
+  const ordered = pages
+    .filter((entry) => !/\.(xml|txt|gz|jpg|png|pdf)($|\?)/i.test(entry.url))
+    .filter((entry) => (seen.has(entry.url) ? false : seen.add(entry.url)))
+    .sort((a, b) => a.rank - b.rank || hinted(a.url) - hinted(b.url))
+    .map((entry) => entry.url)
+
+  if (ordered.length <= budget) return ordered
+  const stride = ordered.length / budget
+  const sampled: string[] = []
+  for (let i = 0; i < budget; i += 1) sampled.push(ordered[Math.floor(i * stride)] as string)
+  return [...new Set(sampled)]
 }
 
 /** Reads Product JSON-LD out of a rendered page. */
@@ -319,7 +390,7 @@ function productFromJsonLd(html: string, pageUrl: string): Record<string, unknow
         if (!types.includes('Product')) continue
         const offer = Array.isArray(item.offers) ? item.offers[0] : item.offers
         return {
-          sku: item.sku ?? item.mpn ?? pageUrl,
+          sku: item.sku ?? item.mpn ?? item.productID ?? pageUrl,
           title: item.name,
           price: Number.parseFloat(String(offer?.price ?? '0')),
           currency: offer?.priceCurrency,
