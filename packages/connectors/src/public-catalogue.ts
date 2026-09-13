@@ -211,7 +211,14 @@ async function sitemapCandidates(
     }
   }
   // Conventional locations, kept as a fallback for stores that declare nothing.
-  for (const path of ['/sitemap.xml', '/sitemap_index.xml', '/sitemap-index.xml']) {
+  //
+  // /xmlsitemap.php is the BigCommerce convention and it earns its place:
+  // Absolute Music, J Parker's, Pets & Friends, Just For Pets and Ultralight
+  // Outdoor Gear all serve a sitemap there and declare none in robots.txt, so
+  // trying only the .xml spellings read five real stores as having no sitemap
+  // at all. Hyperdrug is the same platform and does declare it, which is what
+  // made the pattern visible.
+  for (const path of ['/sitemap.xml', '/xmlsitemap.php', '/sitemap_index.xml', '/sitemap-index.xml', '/sitemap/']) {
     candidates.push(new URL(path, origin).toString())
   }
   // Rank before the cap, never after. CustomInk declares eleven sitemaps and
@@ -385,9 +392,15 @@ function productFromJsonLd(html: string, pageUrl: string): Record<string, unknow
       const node = entry as Record<string, any>
       const graph = Array.isArray(node?.['@graph']) ? node['@graph'] : [node]
       for (const item of graph) {
+        // Matched case-insensitively. Schema.org types are conventionally
+        // CamelCase, but Rugbystore emits "@type": "product" and a
+        // case-sensitive check skipped every product they publish while the
+        // page validated fine everywhere else. Reading is the lenient side of
+        // this job: an assistant that ignored their catalogue over a capital
+        // letter would be the one making the mistake.
         const type = item?.['@type']
-        const types = Array.isArray(type) ? type : [type]
-        if (!types.includes('Product')) continue
+        const types = (Array.isArray(type) ? type : [type]).map((entry) => String(entry).toLowerCase())
+        if (!types.includes('product')) continue
         const offer = Array.isArray(item.offers) ? item.offers[0] : item.offers
         return {
           sku: item.sku ?? item.mpn ?? item.productID ?? pageUrl,

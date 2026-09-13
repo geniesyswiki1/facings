@@ -269,3 +269,69 @@ describe('sitemap ranking', () => {
     expect([...declared].sort((a, b) => sitemapRank(a) - sitemapRank(b))[0]).toBe(`${SM}sitemap-pdps.xml`)
   })
 })
+
+describe('Product JSON-LD as real stores emit it', () => {
+  function page(body: string): typeof fetch {
+    return (async (input: string | URL) => {
+      const path = new URL(typeof input === 'string' ? input : input.toString()).pathname
+      const routes: Record<string, string> = {
+        '/sitemap.xml': '<urlset><url><loc>https://shop.example/a-shirt</loc></url></urlset>',
+        '/a-shirt': body,
+      }
+      const found = routes[path]
+      if (found === undefined) return { ok: false, status: 404, text: async () => '', json: async () => ({}) }
+      return { ok: true, status: 200, text: async () => found, json: async () => JSON.parse(found) }
+    }) as unknown as typeof fetch
+  }
+
+  it('reads a lowercase @type, which Rugbystore emits', async () => {
+    // A case-sensitive check skipped every product this store publishes.
+    const result = await discoverPublicCatalogue('https://shop.example', {
+      limit: 2,
+      fetchImpl: page(`<html><script type="application/ld+json">
+        {"@type":"product","name":"Wales travel polo","sku":"WAL-1","offers":{"@type":"Offer","price":"45.00","priceCurrency":"GBP","availability":"https://schema.org/InStock"}}
+      </script></html>`),
+    })
+    expect(result.products).toHaveLength(1)
+    expect(result.products[0]?.title).toBe('Wales travel polo')
+  })
+
+  it('keys on productID when there is no sku, which CustomInk emits', async () => {
+    const result = await discoverPublicCatalogue('https://shop.example', {
+      limit: 2,
+      fetchImpl: page(`<html><script type="application/ld+json">
+        {"@type":"Product","name":"Youth sunglasses","productID":"1130700","offers":{"@type":"Offer","price":"3.50","priceCurrency":"USD"}}
+      </script></html>`),
+    })
+    expect(result.products[0]?.sku).toBe('1130700')
+  })
+
+  it('skips a block with malformed JSON instead of losing the whole page', async () => {
+    // Rugbystore serves two blocks per page and one has raw control
+    // characters inside a string literal. The good block must still be read.
+    const result = await discoverPublicCatalogue('https://shop.example', {
+      limit: 2,
+      fetchImpl: page(`<html>
+        <script type="application/ld+json">{ "@context": "https://www.schema.org", "broken": "line
+        break" }</script>
+        <script type="application/ld+json">{"@type":"Product","name":"Softshell jacket","sku":"SSJ-1","offers":{"price":"89.99","priceCurrency":"GBP"}}</script>
+      </html>`),
+    })
+    expect(result.products).toHaveLength(1)
+    expect(result.products[0]?.sku).toBe('SSJ-1')
+  })
+
+  it('finds no product where a store publishes only ItemPage, as Mattress Online does', async () => {
+    // Not our bug and not to be papered over: their product pages carry
+    // ItemPage and ItemList with no Product node, so an agent reading them
+    // finds no product entity. That is the finding.
+    const result = await discoverPublicCatalogue('https://shop.example', {
+      limit: 2,
+      fetchImpl: page(`<html><script type="application/ld+json">
+        {"@type":"ItemPage","name":"Hypnos Wheatley Supreme"}
+      </script></html>`),
+    })
+    expect(result.method).toBe('none')
+    expect(result.products).toHaveLength(0)
+  })
+})
