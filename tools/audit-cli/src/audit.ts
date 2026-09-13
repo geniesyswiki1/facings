@@ -249,7 +249,7 @@ export async function runAudit(options: AuditOptions): Promise<AuditResult> {
   // falls per store as density inside a category-market rises. SPEC 7.
   const shareable = shareableQueryFraction(queries)
   notes.push(
-    `${(shareable * 100).toFixed(0)}% of this run's queries are shareable across stores in the same category and market`,
+    `${(shareable * 100).toFixed(0)}% of this run's queries are shareable across stores selling the same product type in this market`,
   )
   const manifest: RunManifest = {
     runId,

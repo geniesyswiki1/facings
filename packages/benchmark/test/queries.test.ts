@@ -124,13 +124,27 @@ describe('query shareability, the unit economic', () => {
     }
   })
 
-  it('shares a category-level query, which needs no product at all', () => {
-    const returns = uk.find((query) => query.text === 'electronics with a long returns window')
-    expect(returns?.shareable).toBe(true)
-    // The sibling template renders "bookshelf speaker with free returns", where
-    // the type came from a product title, so it is shareable with nobody.
+  it('shares a product-type query, because a rival store generates the same text', () => {
+    // productType strips the brand, the model code and the unit words, so this
+    // text is identical for anyone selling bookshelf speakers in the UK. That
+    // is the sharing unit, and it is also what a shopper types.
     const typed = uk.find((query) => query.text === 'bookshelf speaker with free returns')
-    expect(typed?.shareable).toBe(false)
+    expect(typed?.shareable).toBe(true)
+    expect(typed?.shareKey).toBeTruthy()
+  })
+
+  it('gives two price bands different share keys', () => {
+    // A coarse category key would merge these and observe the wrong question.
+    const bands = uk.filter((query) => query.text.startsWith('electronics under'))
+    expect(bands.length).toBe(2)
+    expect(bands[0]?.shareKey).not.toBe(bands[1]?.shareKey)
+  })
+
+  it('sets no share key on a query that names a product', () => {
+    for (const query of uk) {
+      if (query.shareable) continue
+      expect(query.shareKey).toBeUndefined()
+    }
   })
 
   it('does not share a product-name query', () => {
@@ -148,24 +162,19 @@ describe('query shareability, the unit economic', () => {
     expect(shareableQueryFraction(unflagged)).toBe(0)
   })
 
-  it('measures 20% on an English catalogue, which is the number to improve', () => {
-    // Pinned deliberately. 45% of the 20 slots go to product_name and
-    // comparison, which name a product and can never be shared, and most of
-    // the rest render an English {type} from the product title. So four fifths
-    // of observation cost currently falls on a single store, and density
-    // inside a category-market buys much less than SPEC 8 assumes. Raising
-    // this is a query-mix decision, and this test is what makes a change to it
-    // visible.
-    expect(shareableQueryFraction(uk)).toBeCloseTo(0.2, 2)
+  it('measures 65% on an English catalogue, against a 45% target', () => {
+    // Pinned deliberately, and 65% is the ceiling: the remaining 35% is the
+    // product_name and comparison intents, which name a specific SKU and are
+    // where the critical findings live. Trading those away to raise this
+    // number would be optimising the metric against the product.
+    expect(shareableQueryFraction(uk)).toBeCloseTo(0.65, 2)
   })
 
-  it('reads higher in German only because the German type is too generic', () => {
-    // German {type} always renders a bare category label, so it measures 60%.
-    // That is not a better cost curve, it is a worse query: "bester Elektronik
-    // fuer den Alltag" is not something a shopper types, and it also does not
-    // agree in gender. Fixing the German templates will push this number down
-    // towards the English one, and that is the correct direction.
-    const de = buildQueries(products, { storeId: 's1', market: 'DE', language: 'de' })
-    expect(shareableQueryFraction(de)).toBeGreaterThan(shareableQueryFraction(uk))
+  it('keeps an inherently plural product type plural', () => {
+    // "field headphone" is not a query anyone types. A collision bought with
+    // the wrong question is worth less than no collision.
+    const typed = uk.filter((query) => query.text.includes('headphone'))
+    expect(typed.length).toBeGreaterThan(0)
+    for (const query of typed) expect(query.text).toContain('headphones')
   })
 })

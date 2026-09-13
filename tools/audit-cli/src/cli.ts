@@ -314,7 +314,7 @@ function printSummary(result: Awaited<ReturnType<typeof runAudit>>): void {
   )
   console.log('')
   console.log(
-    `shareable queries: ${(manifest.shareableQueryFraction * 100).toFixed(0)}% of ${manifest.queryCount}, answerable once for every store in this category and market`,
+    `shareable queries: ${(manifest.shareableQueryFraction * 100).toFixed(0)}% of ${manifest.queryCount}, answerable once for every store selling the same product type in this market`,
   )
   console.log('')
   console.log('reproducibility per surface, the number that decides Phase 1:')

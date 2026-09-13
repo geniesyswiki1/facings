@@ -44,6 +44,19 @@ v1 packages three regions and five markets: US, UK, and DACH (DE, AT, CH).
 `packages/shared/src/markets.ts` is the single source of truth for what each
 market implies, and nothing downstream may restate it:
 
+**Packaged is not launched.** From 13 September 2026 the launch order is UK
+(Q4 2026), then US (Q1 2027), then DACH deferred to Q3 2027 at the earliest.
+The two blockers on DACH are not EU regulatory requirements, which are cheap:
+German cold B2B email is unlawful under UWG section 7(2) no. 2 with no B2B
+exemption, and the German query templates render category labels rather than
+product types, producing questions no shopper types. The UK and the US pair
+because they share the English product-type vocabulary that the query library
+and the benchmark are built on.
+
+Deferred is not deleted. Keep DE, AT and CH in the market table with their
+currencies, tax regimes and tests. Do not remove market support to reflect a
+launch date. SPEC 6.1 carries the reasoning.
+
 - **DACH is not one market.** One language, three currencies, two legal
   regimes. Austria is EU at 20%, Switzerland is outside it at 8.1%.
 - **Switzerland and the US have no statutory returns window.** Whatever the
