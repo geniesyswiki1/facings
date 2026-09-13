@@ -26,7 +26,57 @@ Definition of done for the MVP (end of Phase 3): a merchant on WooCommerce with 
 
 **Who it is for:** merchants with £2m to £50m GMV (or the local equivalent) on WooCommerce, Adobe Commerce, PrestaShop, BigCommerce, Wix, Shopware, Shopify and custom stacks, across three packaged regions: the US, the UK and DACH (Germany, Austria, Switzerland). The buyer is the head of e-commerce or digital; the user is the merchandiser or the agency account manager that runs their storefront.
 
-**Why we win:** Stripe's Agentic Commerce Suite solves protocol plumbing for Stripe merchants only; Adyen, Mollie, Worldpay and Checkout.com merchants are on their own. That is the wedge, and it is a payment provider question rather than a platform question. Feed tools syndicate data but do not observe the result. The visibility startups are small, enterprise-priced and single-region. Nobody owns self-serve, multi-region, provider agnostic, with correctness and the record built in.
+**Why we win. Revised 13 September 2026, and the previous version is now false.**
+
+This section used to read: "Stripe's Agentic Commerce Suite solves protocol plumbing for Stripe
+merchants only; Adyen, Mollie, Worldpay and Checkout.com merchants are on their own." Adyen
+merchants are not on their own. On **16 June 2026 Adyen announced Adyen Agentic**, a suite of
+modular APIs in three layers, and the first layer is **Agentic Feed**, "a structured product and
+inventory layer that distributes real time catalog, pricing, and availability data across
+conversational commerce environments". The other two are Agentic Cart and Agentic Payments.
+Verified against Adyen's own press release and a second independent report.
+
+That is the presence layer, shipped by the largest of the four providers whose merchants this
+positioning claimed were unserved. Two things survive the correction and one does not.
+
+**What does not survive: presence as the wedge.** Agentic Feed does for an Adyen merchant
+approximately what SPEC 3.1 job 1 does. Combined with Shopify shipping Search Intelligence and
+Agentic Storefronts in its Spring 2026 Edition, and with Adobe, Criteo and Feedonomics all selling
+AI-visibility products, the presence layer is commoditising across platforms and providers at once.
+Presence is now an acquisition mechanism and a table-stakes feature, not a reason anyone buys.
+
+**What survives: correctness and the record.** Agentic Feed distributes what the merchant says.
+Nothing in it checks what the assistant said back, against the live catalogue, on a dated and
+method-stamped record. That is the same gap left by Shopify and it is the whole of the durable
+product. See the moat metric in section 7.
+
+**What is still open, and must be checked rather than assumed.** Adyen Agentic is announced for
+enterprise merchants. Whether it reaches the two to fifty million GMV bracket, on what commercial
+terms, and whether it requires Adyen for payments, is not established by the announcement and is
+not established here. That is the live question for the segment, and it is a question about one
+provider rather than the founding claim of the company.
+
+Mollie, Worldpay and Checkout.com have announced no equivalent that could be found. Do not restate
+that as "unserved" without re-checking; the Adyen announcement is nine weeks old and this is the
+second time in one day that a claim of this shape has failed against primary sources.
+
+**The competitive set is also larger and better funded than this section used to claim.** The
+previous version said "the visibility startups are small, enterprise-priced and single-region".
+Checked against 2026 funding records, that is no longer true either:
+
+- **Profound**, generative engine optimisation, raised **96m dollars** at a reported 1bn dollar
+  valuation in February 2026, led by Lightspeed.
+- **Peec AI**, AI search visibility, raised a 7m euro seed and a 21m dollar Series A.
+- **Tellis**, London, took a 500k dollar pre-seed in May 2026 as an "agentic catalogue platform for
+  mid-market ecommerce brands" on Shopify and Magento, which is this company's segment almost
+  exactly.
+- **ReFiBuy** raised 13.6m dollars, **Spangle AI** 15m dollars, **ShopAgentic** 1.9m euros,
+  **The New Era of Shopping** 1.4m dollars, **Searchable** 3.4m euros.
+
+Almost all of that capital is pointed at **visibility**, which is the thing platforms and providers
+now give away. None of it, as far as can be established, sells a dated and method-stamped record of
+what an assistant stated. That is the position to hold, and it is narrower and more defensible than
+the one this section used to describe.
 
 Shopify is a partial exception and the honest version matters. It does presence for its own merchants better than we could, and since its Spring 2026 Edition it also ships Search Intelligence, which reports the top AI queries in a merchant's category and which of them they rank for, plus an agentic dashboard with full channel attribution. What it does not do is check whether the price or availability an assistant **stated** is correct against the live catalogue, or keep a dated record of any of it. Those two are the only things we sell a Shopify merchant, and they hold in every packaged market. See 3.5.
 

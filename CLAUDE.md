@@ -16,11 +16,28 @@ the whole product thesis. Keep them apart:
 1. **Our billing rail.** How Showing Up charges merchants for a subscription.
    Stripe managed payments. Always.
 2. **A merchant's own payment provider.** Adyen, Mollie, Worldpay,
-   Checkout.com, Stripe, anything. Showing Up is deliberately **provider
-   agnostic** here, and that is the wedge: Stripe's own Agentic Commerce Suite
-   serves Stripe merchants only, so everyone else is unserved. Never narrow
-   this to Stripe, and never describe Showing Up as needing a merchant to be on
-   Stripe. SPEC 1 and SPEC 3.1 job 1 carry the positioning.
+   Checkout.com, Stripe, anything. Showing Up stays deliberately **provider
+   agnostic** here. Never narrow this to Stripe, and never describe Showing Up
+   as needing a merchant to be on Stripe.
+
+   **Do not say "everyone outside Stripe is unserved". Corrected 13 September
+   2026.** That was the founding claim and it is false. Adyen announced **Adyen
+   Agentic** on 16 June 2026, whose first layer, **Agentic Feed**, distributes
+   real-time catalogue, pricing and availability data across conversational
+   commerce environments. That is the presence layer, from the largest of the
+   four providers the claim named.
+
+   Presence is therefore not the wedge any more, from any direction: Adyen
+   ships it for its merchants, Shopify ships it for its merchants, and Adobe,
+   Criteo and Feedonomics sell it. **Correctness and the record are the wedge**,
+   because nothing in Agentic Feed checks what an assistant said back against
+   the live catalogue, dated and method-stamped. Sell presence as the way in
+   and the record as the reason to stay.
+
+   Open and unverified: whether Adyen Agentic reaches the two to fifty million
+   GMV bracket, on what terms, and whether it requires Adyen for payments. It
+   is announced for enterprise. Check before relying on the mid-market gap.
+   SPEC 1 carries the full correction.
 
 ## Copy rules that are enforced, not aspirational
 
