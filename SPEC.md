@@ -170,9 +170,11 @@ Multi-store workspace with client switcher, roll-up reporting, white-label PDF r
 
 Checkout of any kind. Brand-level GEO content generation (blog posts, Reddit seeding). Amazon Rufus and Walmart Sparky (marketplace-internal assistants need a different approach; Phase 2).
 
-**Shopify: in scope in the US only, as a secondary motion.** This position was revised twice and the reasoning should not be lost.
+**Shopify: in scope in every packaged market, on an accuracy-only tier.** This position was revised three times and the reasoning should not be lost, because two of the three revisions were corrections of our own error rather than changes of mind.
 
 The original exclusion assumed a Europe-first product where Shopify's share of the bracket is modest. That held. Extending to the US changed it, because Shopify's share of US merchants in the two to fifty million bracket is large enough that a blanket exclusion would cut the biggest segment of the biggest new region.
+
+The US-only compromise that followed was then dropped as well. Once the offer is narrowed to three things Shopify demonstrably does not do, there is no reason those three stop being true in Manchester or Zurich. Restricting them to one market was a hedge against our own uncertainty about the wedge, not a fact about the wedge.
 
 The first revision then over-corrected, on the claim that Shopify "does not observe what the surfaces say back". Checked against Shopify's own announcements, that is false. Its Spring 2026 Edition ships Search Intelligence, reporting the top AI queries in a merchant's category and which of them they rank for, and an agentic dashboard attributing orders, sales and conversions across ChatGPT, Copilot, Google AI Mode, Gemini and Shop. That is presence observation and attribution, inside the admin the merchant already uses.
 
@@ -182,7 +184,11 @@ What survives, verified against the same sources, is narrow and real:
 2. **No record.** Shopify publishes no retention period, history or audit trail.
 3. **Two uncovered surfaces.** Shopify's channel list omits Perplexity and Claude, two of our six.
 
-So: US only, secondary to the non-Shopify motion, and pitched on the record and the uncovered surfaces. Never pitched on visibility or AI channel reporting, which Shopify supplies itself. `offeringFor(platform, market)` returns `out-of-scope` for Shopify in every other market, and that is enforced by test rather than by convention.
+So: every packaged market, secondary to the non-Shopify motion everywhere, and pitched on those three and nothing else. Never pitched on visibility or AI channel reporting, which Shopify supplies itself.
+
+Enforced rather than remembered. `offeringFor(platform)` returns `accuracy-only` for Shopify and `presence` for everything else, and takes no market because the answer does not vary by one. The three sellable things live in `SHOPIFY_SELLABLE`, and `sellableToShopify()` returns false for `presence` and `visibility` so a screen cannot widen the offer back. The `deliver` command generates no presence artefacts for a Shopify store and prints the three instead, which is verified against a live Shopify storefront rather than asserted.
+
+The standing risk, which no amount of code enforcement addresses: this wedge is three features wide against a company already inside the merchant's admin. Search Intelligence already knows which queries to ask and already holds the catalogue to compare against, so Shopify shipping correctness is a plausible release. Re-verify the gap before building further on it.
 
 ---
 

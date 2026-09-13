@@ -4,9 +4,9 @@ import { productInputSchema, toProduct } from './catalogue.js'
 /**
  * Shopify Admin GraphQL connector, read-only.
  *
- * Shopify is in scope in the US only, on a deliberately narrow accuracy-only
- * tier. See offeringFor() in platform.ts for the full reasoning and the
- * correction behind it.
+ * Shopify is in scope in every packaged market, on a deliberately narrow
+ * accuracy-only tier. See offeringFor() and SHOPIFY_SELLABLE in platform.ts
+ * for the full reasoning and the two corrections behind it.
  *
  * The short version: Shopify does presence better than we could for its own
  * merchants, and since its Spring 2026 Edition it also reports which category
