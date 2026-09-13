@@ -91,3 +91,32 @@ export function attributeCompleteness(product: Product): number {
   }
   return present / KEY_ATTRIBUTES.length
 }
+
+/**
+ * Decodes HTML entities in text pulled from a storefront.
+ *
+ * Product bodies come out of a CMS full of curly quotes encoded as numeric
+ * entities. Left alone they reach the feed verbatim, and an engine then quotes
+ * the merchant back to a shopper with "&#8216;" in the middle of a sentence.
+ */
+export function decodeEntities(input: string): string {
+  const named: Record<string, string> = {
+    amp: '&',
+    lt: '<',
+    gt: '>',
+    quot: '"',
+    apos: "'",
+    nbsp: ' ',
+    hellip: '...',
+    mdash: '-',
+    ndash: '-',
+    lsquo: "'",
+    rsquo: "'",
+    ldquo: '"',
+    rdquo: '"',
+  }
+  return input
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) => String.fromCodePoint(Number.parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec: string) => String.fromCodePoint(Number.parseInt(dec, 10)))
+    .replace(/&([a-z]+);/gi, (match, name: string) => named[name.toLowerCase()] ?? match)
+}

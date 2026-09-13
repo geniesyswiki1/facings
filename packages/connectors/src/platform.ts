@@ -130,9 +130,25 @@ export async function detectPlatform(url: string, options: DetectOptions = {}): 
   }
 }
 
-/** Whether Showing Up has a write-capable connector for this platform in Phase 1. */
+/**
+ * Platforms with a first-party catalogue connector.
+ *
+ * Shopify is read-only: we never write to a Shopify store, because we never
+ * sell one presence hosting. Everything else reads and, from Phase 3, writes.
+ */
+export const CONNECTED_PLATFORMS: Platform[] = [
+  'woocommerce',
+  'adobe-commerce',
+  'prestashop',
+  'bigcommerce',
+  'wix',
+  'shopware',
+  'shopify',
+]
+
+/** Whether Showing Up has a write-capable connector for this platform. */
 export function connectorAvailable(platform: Platform): boolean {
-  return platform === 'woocommerce' || platform === 'adobe-commerce' || platform === 'wix'
+  return CONNECTED_PLATFORMS.includes(platform) && platform !== 'shopify'
 }
 
 /**
@@ -160,40 +176,44 @@ export function enginesShopifyDoesNotCover(): EngineId[] {
   return ALL_ENGINES.filter((engine) => !SHOPIFY_COVERED_ENGINES.includes(engine))
 }
 
-export type Offering = 'presence' | 'accuracy-only' | 'out-of-scope'
+export type Offering = 'presence' | 'accuracy-only'
 
 /**
- * What we sell a store on this platform, in this market.
+ * What we sell a store on this platform.
  *
- * presence: we host the manifest and feeds and monitor the result. This is
- * the primary motion everywhere and on every platform except Shopify.
+ * presence: we host the manifest and feeds and monitor the result. Everything
+ * except Shopify, in every packaged market.
  *
- * accuracy-only: Shopify in the US, and nowhere else. A deliberately narrow
- * secondary motion, sized against what Shopify actually ships rather than
- * against what it shipped in January 2026.
+ * accuracy-only: Shopify, in every packaged market, sold strictly on the three
+ * things Shopify does not do for its own merchants.
  *
- * out-of-scope: Shopify outside the US.
- *
- * The reasoning, because it was wrong once and the corrected version needs to
- * survive. Shopify's Spring 2026 Edition added Search Intelligence, which
+ * The reasoning, because this was revised twice and the corrected version has
+ * to survive. Shopify's Spring 2026 Edition added Search Intelligence, which
  * reports the top AI queries in a merchant's category and which of them they
- * rank for, plus an agentic dashboard doing full channel attribution. That is
- * presence observation and attribution, so the earlier claim here that Shopify
- * "does not observe what the surfaces say back" was false.
+ * rank for, plus an agentic dashboard doing full channel attribution. So the
+ * earlier claim that Shopify "does not observe what the surfaces say back" was
+ * false, and any pitch built on it would collapse in the first sales call.
  *
- * What Shopify still does not do, per its own wording: check whether the price
- * or availability an assistant STATED matches the live catalogue. It reports
- * whether you appeared, not whether what was said about you was true. It also
- * publishes no retention period, history or audit trail, and does not cover
- * Perplexity or Claude.
- *
- * So the Shopify pitch is the record and the uncovered surfaces, never
- * "visibility", which they supply themselves and in their own admin. It is
- * US-only because that is the one region where Shopify's share of the bracket
- * justifies competing for a thin wedge against an incumbent already inside the
- * merchant's admin.
+ * What Shopify still does not do, verified against its own wording, is the
+ * whole of what we sell a Shopify merchant. It is enumerated in
+ * SHOPIFY_SELLABLE below so a screen cannot quietly widen it.
  */
-export function offeringFor(platform: Platform, market: Market): Offering {
-  if (platform !== 'shopify') return 'presence'
-  return market === 'US' ? 'accuracy-only' : 'out-of-scope'
+export function offeringFor(platform: Platform): Offering {
+  return platform === 'shopify' ? 'accuracy-only' : 'presence'
+}
+
+/**
+ * The only three things a Shopify merchant may be sold. Anything outside this
+ * list, presence hosting and AI channel visibility above all, is something
+ * Shopify already gives them in the admin they open every morning.
+ */
+export const SHOPIFY_SELLABLE = [
+  'correctness: whether the price and availability an assistant stated match the live catalogue, not whether the product appeared',
+  'the record: every observation dated, method-stamped and hashed, retained 24 months',
+  'the surfaces Shopify does not cover: Perplexity and Claude',
+] as const
+
+/** True when this is something we may put in front of a Shopify merchant. */
+export function sellableToShopify(capability: 'presence' | 'visibility' | 'correctness' | 'record' | 'uncovered-surfaces'): boolean {
+  return capability === 'correctness' || capability === 'record' || capability === 'uncovered-surfaces'
 }

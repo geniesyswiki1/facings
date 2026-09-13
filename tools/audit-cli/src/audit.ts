@@ -23,6 +23,7 @@ import {
   importCsvFile,
   importFeedFile,
   importFeedUrl,
+  discoverPublicCatalogue,
 } from '@showing-up/connectors'
 import { buildQueries } from '@showing-up/benchmark'
 import {
@@ -73,6 +74,8 @@ export interface AuditOptions {
   feedPath?: string
   feedUrl?: string
   woo?: { consumerKey: string; consumerSecret: string }
+  /** Set false to require an explicit catalogue source. Defaults to true. */
+  discoverPublic?: boolean
   /** Directory holding consented panel capture files. */
   panelDir?: string
   /** Replay recorded responses instead of calling providers. */
@@ -362,6 +365,17 @@ async function ingestProducts(storeId: string, options: AuditOptions, notes: str
     )
     notes.push(...result.warnings.map((warning) => `WooCommerce: ${warning}`))
     return { products: result.products }
+  }
+
+  // Last resort and the most important one: read what the store already
+  // publishes to the public. This is what makes the free audit in SPEC 3.2 a
+  // real product rather than a form, because nobody generates an API key for
+  // a vendor they have not heard of yet.
+  if (options.discoverPublic !== false) {
+    const discovered = await discoverPublicCatalogue(normaliseUrl(options.url), { limit: options.skuLimit })
+    notes.push(`catalogue discovery: ${discovered.method}, confidence ${discovered.confidence}`)
+    notes.push(...discovered.warnings.map((warning) => `catalogue discovery: ${warning}`))
+    return { products: discovered.products }
   }
 
   return { products: [] }

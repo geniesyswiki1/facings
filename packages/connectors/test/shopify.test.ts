@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { ALL_MARKETS } from '@showing-up/shared'
 import {
+  CONNECTED_PLATFORMS,
   SHOPIFY_COVERED_ENGINES,
+  SHOPIFY_SELLABLE,
   connectorAvailable,
   enginesShopifyDoesNotCover,
   fetchShopifyProducts,
   offeringFor,
   readConnectorAvailable,
+  sellableToShopify,
 } from '../src/index.js'
 
 const CREDENTIALS = { shopDomain: 'northfield-audio.myshopify.com', accessToken: 'shpat_test' }
@@ -101,26 +103,34 @@ describe('the Shopify connector', () => {
 })
 
 describe('what we sell per platform and market', () => {
-  it('sells Shopify accuracy in the US and nothing outside it', () => {
-    // Demoted 13 Sep 2026. Shopify's Spring 2026 Edition ships Search
-    // Intelligence and channel attribution, so the wedge is narrow and only
-    // worth contesting where Shopify's share of the bracket is large.
-    expect(offeringFor('shopify', 'US')).toBe('accuracy-only')
-    for (const market of ['UK', 'DE', 'AT', 'CH'] as const) {
-      expect(offeringFor('shopify', market)).toBe('out-of-scope')
+  it('sells Shopify accuracy in every packaged market', () => {
+    expect(offeringFor('shopify')).toBe('accuracy-only')
+  })
+
+  it('sells presence on every other platform', () => {
+    for (const platform of ['woocommerce', 'adobe-commerce', 'prestashop', 'bigcommerce', 'wix', 'shopware'] as const) {
+      expect(offeringFor(platform)).toBe('presence')
     }
   })
 
-  it('sells presence on every other platform in every market', () => {
-    for (const market of ALL_MARKETS) {
-      expect(offeringFor('woocommerce', market)).toBe('presence')
-      expect(offeringFor('adobe-commerce', market)).toBe('presence')
-    }
+  it('holds the Shopify pitch to exactly three things', () => {
+    // Presence and visibility are what Shopify already gives its own
+    // merchants. Selling either is how the sales call falls apart.
+    expect(sellableToShopify('presence')).toBe(false)
+    expect(sellableToShopify('visibility')).toBe(false)
+    expect(sellableToShopify('correctness')).toBe(true)
+    expect(sellableToShopify('record')).toBe(true)
+    expect(sellableToShopify('uncovered-surfaces')).toBe(true)
+    expect(SHOPIFY_SELLABLE).toHaveLength(3)
   })
 
-  it('can read Shopify without offering it a write connector', () => {
-    expect(readConnectorAvailable('shopify')).toBe(true)
+  it('has a catalogue connector for every mainstream platform', () => {
+    for (const platform of ['woocommerce', 'adobe-commerce', 'prestashop', 'bigcommerce', 'wix', 'shopware', 'shopify'] as const) {
+      expect(CONNECTED_PLATFORMS).toContain(platform)
+    }
+    // Read-only on Shopify, because we never sell it presence hosting.
     expect(connectorAvailable('shopify')).toBe(false)
+    expect(readConnectorAvailable('shopify')).toBe(true)
   })
 
   it('names the two surfaces Shopify does not report on', () => {

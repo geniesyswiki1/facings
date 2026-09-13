@@ -73,9 +73,17 @@ describe('detectPlatform', () => {
 })
 
 describe('connectorAvailable', () => {
-  it('is true only for the platforms with a connector', () => {
-    expect(connectorAvailable('woocommerce')).toBe(true)
-    expect(connectorAvailable('adobe-commerce')).toBe(true)
-    expect(connectorAvailable('prestashop')).toBe(false)
+  it('is true for every mainstream platform we now connect', () => {
+    for (const platform of ['woocommerce', 'adobe-commerce', 'prestashop', 'bigcommerce', 'wix', 'shopware'] as const) {
+      expect(connectorAvailable(platform)).toBe(true)
+    }
+  })
+
+  it('is false for Shopify, which we read but never write', () => {
+    expect(connectorAvailable('shopify')).toBe(false)
+  })
+
+  it('is false for a platform we do not connect', () => {
+    expect(connectorAvailable('unknown')).toBe(false)
   })
 })
