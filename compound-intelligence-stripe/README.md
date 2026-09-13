@@ -3,7 +3,7 @@
 Subscription billing for the AI-native mobile apps and the web presence at
 compound-intelligence.netlify.app.
 
-> **This directory does not belong to Facings.** It was scaffolded here because
+> **This directory does not belong to Showing Up.** It was scaffolded here because
 > it was the repository open at the time. It is self-contained - its own
 > `package.json`, `tsconfig.json` and dependencies, outside the root npm
 > workspaces and outside the root `tsconfig`/`vitest` globs - so it can be moved
