@@ -106,12 +106,55 @@ What Shopify still does not do, per its own wording:
 - publish any retention period, history or audit trail.
 
 Surface coverage **used to be** the third item and is not any more. On
-2 September 2026 Anthropic launched Claude Commerce Agents with Shopify as a
-named partner, and Shopify's implementation was public on GitHub inside 48
-hours. That leaves Perplexity alone, which is **2.6%** of LLM referral traffic
-to online stores (Alhena, July 2026, 310 retail brands, 189.76m visitors)
-inside a channel measured at roughly **0.24%** of retail visits. Two and a half
-percent of a quarter of a percent is not a commercial argument.
+2 September 2026 Anthropic launched Claude Commerce Agents. That leaves
+Perplexity alone, which is **2.6%** of LLM referral traffic to online stores
+(Alhena, July 2026, 310 retail brands, 189.76m visitors) inside a channel
+measured at roughly **0.24%** of retail visits. Two and a half percent of a
+quarter of a percent is not a commercial argument.
+
+### Claude Commerce Agents, read rather than assumed
+
+Both repositories were read on 14 September 2026. This is the strongest
+external evidence the product has, so use the specifics rather than the
+headline:
+
+- **`anthropics/commerce-agents`**, Apache-2.0, published 2 September 2026. A
+  shopping agent and a merchant agent over three runtimes, four vertical demos,
+  a Claude Code plugin. The README says it plainly: "This is a reference
+  implementation; it is not maintained and does not accept contributions."
+- **`Shopify/claude-for-commerce-examples`**: "a storefront shopping agent over
+  UCP and Sign in with Shop, and a merchant agent over the Admin API".
+
+Three things in there matter more than the launch did.
+
+**Neither repository verifies anything.** No check that a stated price or
+availability matches the live catalogue, no accuracy checking, and no audit
+log, observation history or dated record of what an agent told a shopper.
+Anthropic's guardrails "constrain prices and products to actual catalog data"
+at generation time, and Shopify's agent reads live UCP endpoints, which is
+presence done properly. Nobody records what was said. The gap is now verified
+against source code instead of inferred from a press release.
+
+**Neither takes payment, in almost our words.** Anthropic's README: "Nothing
+places an order, charges a card, or changes a live listing". Shopify's:
+"checkout, shipping, and payment all happen on Shopify's own pages". That is
+independent support for the two standing protocol decisions below, so treat
+`enable_checkout: false` and the absent payment handler as validated rather
+than merely chosen.
+
+**Anthropic ships no catalogue interface at all.** Deployments implement
+`StorefrontBackend` against their own systems. That is exactly the work the
+connectors package does, and it is why a blueprint does not remove the
+merchant-side problem.
+
+Partner list, which is wider than earlier notes recorded: Shopify, Priceline,
+Accenture, Mastercard, Visa, Intuit, Klaviyo, **Wix**, Zomato, Fetch, Square.
+Wix is one of our own target platforms, so its presence there is a fact to
+check before pitching a Wix merchant on presence.
+
+One earlier claim is softened. The note used to say Shopify's implementation
+was public "inside 48 hours". The repository exists and is real; the 48-hour
+timing could not be confirmed from it, so do not repeat the interval.
 
 So the pitch is **two** things, not three, and they are held in
 `SHOPIFY_SELLABLE`. `sellableToShopify()` returns false for `presence`,

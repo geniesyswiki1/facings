@@ -272,11 +272,40 @@ What survives, verified against the same sources, is narrow and real:
 
 1. **Correctness, not presence.** Shopify reports whether a product appeared. Nothing in it checks whether the price or availability the assistant stated matches the live catalogue. Its nearest feature tells a merchant to improve their own product data, which is a different thing.
 2. **No record.** Shopify publishes no retention period, history or audit trail.
-3. ~~**Two uncovered surfaces.**~~ **Withdrawn 13 September 2026.** Shopify's channel list omitted Perplexity and Claude when this was written. Claude Commerce Agents launched on 2 September 2026 with Shopify as a named partner and a public Shopify implementation inside 48 hours, which leaves Perplexity alone. Perplexity is 2.6% of LLM referral traffic to online stores (Alhena, July 2026, 310 retail brands, 189.76m visitors, 1.6m checkouts) inside a channel three independent cohorts put at roughly 0.24% of retail visits. Surface coverage is therefore a fact we record, not a thing we sell, and the Shopify pitch is two items rather than three.
+3. ~~**Two uncovered surfaces.**~~ **Withdrawn 13 September 2026.** Shopify's channel list omitted Perplexity and Claude when this was written. Claude Commerce Agents launched on 2 September 2026 and a public Shopify implementation exists at `Shopify/claude-for-commerce-examples`, which leaves Perplexity alone. Perplexity is 2.6% of LLM referral traffic to online stores (Alhena, July 2026, 310 retail brands, 189.76m visitors, 1.6m checkouts) inside a channel three independent cohorts put at roughly 0.24% of retail visits. Surface coverage is therefore a fact we record, not a thing we sell, and the Shopify pitch is two items rather than three.
 
 So: every packaged market, secondary to the non-Shopify motion everywhere, and pitched on those two and nothing else. Never pitched on visibility or AI channel reporting, which Shopify supplies itself.
 
 Enforced rather than remembered. `offeringFor(platform)` returns `accuracy-only` for Shopify and `presence` for everything else, and takes no market because the answer does not vary by one. The two sellable things live in `SHOPIFY_SELLABLE`, and `sellableToShopify()` returns false for `presence`, `visibility` and `uncovered-surfaces` so a screen cannot widen the offer back. The `deliver` command generates no presence artefacts for a Shopify store and prints the two instead, which is verified against a live Shopify storefront rather than asserted.
+
+**Both reference repositories were read on 14 September 2026, and they support
+the position rather than threaten it.** `anthropics/commerce-agents` is
+Apache-2.0 and its own README calls it "a reference implementation; it is not
+maintained and does not accept contributions". `Shopify/claude-for-commerce-examples`
+is a storefront agent over UCP and Sign in with Shop plus a merchant agent over
+the Admin API.
+
+Neither verifies that a stated price or availability matches the live
+catalogue, and neither keeps an audit log or any dated record of what an agent
+told a shopper. Anthropic's guardrails constrain output to catalogue data at
+generation time and Shopify's agent reads live UCP endpoints; that is presence,
+done well, by the two parties best placed to do it. The correctness and record
+gap is therefore now verified against source code rather than inferred from an
+announcement, which is a materially stronger claim than the one this section
+used to make.
+
+Two further facts worth carrying into any pitch. Neither implementation takes
+payment: Anthropic's README says "Nothing places an order, charges a card, or
+changes a live listing", and Shopify's says "checkout, shipping, and payment
+all happen on Shopify's own pages", which is independent support for the
+enable_checkout decision in section 4. And Anthropic ships no catalogue
+interface at all, leaving deployments to implement `StorefrontBackend` against
+their own systems, which is precisely the work the connectors package does.
+
+The launch partner list is wider than earlier notes recorded: Shopify,
+Priceline, Accenture, Mastercard, Visa, Intuit, Klaviyo, **Wix**, Zomato, Fetch
+and Square. Wix is one of the seven platforms this product connects, so check
+what Wix has shipped before pitching a Wix merchant on presence.
 
 The standing risk, which no amount of code enforcement addresses: this wedge is two features wide against a company already inside the merchant's admin. Search Intelligence already knows which queries to ask and already holds the catalogue to compare against, so Shopify shipping correctness is a plausible release. Re-verify the gap before building further on it.
 
